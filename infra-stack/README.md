@@ -17,3 +17,9 @@ Dashboard:
 
 
 Proxy tunneling: this will allow selective publication of local services to public DNS servers
+
+Container host: 
+
+This project is designed with containerization in mind, but clustering and service configuration to an extent is beyond the scope of this project at this time. Simple docker-compose files are provided for development and small-scale production purposes.
+
+In the future, Hashicorp based provisioning will be defined with Terraform and Nomad for distributed deployments
