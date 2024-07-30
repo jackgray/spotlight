@@ -47,9 +47,6 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-10" value="Kafka&lt;div&gt;Data API Calls/Distribution&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="40" y="550" width="320" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="AOcJWjodGGVIR-0718zk-11" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="240" y="490" width="120" height="60" as="geometry" />
-        </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-14" target="AOcJWjodGGVIR-0718zk-17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
