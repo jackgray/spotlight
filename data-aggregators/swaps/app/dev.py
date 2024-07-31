@@ -1,3 +1,10 @@
+'''
+Development area for data retreival and cleaning. To be replaced by api.py + producer.py, etc
+
+'''
+
+
+
 import requests
 from zipfile import ZipFile
 import os
