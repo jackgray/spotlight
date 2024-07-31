@@ -1,0 +1,23 @@
+<yandex>
+    <storage_configuration>
+        <disks>
+            <default>
+                <type>s3</type>
+                <endpoint>http://minio-server:9000</endpoint>
+                <access_key_id>minioadmin</access_key_id>
+                <secret_access_key>minioadmin</secret_access_key>
+                <bucket>mybucket</bucket>
+                <minio_compatibility>true</minio_compatibility>
+            </default>
+        </disks>
+        <policies>
+            <default>
+                <volumes>
+                    <default>
+                        <disk>default</disk>
+                    </default>
+                </volumes>
+            </default>
+        </policies>
+    </storage_configuration>
+</yandex>

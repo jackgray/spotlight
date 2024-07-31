@@ -14,6 +14,11 @@ resource "docker_volume" "postgres_data" {
   name = "postgres_data"
 }
 
+resource "docker_volume" "clickhouse_data" {
+  name = "clickhouse_data"
+}
+
+
 resource "docker_container" "minio" {
   image = "minio/minio"
   name  = "minio"
@@ -115,6 +120,27 @@ resource "docker_container" "superset" {
     external = var.superset_port
   }
   depends_on = [docker_container.postgres]
+  networks_advanced {
+    name = docker_network.superset_network.name
+  }
+}
+
+resource "docker_container" "clickhouse" {
+  image = "clickhouse/clickhouse-server:latest"
+  name  = "clickhouse"
+  ports {
+    internal = var.clickhouse_port
+    external = var.clickhouse_port
+  }
+  env = [
+    "CLICKHOUSE_DB=${var.clickhouse_db}",
+    "CLICKHOUSE_USER=${var.clickhouse_user}",
+    "CLICKHOUSE_PASSWORD=${var.clickhouse_password}"
+  ]
+  volumes {
+    host_path      = docker_volume.clickhouse_data.name
+    container_path = "/var/lib/clickhouse"
+  }
   networks_advanced {
     name = docker_network.superset_network.name
   }

@@ -1,0 +1,24 @@
+<yandex>
+    <!-- Configuration for S3 storage backend -->
+    <storage_configuration>
+        <disks>
+            <s3>
+                <type>s3</type>
+                <endpoint>${CLICKHOUSE_S3_ENDPOINT}</endpoint>
+                <access_key_id>${CLICKHOUSE_S3_ACCESS_KEY_ID}</access_key_id>
+                <secret_access_key>${CLICKHOUSE_S3_SECRET_ACCESS_KEY}</secret_access_key>
+                <bucket>${CLICKHOUSE_S3_BUCKET}</bucket>
+                <region>${CLICKHOUSE_S3_REGION}</region>
+            </s3>
+        </disks>
+        <policies>
+            <default>
+                <volumes>
+                    <default>
+                        <disk>default</disk>
+                    </default>
+                </volumes>
+            </default>
+        </policies>
+    </storage_configuration>
+</yandex>

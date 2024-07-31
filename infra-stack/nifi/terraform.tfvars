@@ -1,0 +1,5 @@
+nifi_https_port           = "${env("NIFI_HTTPS_PORT")}"
+nifi_keystore             = "${env("NIFI_KEYSTORE")}"
+nifi_keystore_password    = "${env("NIFI_KEYSTORE_PASSWORD")}"
+nifi_truststore           = "${env("NIFI_TRUSTSTORE")}"
+nifi_truststore_password  = "${env("NIFI_TRUSTSTORE_PASSWORD")}"

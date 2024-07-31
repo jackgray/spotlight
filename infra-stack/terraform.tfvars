@@ -19,8 +19,14 @@ superset_secret_key     = "${env("SUPERSET_SECRET_KEY")}"
 superset_webserver_port = "${env("SUPERSET_WEBSERVER_PORT")}"
 superset_port           = "${env("SUPERSET_PORT")}"
 
-
 postgres_db             = "${env("POSTGRES_DB")}"
 postgres_user           = "${env("POSTGRES_USER")}"
 postgres_password       = "${env("POSTGRES_PASSWORD")}"
 postgres_port           = "${env("POSTGRES_PORT")}"
+
+clickhouse_http_port    = "${env("CLICKHOUSE_HTTP_PORT")}"
+clickhouse_tcp_port     = "${env("CLICKHOUSE_TCP_PORT")}"
+clickhouse_user         = "${env("CLICKHOUSE_USER")}"
+clickhouse_password     = "${env("CLICKHOUSE_PASSWORD")}"
+clickhouse_minio_bucket = "${env("CLICKHOUSE_MINIO_BUCKET")}"
+clickhouse_minio_endpoint = "${env("CLICKHOUSE_MINIO_ENDPOINT")}"

@@ -1,0 +1,8 @@
+listeners=SSL://0.0.0.0:9093
+advertised.listeners=SSL://broker1:9093
+ssl.keystore.location=/path/to/kafka.server.keystore.jks
+ssl.keystore.password=your_keystore_password
+ssl.key.password=your_key_password
+ssl.truststore.location=/path/to/kafka.server.truststore.jks
+ssl.truststore.password=your_truststore_password
+security.inter.broker.protocol=SSL
