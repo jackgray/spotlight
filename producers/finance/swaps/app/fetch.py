@@ -5,6 +5,8 @@ from io import BytesIO
 from datetime import datetime, timedelta
 # for parallel downloads
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from aiohttp import ClientSession
+from argparse import ArgumentParser
 
 swaps_dir = '../data/sourcedata/swaps'
 jurisdictions = ['SEC', 'CFTC']
@@ -20,6 +22,9 @@ def gen_url(jurisdiction, report_type, asset_class, datestring):
 
 
 def generate_date_strings(start_date, end_date):
+    '''
+        Input date must be in format YYYYmmdd aka 20240130 for jan 30 2024
+    '''
     date_format = '%Y%m%d'
     try:
         start_date = datetime.strptime(start_date, date_format)
@@ -35,7 +40,7 @@ def generate_date_strings(start_date, end_date):
         current_date += timedelta(days=1)
     return date_strings
 
-def gen_urls(start_date, end_date, jurisdiction, report_type, asset_class):
+def gen_urls(start_date: str, end_date: str, jurisdiction: str, report_type: str, asset_class: str) -> list[str]:
     ''' 
         Returns array of formatted strings for URLs to DTCC swap data 
 
@@ -46,30 +51,30 @@ def gen_urls(start_date, end_date, jurisdiction, report_type, asset_class):
         asset classes: one of 'CREDITS', EQUITIES, 'RATES'    
     '''
     
-    # Get an array of properly formatted datestrings for url
-    date_strings = generate_date_strings(start_date, end_date)
+    # Get an array of properly formatted date strings for url
+    dates = generate_date_strings(start_date, end_date)
 
     # Format the rest of the url for all dates
     urls = []
-    for date in datestrings:
-        url = gen_url(jurisdictioin, report_type, asset_class, date)
+    for date in dates:
+        url = gen_url(jurisdiction, report_type, asset_class, date)
         urls.append(url)
 
     return urls
 
 
 
-async def fetch_zip(url):
+async def fetch_zip(session: ClientSession, url: str) -> BytesIO:
     ''' Downloads and returns zip byte stream from url '''
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             response.raise_for_status()
-            zipbytes = io.BytesIO(await response.read())
+            zipbytes = BytesIO(await response.read())
             return zipbytes
 
 
 
-async def download_zip_to_df(url):
+async def download_zip_to_df(session: ClientSession, url: str) -> pl.DataFrame:
     '''
         Returns a dataframe after downloading zipfile from a source
         without needing to save to disk
@@ -88,21 +93,32 @@ async def download_zip_to_df(url):
     return df
 
 
-def process_file(urls):
-    for url in urls
-        df = await download_zip_to_df(url)
-        df.append
-    return dfs
+async def process_urls(urls: list[str]) -> list[pl.DataFrame]:
+    async with aiohttp.ClientSession() as session:
+        tasks = [download_zip_to_df(session, url) for url in urls]
+        dfs = await asyncio.gather(*tasks, return_exceptions=True)
+        return dfs
 
 
 
+def main(start_date: str, end_date: str, jurisdiction: str, report_type: str, asset_class: str):
+    urls = gen_urls(start_date, end_date, jurisdiction, report_type, asset_class)
+    loop = asyncio.get_event_loop()
+    dfs = loop.run_until_complete(process_urls(urls))
+    for df in dfs:
+        if isinstance(df, Exception):
+            print(f"Error: {df}")
+        else:
+            print(df)
 
-async def batch():
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(process_file, url) for url in urls]
-    for future in as_completed(futures)
-        result = future.result()
+if __name__ == "__main__":
+    parser = ArgumentParser(description='Download and process zip files.')
+    parser.add_argument('start_date', type=str, help='Start date in YYYYmmdd format')
+    parser.add_argument('end_date', type=str, help='End date in YYYYmmdd format')
+    parser.add_argument('jurisdiction', type=str, choices=['SEC', 'CFTC'], help='Jurisdiction')
+    parser.add_argument('report_type', type=str, choices=['SLICE', 'CUMULATIVE', 'FOREX', 'INTEREST'], help='Report type')
+    parser.add_argument('asset_class', type=str, choices=['CREDITS', 'EQUITIES', 'RATES'], help='Asset class')
+    
+    args = parser.parse_args()
 
-
-
-asyncio.run(main())
+    main(args.start_date, args.end_date, args.jurisdiction, args.report_type, args.asset_class))

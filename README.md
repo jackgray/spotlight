@@ -18,3 +18,11 @@ Kafka producers will run as microservices to make requests to data or send user 
 When a user creates a custom ETL, it will be converted into it's own microservice fitting this design
 
 
+# Front end
+
+I am merging my GovTrackr project with this to serve as the user client. It is built on Next.js, React, material-ui, Node/Express, GrapQL, Prisma CRM, and PostgreSQL. Currently Prisma does not support Clickhouse, but that is likely to change soon as the feature has a lot of community support. Until then, Clickhouse DB will be replicated to a supported DB, such as postgres.
+
+
+## See producers directory for data retreival pipelines
+
+## See infra-stack directory for more in-depth information about the backend architecture

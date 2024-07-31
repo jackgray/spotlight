@@ -1,3 +1,10 @@
+
+
+resource "docker_volume" "superset_home" {
+  name = "superset_home"
+}
+
+
 resource "docker_container" "superset" {
   image = "apache/superset:latest"
   name  = "superset"
