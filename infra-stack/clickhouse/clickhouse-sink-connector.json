@@ -1,0 +1,14 @@
+{
+    "name": "clickhouse-sink-connector",
+    "config": {
+      "connector.class": "ru.yandex.clickhouse.ClickHouseSinkConnector",
+      "tasks.max": "1",
+      "topics": "structured",
+      "clickhouse.connection.url": "jdbc:clickhouse://clickhouse:8123",
+      "clickhouse.table.name": "your_table_name",
+      "clickhouse.username": "default",
+      "clickhouse.password": "",
+      "clickhouse.batch.size": "10000"
+    }
+  }
+  

@@ -1,0 +1,6 @@
+clickhouse_http_port    = "${env("CLICKHOUSE_HTTP_PORT")}"
+clickhouse_tcp_port     = "${env("CLICKHOUSE_TCP_PORT")}"
+clickhouse_user         = "${env("CLICKHOUSE_USER")}"
+clickhouse_password     = "${env("CLICKHOUSE_PASSWORD")}"
+clickhouse_minio_bucket = "${env("CLICKHOUSE_MINIO_BUCKET")}"
+clickhouse_minio_endpoint = "${env("CLICKHOUSE_MINIO_ENDPOINT")}"

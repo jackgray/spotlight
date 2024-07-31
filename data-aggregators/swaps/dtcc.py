@@ -8,37 +8,26 @@ import polars as pl
 from datetime import datetime, timedelta
 from glob import glob
 
+local_run = True
+
 # table_name = 'sec_swaps_raw'
 table_name = 'gme_swaps_raw'
-
-column_map = {
-    'Dissemination ID': 'Dissemination Identifier',
-    'Original Dissemination ID': 'Original Dissemination Identifier',
-    'Action Type': 'Action type',
-    'Action': 'Action type',
-    'Effective Date': 'Effective Date',
-    'Event Timestamp': 'Event timestamp',
-    'Execution Timestamp': 'Execution Timestamp',
-    'Expiration Date': 'Expiration Date',
-    'Notional Amount 1': 'Notional amount-Leg 1',
-    'Notional Currency 1': 'Notional currency-Leg 1',
-    'Total Notional Quantity 1': 'Total notional quantity-Leg 1',
-    'Price 1': 'Price',
-    'Price Unit Of Measure 1': 'Price unit of measure',
-    'Underlying Asset ID': 'Underlier ID-Leg 1',
-    'Underlying Asset ID Type': 'Underlier ID source-Leg 1'
-}
 
 
 sourcedata_path = f'../data/sourcedata'
 rawdata_path = f'../data/rawdata'
 
 swaps_dir = f'{sourcedata_path}/swaps'
-dictddsf = {
-    'SEC': {
-        'report_types': ['SLICE', 'CUMULATIVE', ]
-    }
-}
+
+if local_run:
+    # Define file location and output path
+    output_path = '../data/sourcedata/swaps' #path to folder where you want filtered reports to save
+
+    os.makedirs(sourcedata_path, exist_ok=True)
+    os.makedirs(rawdata_path, exist_ok=True)
+
+
+# Note that SEC data does not contain Foreign exchange (FOREX) or interest swap reports
 jurisdictions = ['SEC', 'CFTC']
 report_types = ['SLICE', 'CUMULATIVE', 'FOREX', 'INTEREST' ]
 asset_classes = ['CREDITS', 'EQUITIES', 'RATES']
@@ -46,12 +35,6 @@ asset_classes = ['CREDITS', 'EQUITIES', 'RATES']
 def gen_url(jurisdiction, report_type, asset_class, datestring):
     dtcc_url = 'https://pddata.dtcc.com/ppd/api/report'
     return f'{dtcc_url}/{report_type.lower()}{jurisdiction.lower()}/{jurisdiction}_{report_type}_{asset_class}_{datestring}.zip'
-
-# Define file location and output path
-output_path = '../data/sourcedata/swaps' #path to folder where you want filtered reports to save
-
-os.makedirs(sourcedata_path, exist_ok=True)
-os.makedirs(rawdata_path, exist_ok=True)
 
 
 def generate_date_strings(start_date, end_date):
@@ -83,12 +66,6 @@ def generate_date_strings(start_date, end_date):
 
 
 
-def connect(db_name):
-    db_file = f'../data/{db_name}.duckdb'
-    return duckdb.connect(database=db_file, read_only=False)
-
-
-
 def download_and_unzip(url, extract_to=swaps_dir):
     '''
     Unzips files and returns dataframe 
@@ -117,14 +94,35 @@ def download_and_unzip(url, extract_to=swaps_dir):
     return pd.read_csv(filepath, low_memory=False)
 
 
-def clean_df(df, column_map):
+def clean_df(df, underlier_filter_st):
     # Assert uniformity for changing column labels across data releases (schema drift)
 
     # column names and Action type labels in the reports changed on 12/04/22 
 
+
     # NOTE Polars df.rename cannot gracefully handle a rename map that has fields not contained in df, meaning you would need a different map for each schema
     #   solution here is to use Pandas even though it's slower, its cleaner and easier to read and maintain
     
+
+
+    column_map = {
+        'Dissemination ID': 'Dissemination Identifier',
+        'Original Dissemination ID': 'Original Dissemination Identifier',
+        'Action Type': 'Action type',
+        'Action': 'Action type',
+        'Effective Date': 'Effective Date',
+        'Event Timestamp': 'Event timestamp',
+        'Execution Timestamp': 'Execution Timestamp',
+        'Expiration Date': 'Expiration Date',
+        'Notional Amount 1': 'Notional amount-Leg 1',
+        'Notional Currency 1': 'Notional currency-Leg 1',
+        'Total Notional Quantity 1': 'Total notional quantity-Leg 1',
+        'Price 1': 'Price',
+        'Price Unit Of Measure 1': 'Price unit of measure',
+        'Underlying Asset ID': 'Underlier ID-Leg 1',
+        'Underlying Asset ID Type': 'Underlier ID source-Leg 1'
+    }
+
     print(f"Renaming column names of df: {df} \n according to this map: {column_map}")
     
     df.rename(columns=column_map)
@@ -132,12 +130,13 @@ def clean_df(df, column_map):
     print(f"Rename successful: {df}")
 
     # # Drop other columns
-    # print("Dropping irrelevant columns..")
-    # df = df[list(column_map.values())]
-    # print(f"Drop successful: {df}")
+    if trim_source = True:
+        print("Dropping irrelevant columns..")
+        df = df[list(column_map.values())]
+        print(f"Drop successful: {df}")
 
-    # Drop rows that dont have GME listed as an underlying asset
-    df = df[df["Underlier ID-Leg 1"].str.contains('GME.N|GME.AX|US36467W1099|36467W109', na=False)]
+    # Drop rows that dont have specified ticker listed as an underlying asset
+    df = df[df["Underlier ID-Leg 1"].str.contains(underlier_filter_str, na=False)]
         
     '''
     SEC Changed some names of labels for the 'Action type' field, 
