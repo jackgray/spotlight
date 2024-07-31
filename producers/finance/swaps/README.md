@@ -1,3 +1,25 @@
+# Kafka Producer Library
+
+This directory contains a set of Kafka producers that can run in a DAG scheduler or standalone docker container managed by your container run environment
+
+They are composed primarily of two components: protobuf data conversion, which formats the data in probably the most efficient format available for Kafka streaming, and Kafka producers which send the serialized data to the Kafka broker hosting topics which receive them
+
+## swaps
+
+Pulls zipped csv files for a range of dates from the DTCC. Traditionally, a single zip file containing a single csv must be downloaded each day. This package aims to automate that task and allow automated retreival of new data
+
+More info about where swap contracts are reported to below
+
+# Change Data Capture
+
+It's important not to make exessive API calls and request data that has already been ingested.
+
+This can pose several challenges in highly decoupled applications where Kafka is mostly an upstream processor.
+
+## Using unique producer generated IDs
+if the payload includes a unique id composed of concatenated strings from the result of the request, this id can be stored by the kafka queue to track what has already been sent and prevent redundant requests
+
+
 # SWAP DATA REPOSITORIES
 
 When a swap agreement is made, the transaction must be filed with qualifying swap data repository (SDR)

@@ -115,9 +115,9 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Download and process zip files.')
     parser.add_argument('start_date', type=str, help='Start date in YYYYmmdd format')
     parser.add_argument('end_date', type=str, help='End date in YYYYmmdd format')
-    parser.add_argument('jurisdiction', type=str, choices=['SEC', 'CFTC'], help='Jurisdiction')
-    parser.add_argument('report_type', type=str, choices=['SLICE', 'CUMULATIVE', 'FOREX', 'INTEREST'], help='Report type')
-    parser.add_argument('asset_class', type=str, choices=['CREDITS', 'EQUITIES', 'RATES'], help='Asset class')
+    parser.add_argument('jurisdiction', type=str, choices=jurisdictions, help='Jurisdiction (SEC or CFTC)')
+    parser.add_argument('report_type', type=str, choices=report_types, help='Report type')
+    parser.add_argument('asset_class', type=str, choices=asset_classes, help='Asset class')
     
     args = parser.parse_args()
 
