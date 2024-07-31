@@ -1,0 +1,11 @@
+<authorizers>
+    <userGroupProvider>
+        <property name="User Group Provider">file</property>
+    </userGroupProvider>
+    <userGroupProvider>
+        <property name="User Group Provider">file</property>
+    </userGroupProvider>
+    <accessPolicyProvider>
+        <property name="Access Policy Provider">file</property>
+    </accessPolicyProvider>
+</authorizers>

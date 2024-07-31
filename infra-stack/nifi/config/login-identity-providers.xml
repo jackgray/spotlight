@@ -1,0 +1,16 @@
+<loginIdentityProviders>
+    <provider>
+        <identifier>ldap-provider</identifier>
+        <class>org.apache.nifi.ldap.LdapLoginIdentityProvider</class>
+        <property name="Authentication Strategy">SIMPLE</property>
+        <property name="LDAP URL">ldap://localhost:389</property>
+        <property name="User Search Base">ou=users,dc=example,dc=com</property>
+        <property name="User Search Filter">(&(objectClass=person)(uid={0}))</property>
+        <property name="Group Search Base">ou=groups,dc=example,dc=com</property>
+        <property name="Group Search Filter">(&(objectClass=groupOfNames)(member={0}))</property>
+        <property name="Group Name Attribute">cn</property>
+        <property name="User DN Pattern">uid={0},ou=users,dc=example,dc=com</property>
+        <property name="Bind DN">cn=admin,dc=example,dc=com</property>
+        <property name="Bind Password">adminpassword</property>
+    </provider>
+</loginIdentityProviders>
