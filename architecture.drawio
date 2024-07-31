@@ -7,6 +7,9 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-1" value="&lt;div&gt;Apache Superset&lt;br&gt;&lt;/div&gt;&lt;div&gt;Dashboard&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="40" y="-80" width="600" height="80" as="geometry" />
         </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-2" target="AOcJWjodGGVIR-0718zk-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-2" value="Clickhouse&lt;div&gt;OLAP Datasource&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="400" y="240" width="120" height="80" as="geometry" />
         </mxCell>
@@ -47,11 +50,6 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-10" target="AOcJWjodGGVIR-0718zk-17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AOcJWjodGGVIR-0718zk-48" value="OR.....?" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="AOcJWjodGGVIR-0718zk-45">
-          <mxGeometry x="-0.0667" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-10" target="AOcJWjodGGVIR-0718zk-14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -67,11 +65,6 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-17" target="AOcJWjodGGVIR-0718zk-2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="380" y="290" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AOcJWjodGGVIR-0718zk-16" value="OR....NiFi straight to Clickhouse?" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="AOcJWjodGGVIR-0718zk-15">
-          <mxGeometry x="-0.1848" y="1" relative="1" as="geometry">
-            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-17" target="AOcJWjodGGVIR-0718zk-40">
@@ -95,11 +88,25 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-40" value="Kafka Topic&amp;nbsp;&lt;div&gt;Structured&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="40" y="100" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AOcJWjodGGVIR-0718zk-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-42" target="AOcJWjodGGVIR-0718zk-2">
+        <mxCell id="AOcJWjodGGVIR-0718zk-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-42" target="AOcJWjodGGVIR-0718zk-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-42" value="Kafka Connect" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="240" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-50" target="AOcJWjodGGVIR-0718zk-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-52" value="OR" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="AOcJWjodGGVIR-0718zk-51">
+          <mxGeometry x="-0.1476" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-50" value="Custom Client Application" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="700" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-53" value="Cluster" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="400" width="380" height="240" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
