@@ -3,9 +3,9 @@
 ### Data reporting for the public but on a platform that actually wants to be used
 
 
-This goal of this project is to shine a light on nefarious activities by those we have entrusted with great power. This could be insider trading by politicians, or stock manipulation by institutions.
+This goal of this project is to shine a light on nefarious activities by those we have entrusted with great power. This could be insider trading or voting activity by politicians, stock manipulation by institutions, self-interested lobbying, or super pac donations by corporations and ultra-wealthy.
 
-Many public datasets are managed by entities that may be required to make data publicly available to satisfy transparency requirements, but make it intentionally difficult to retrieve.
+Many public datasets are managed by entities that may be required to make data publicly available to satisfy transparency requirements, but make it intentionally difficult to consume.
 
 This project also aims to provide a platform for users to host and play with data, and share their datasets and underlying code.
 
