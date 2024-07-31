@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15" version="24.7.6">
   <diagram name="Page-1" id="XsUpKN5bkYY6bdaOg-o0">
-    <mxGraphModel dx="2316" dy="2087" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1694" dy="2087" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -91,7 +91,7 @@
         <mxCell id="AOcJWjodGGVIR-0718zk-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-42" target="AOcJWjodGGVIR-0718zk-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AOcJWjodGGVIR-0718zk-42" value="Kafka Connect" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="AOcJWjodGGVIR-0718zk-42" value="Kafka Connect&lt;div&gt;Sink Connector&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="240" y="100" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1" source="AOcJWjodGGVIR-0718zk-50" target="AOcJWjodGGVIR-0718zk-10">
@@ -107,6 +107,9 @@
         </mxCell>
         <mxCell id="AOcJWjodGGVIR-0718zk-53" value="Cluster" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="340" y="400" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="AOcJWjodGGVIR-0718zk-54" value="Clickhouse&lt;div&gt;OLAP Datasource&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="240" width="120" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
