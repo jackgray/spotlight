@@ -8,15 +8,15 @@ job "superset" {
       driver = "docker"
 
       config {
-        image = "${superset_image}"
+        image = "${image}"
         port_map {
-          http = ${superset_http_port}
+          http = ${http_port}
         }
       }
 
       resources {
-        cpu    = ${superset_cpu}
-        memory = ${superset_memory}
+        cpu    = ${cpu}
+        memory = ${memory}
       }
 
       service {
@@ -33,7 +33,7 @@ job "superset" {
       }
 
       env {
-        SUPERSET_WEBSERVER_PORT = "${superset_http_port}"
+        WEBSERVER_PORT = "${http_port}"
         CLICKHOUSE_HOST         = "${clickhouse_host}"
         CLICKHOUSE_PORT         = "${clickhouse_port}"
         CLICKHOUSE_DB           = "${clickhouse_db}"
