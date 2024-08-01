@@ -8,10 +8,10 @@ job "${var.service_name}" {
       driver = "docker"
 
       config {
-        image = "${var.clickhouse_image}"
+        image = "${var.image}"
         port_map {
-          http = ${var.clickhouse_http_port}
-          tcp  = ${var.clickhouse_tcp_port}
+          http = ${var.http_port}
+          tcp  = ${var.tcp_port}
         }
       }
 

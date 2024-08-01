@@ -1,33 +1,37 @@
-resource "docker_container" "zookeeper" {
-  image = "bitnami/zookeeper:latest"
-  name  = "zookeeper"
-  ports {
-    internal = var.zookeeper_port
-    external = var.zookeeper_port
-  }
-  env = [
-    "ALLOW_ANONYMOUS_LOGIN=${var.allow_anonymous_login}"
-  ]
-  networks_advanced {
-    name = docker_network.superset_network.name
-  }
+module "zookeeper" {
+  source = "./zookeeper"
+
+  nomad_addr            = var.nomad_addr
+  datacenters           = var.datacenters
+  image                 = var.zookeeper_image
+  instance_count        = var.zookeeper_instance_count
+  cpu                   = var.zookeeper_cpu
+  memory                = var.zookeeper_memory
+  service_name          = var.zookeeper_service_name
+  tags                  = var.zookeeper_tags
+  check_name            = var.zookeeper_check_name
+  check_type            = var.zookeeper_check_type
+  check_interval        = var.zookeeper_check_interval
+  check_timeout         = var.zookeeper_check_timeout
+  zookeeper_port        = var.zookeeper_port
 }
 
-resource "docker_container" "kafka" {
-  image = "bitnami/kafka:latest"
-  name  = "kafka"
-  ports {
-    internal = var.kafka_port
-    external = var.kafka_port
-  }
-  env = [
-    "KAFKA_BROKER_ID=${var.kafka_broker_id}",
-    "KAFKA_LISTENERS=${var.kafka_listeners}",
-    "KAFKA_ZOOKEEPER_CONNECT=${var.kafka_zookeeper_connect}",
-    "ALLOW_PLAINTEXT_LISTENER=${var.allow_plaintext_listener}"
-  ]
-  depends_on = [docker_container.zookeeper]
-  networks_advanced {
-    name = docker_network.superset_network.name
-  }
+module "broker" {
+  source = "./broker"
+
+  nomad_addr            = var.nomad_addr
+  datacenters           = var.datacenters
+  image                 = var.kafka_image
+  instance_count        = var.kafka_instance_count
+  cpu                   = var.kafka_cpu
+  memory                = var.kafka_memory
+  service_name          = var.kafka_service_name
+  tags                  = var.kafka_tags
+  check_name            = var.kafka_check_name
+  check_type            = var.kafka_check_type
+  check_interval        = var.kafka_check_interval
+  check_timeout         = var.kafka_check_timeout
+  kafka_port            = var.kafka_port
+  zookeeper_service_name = var.zookeeper_service_name
+  zookeeper_port        = var.zookeeper_port
 }

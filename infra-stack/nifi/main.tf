@@ -1,9 +1,9 @@
 locals {
   all_vars = {
-    nifi_image              = var.nifi_image
-    nifi_cpu                = var.nifi_cpu
-    nifi_memory             = var.nifi_memory
-    nifi_http_port          = var.nifi_http_port
+    image              = var.image
+    cpu                = var.cpu
+    memory             = var.memory
+    http_port          = var.http_port
     kafka_bootstrap_servers = var.kafka_bootstrap_servers
     kafka_topic             = var.kafka_topic
     clickhouse_host         = var.clickhouse_host
@@ -14,11 +14,11 @@ locals {
   }
 }
 
-data "template_file" "nifi_nomad" {
+data "template_file" "nomad" {
   template = file("${path.module}/nifi.nomad.tpl")
   vars     = local.all_vars
 }
 
 resource "nomad_job" "nifi" {
-  jobspec = data.template_file.nifi_nomad.rendered
+  jobspec = data.template_file.nomad.rendered
 }

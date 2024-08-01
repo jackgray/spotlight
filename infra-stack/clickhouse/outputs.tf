@@ -1,3 +1,3 @@
-output "job_name" {
-  value = "${nomad_job.clickhouse.name}"
+output "endpoint" {
+  value = "${var.endpoint}"
 }

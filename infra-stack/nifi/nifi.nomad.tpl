@@ -8,15 +8,15 @@ job "nifi" {
       driver = "docker"
 
       config {
-        image = "${nifi_image}"
+        image = "${image}"
         port_map {
-          http = ${nifi_http_port}
+          http = ${http_port}
         }
       }
 
       resources {
-        cpu    = ${nifi_cpu}
-        memory = ${nifi_memory}
+        cpu    = ${cpu}
+        memory = ${memory}
       }
 
       service {
@@ -33,7 +33,7 @@ job "nifi" {
       }
 
       env {
-        NIFI_WEB_HTTP_PORT       = "${nifi_http_port}"
+        WEB_HTTP_PORT       = "${http_port}"
         KAFKA_BOOTSTRAP_SERVERS  = "${kafka_bootstrap_servers}"
         KAFKA_TOPIC              = "${kafka_topic}"
         CLICKHOUSE_HOST          = "${clickhouse_host}"

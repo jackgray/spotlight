@@ -1,6 +1,6 @@
 # Spotlight 
 
-### Data reporting for the public but on a platform that actually wants to be used
+### Data aggregation and reporting for the public but on a platform that actually wants to be used
 
 
 This goal of this project is to shine a light on nefarious activities by those we have entrusted with great power. This could be insider trading or voting activity by politicians, stock manipulation by institutions, self-interested lobbying, or super pac donations by corporations and ultra-wealthy.

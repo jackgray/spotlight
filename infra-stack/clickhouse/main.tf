@@ -1,8 +1,3 @@
-
-resource "docker_volume" "clickhouse_data" {
-  name = "clickhouse_data"
-}
-
 provider "nomad" {
   address = "${var.nomad_addr}"
 }
@@ -14,9 +9,9 @@ locals {
 resource "nomad_job" "clickhouse" {
   jobspec = templatefile("${path.module}/nomad_job.hcl", {
     datacenters         = var.datacenters
-    clickhouse_image    = var.clickhouse_image
-    clickhouse_http_port = var.clickhouse_http_port
-    clickhouse_tcp_port  = var.clickhouse_tcp_port
+    image               = var.image
+    http_port           = var.http_port
+    tcp_port             = var.tcp_port
     cpu                 = var.cpu
     memory              = var.memory
     service_name        = var.service_name

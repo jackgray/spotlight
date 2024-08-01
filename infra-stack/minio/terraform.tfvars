@@ -1,8 +1,10 @@
-minio_root_user         = "${env("MINIO_ROOT_USER")}"
-minio_root_password     = "${env("MINIO_ROOT_PASSWORD")}"
-minio_port              = "${env("MINIO_PORT")}"
-minio_console_port      = "${env("MINIO_CONSOLE_PORT")}"
-minio_server_url        = "${env("MINIO_SERVER_URL")}"
+root_user         = "${env("ROOT_USER")}"
+root_password     = "${env("ROOT_PASSWORD")}"
+port              = "${env("PORT")}"
+console_port      = "${env("CONSOLE_PORT")}"
+server_url        = "${env("SERVER_URL")}"
+endpoint          = "${env("ENDPOINT")}"
+
 
 clickhouse_port         = "${env("CLICKHOUSE_PORT")}"
 clickhouse_user         = "${env("CLICKHOUSE_USER")}"

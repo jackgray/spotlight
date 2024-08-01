@@ -1,36 +1,25 @@
-resource "docker_volume" "minio_data" {
-  name = "minio_data"
+provider "nomad" {
+  address = "${var.nomad_addr}"
 }
 
-resource "docker_volume" "minio_config" {
-  name = "minio_config"
+locals {
+  nomad_job_template = file("${path.module}/nomad.tpl")
 }
 
-resource "docker_container" "minio" {
-  image = "minio/minio"
-  name  = "minio"
-  ports {
-    internal = var.minio_port
-    external = var.minio_port
-  }
-  ports {
-    internal = var.minio_console_port
-    external = var.minio_console_port
-  }
-  env = [
-    "MINIO_ROOT_USER=${var.minio_root_user}",
-    "MINIO_ROOT_PASSWORD=${var.minio_root_password}"
-  ]
-  volumes {
-    host_path      = docker_volume.minio_data.name
-    container_path = "/data"
-  }
-  volumes {
-    host_path      = docker_volume.minio_config.name
-    container_path = "/root/.minio"
-  }
-  command = "server /data --console-address :${var.minio_console_port}"
-  networks_advanced {
-    name = docker_network.superset_network.name
-  }
+resource "nomad_job" "minio" {
+  jobspec = templatefile(local.nomad_job_template, {
+    datacenters      = var.datacenters
+    image            = var.image
+    http_port        = var.http_port
+    console_port     = var.console_port
+    cpu              = var.cpu
+    memory           = var.memory
+    service_name     = var.service_name
+    tags             = var.tags
+    check_name       = var.check_name
+    check_type       = var.check_type
+    check_interval   = var.check_interval
+    check_timeout    = var.check_timeout
+    instance_count   = var.instance_count
+  })
 }
