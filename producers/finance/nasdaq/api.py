@@ -1,62 +1,85 @@
-import base64
 import requests
-import json
-import csv
 from io import StringIO
-from typing import Optional, Dict, Any
-from dotenv import load_dotenv
-import os
-import nasdaqdatalink
 import pandas as pd
-
-load_dotenv()
-# Load environment variables
-api_key = os.getenv('NASDAQ_API_KEY')
+from datetime import datetime, timedelta
 
 
-def search_datasets(db_code='CFTC'):
-    '''
-        Returns dataframes of search results on specified NASDAQ datasets
+def generate_date_strings(start_date, end_date):
 
-        Args:
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+    start_date = yesterday if start_date == 'yesterday' else start_date
+    end_date = yesterday if end_date == 'yesterday' else end_date
 
-        db_code: Eg. 'CFTC'
-    '''
-
-    # Define the URL endpoint for searching datasets
-    search_url = 'https://data.nasdaq.com/api/v3/datasets'
-
-    # Define parameters for the search
-    params = {
-        'api_key': api_key,
-        'database_code': db_code,  # Example database code for CFTC datasets
-        'per_page': 100,  # Number of datasets to retrieve per request
-        'page': 1         # Start from the first page
-    }
-
-    all_datasets = []
-
-    while True:
-        response = requests.get(search_url, params=params)
-
-        if response.status_code == 200:
-            data = response.json()
-            datasets = data['datasets']
-            
-            # Append the retrieved datasets to the list
-            all_datasets.extend(datasets)
-            
-            # Check if there is another page of results
-            if len(datasets) < params['per_page']:
-                break
-            else:
-                params['page'] += 1
-        else:
-            print(f"Failed to fetch data: {response.status_code}")
-            break
+    # Parse the input date strings into datetime objects
+    date_format = '%Y%m%d'
+    try:
+        # Parse the input date strings into datetime objects
+        start_date = datetime.strptime(start_date, date_format)
+        end_date = datetime.strptime(end_date, date_format)
+    except ValueError as e:
+        print(f"Error parsing dates: {e}")
+        print(f"Start date input: {start_date}")
+        print(f"End date input: {end_date}")
+        return []
+    # Initialize an empty list to hold the date strings
+    date_strings = []
+    
+    # Iterate over each day in the date range
+    current_date = start_date
+    while current_date <= end_date:
+        # Format the current date as 'YYYYmmdd'
+        date_str = current_date.strftime('%Y%m%d')
+        date_strings.append(date_str)
+        
+        # Move to the next day
+        current_date += timedelta(days=1)
+    
+    return date_strings
 
 
-    # Convert the list of datasets to a DataFrame
-    df = pd.DataFrame(all_datasets)
+
+def regsho_by_date(datestring):
+    url = f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{datestring}.txt'
+    response = requests.get(url)
+    data = StringIO(response.text)
+    df = pd.read_csv(data, sep='|')
 
     return df
+
+
+def regsho_by_range(start_date, end_date):
+    '''
+    Downloads NASDAQ RegSHO data files for a range of dates
+
+    Depends on: generate_date_strings(), download_and_unzip()
+
+    Args:
+    start_date: String %Y%m%d (e.g. 20240125 = jan 25 2024)
+    end_date: String
+
+    '''
+
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d') # Function requires string input so use strftime to convert
+
+    start_date = yesterday if start_date == 'yesterday' else start_date
+    end_date = yesterday if end_date == 'yesterday' else end_date
+
+    # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
+    datestrings = generate_date_strings(start_date, end_date)
+    print(f"Pulling data for the following dates: {list(datestrings)}")
+    dfs=[]
+    for datestring in datestrings:
+        # Download file
+        try: 
+            df = regsho_by_date(datestring)
+            # print(df)
+            dfs.append(df)
+
+        except Exception as e:
+            print('\n\n',e)
+            print("Probably tried to download a weekend or holiday date")
+
+    # Concatenate all DataFrames into a single DataFrame
+    final_df = pd.concat(dfs, ignore_index=True)
+
+    return final_df
