@@ -53,6 +53,7 @@ for row in table_rows:
 con = duckdb.connect(db_file)
 
 
+# Check last date of entry to avoid calling redundant data
 try:
     last_download = con.execute(f'''
         SELECT file_label FROM {table_name}
