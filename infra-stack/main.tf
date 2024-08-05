@@ -18,7 +18,7 @@ module "nifi" {
 module "superset" {
   source = "./superset"
   # provide vars from other modules if needed
-  nifi_examplevar = module.nifi.examplevar # now this can be used in the module as var.examplevar
+  nifi_endpoint = module.nifi.endpoint # now this can be used in the module as var.examplevar
 }
 
 module "clickhouse" {
