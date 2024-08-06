@@ -6,10 +6,16 @@
 
 
 ### Multiple Data Sources
+Reg SHO (Regulation SHO) threshold lists are published by various entities to provide transparency into stocks with significant levels of fails-to-deliver (FTDs). The reporting of these lists can vary based on where and how the trades are executed.
 
-Just like swap contracts, there are a number of disparate entities that these events may be reported to.
+NYSE
+NASDAQ
+FINRA
+Cboe Global Markets (including BZX, BYX, EDGX, and EDGA)
+NYSE American
+OTC Markets Group
 
-This component will aggregate data from Nasdaq, NYSE, and FINRA
+This component so far aggregates data from Nasdaq, NYSE, and FINRA. 
 
 Nasdaq and NYSE fortunately have the same schema, but require different URL query parameters and use different datestring formats to call the data
 
@@ -17,23 +23,49 @@ Example from Nasdaq: `http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth
 
 Example from NYSE: `https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate=03-Feb-2024&market=NYSE`
 
-FINRA will be pulled using the FINRA Query REST API, which requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
 
-The column names do not match, so they will have to be mapped to the corresponding names for Nasdaq/NYSE
 
 
 
 # NASDAQ
+Stocks like KOSS (Koss Corporation) are traded on NASDAQ, which reports FTDs for its listed securities.
 
-Nasdaq reports on companies that reached the Reg SHO daily threshold, but stopped including securities that reached the threshold due to OTC trades in 2014. You can find KOSS on this list, but not GME, CHWY, or any of the ETFs they're contained in
+Nasdaq stopped including securities that reached the threshold due to OTC trades in 2014. This should be reported by FINRA.
+
+
+
+Source:
+
+https://www.nasdaqtrader.com/trader.aspx?id=regshothreshold
+
+## Short Sale Circuit Breaker
+The SEC adopted amendments to Regulation SHO with a compliance date of November 10, 2010. Among the rule changes, the SEC introduced Rule 201 (Alternative Uptick Rule), a short sale-related circuit breaker that when triggered, will impose a restriction on prices at which securities may be sold short. The SEC also issued guidance for broker-dealers wishing to mark certain qualifying orders 201cshort exempt.
+
+This could be worth looking into. KOSS shows up a lot these days.
+
+https://www.nasdaqtrader.com/trader.aspx?id=ShortSaleCircuitBreaker
+
 
 # FINRA 
+FINRA provides separate reports for FTDs related to OTC trades and "Other OTC" trades. This distinction helps differentiate between the standard OTC market and less regulated OTC markets.
 
-FINRA's Query API has reports on OTC RegSHO lists, but you won't find GME there, either
+## OTC (Over-The-Counter) Trades
+These are trades conducted directly between parties without the use of a central exchange. FINRA (Financial Industry Regulatory Authority) reports FTDs for OTC trades.
 
-I have made python functions to grab this data (you must make an account and generate an API key first), but you can check the text archives of specific dates here
+## Other OTC
+This category includes trades that are not listed on major exchanges and are typically traded through OTC markets. FINRA also reports FTDs for these trades.
 
-https://otce.finra.org/otce/RegSHOThreshold/archives
+## Query API
+FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this database. 
+
+## Requirements
+Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
+
+## Schema Mapping
+The column names do not match, NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents
+
+
+
 
 ## Data Source Info
 https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
@@ -50,7 +82,9 @@ https://www.finra.org/filing-reporting/trade-reporting-facility-trf
 
 There are 3 Trade Reporting Facilities in FINRA: NYTRF (NYSE), NCTRF (Nasdaq Carteret), and 
 
-# NYSE
+
+# NYSE (New York Stock Exchange)
+Stocks like GME (GameStop) are traded on major exchanges like the NYSE. The exchange reports FTDs for these listed securities.
 
 https://www.nyse.com/regulation/threshold-securities
 
@@ -98,7 +132,10 @@ ORDER BY
 LIMIT 15;
 ```
 
+Combine tables from nyse nasdaq and finra
+```
 
+```
 To query stocks related to GME:
 
 ```

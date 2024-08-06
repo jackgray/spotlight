@@ -7,6 +7,7 @@ import duckdb
 from dotenv import load_dotenv
 from os import getenv
 from typing import Optional, List, Union
+import time
 
 
 
@@ -43,7 +44,7 @@ def gen_nasdaq_regsho_url(datestring):
 
 def generate_date_strings(start_date = '20190101', end_date='yesterday'):
     '''
-    Generates list of formated datestrings to supply to URL build parameters for API call
+    Generates list datestrings to supply to URL build parameters for API call
 
     start_date: Input start date in format YYYYmmdd
     end_date: same format as above or 'yesterday' to automatically download up to the latest release
@@ -83,8 +84,6 @@ def generate_date_strings(start_date = '20190101', end_date='yesterday'):
         current_date += timedelta(days=1)
     
     return date_strings
-
-
 
 
 
@@ -152,7 +151,7 @@ def fetch_finra_by_date(datareq_type='data', group='otcmarket', dataset='thresho
     url = f"https://api.finra.org/{datareq_type}/group/{group}/name/{dataset}"
     # datestring = datetime.strptime(datestring, '%Y%m%d').strftime('%Y-%m-%d')
 
-    print(f"Querying FINRA API at {url}")
+    print(f"Querying FINRA API at {url} for date {datestring}")
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -161,14 +160,18 @@ def fetch_finra_by_date(datareq_type='data', group='otcmarket', dataset='thresho
 
     all_data = []
     offset = 0
+    
+    print(f"Requesting data for date: {datestring}")
     while True:
         params = {
             "limit": limit,
             "offset": offset,
-            "compareFilters": json.dumps([{"fieldName": "tradeDate", "compareType": "EQUAL", "fieldValue": datestring}])
+            "compareFilters": [{ "fieldName": "tradeDate", "compareType": "equal", "fieldValue": datestring}]
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        print(f"With params: {params}")
+
+        response = requests.post(url, headers=headers, json=params)
 
         if response.status_code == 200:
             response.raise_for_status()
@@ -184,6 +187,8 @@ def fetch_finra_by_date(datareq_type='data', group='otcmarket', dataset='thresho
                 break
 
             all_data.extend(data)   
+
+            # print('Whats going on here: ', all_data)
 
             if len(data) < limit:
                 break   # when there are fewer results than the limit we've reached the end
@@ -213,17 +218,21 @@ def regsho_by_date(datestring, data_source, max_retries=3, backoff_factor=1):
     # Set params
     if data_source.lower() == 'nyse':
         market = 'NYSE'
-        datestring = datetime.strptime(datestring, '%Y%m%d').strftime('%d-%b-%Y')
-        url = f'https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate={datestring}&market={market}'
+        date_format = '%d-%b-%Y'
+        date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+        url = f'https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate={date}&market={market}'
 
     elif data_source.lower() == 'nasdaq':
-        url =f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{datestring}.txt'
+        date_format = '%Y%m%d'
+        date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+        url =f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt'
     
     elif data_source.lower() == 'finra':
-        datestring = datetime.strptime(datestring, '%Y%m%d').strftime('%Y-%m-%d')
-        df = fetch_finra_by_date(datestring=datestring)
-
+        date_format = '%Y-%m-%d'
+        date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+        df = fetch_finra_by_date(datestring=date)
         return df
+
 
     print(f"Grabbing data from url: {url}")
     retries = 0
@@ -280,19 +289,22 @@ def clean_df(df, data_source='NYSE'):
     elif data_source.lower() == 'finra':
         df['Source Entity'] = 'FINRA'
         df['Trade Type'] = 'OTC'
-        df['Rule 3210'] = 'NA'
+        df['Rule 3210'] = 'Y'
         column_map = {
             'tradeReportDate': 'Date',
             'securitiesInformationProcessorSymbolIdentifier': 'Symbol',
             'issueSymbolIdentifier': 'Symbol',
             'issueName': 'Security Name',
-            'marketCode': 'Market Category',
-            'marketCategoryDescription': 'Market Category',
+            'marketClassCode': 'Trade Type',
+            'marketCategoryDescription': 'Market Category Description',
+            'thresholdListFlag': 'Threshold List Flag',
             'regShoThresholdFlag': 'Reg SHO Threshold Flag',
             'rule4320Flag': 'FINRA Rule 4320 Flag'
         }
 
-        print(f"Renaming column names of df: {df} \n according to this map: {column_map}")
+
+
+        print(f"Renaming column names of df: {df.columns} \n according to this map: {column_map}")
         try:
             df.rename(columns=column_map, inplace=True)
             print(f"Rename successful: {df.columns}")
@@ -300,15 +312,21 @@ def clean_df(df, data_source='NYSE'):
         except Exception as e:
             print(e)
             print("Error cleaning df")
+        
+        print(f"Checking if datestring is the same as tradeDate: df: {df['Date']} ")
+        df.drop('tradeDate', axis=1, inplace=True)
+
     else: 
         print(f"Received unknown data source value: {data_source}. Please use one of {acceptable_sources}")
     
     # Generate unique row ID
     print("Generating ID string")
+    print(df.dtypes)
+
     df['ID'] = (data_source.lower() + df['Symbol'].str.lower() + 
             df['Date'].str.replace('-', '').str.replace('_', '') + df['Market Category'])
 
-    print(df['ID'])
+    # print(df['ID'])
     df.reset_index(drop=True, inplace=True)
 
     # Check for null values in the ID column
@@ -339,10 +357,15 @@ def load_df_to_duckdb(df, data_source, db_path):
         CREATE TABLE IF NOT EXISTS {table_name} (
             "ID" VARCHAR PRIMARY KEY,
             "Date" DATE,
+            "Report Date" DATE,
+            "Trade Date" DATE,
             "Symbol" VARCHAR,
             "Security Name" VARCHAR,
             "Market Category" VARCHAR,
+            "marketClassCode" VARCHAR,
+            "marketCategoryDescription" VARCHAR,
             "Reg SHO Threshold Flag" VARCHAR,
+            "Threshold List Flag" VARCHAR,
             "FINRA Rule 4320 Flag" VARCHAR,
             "Rule 3210" VARCHAR,
             "shortParQuantity" VARCHAR, 
@@ -359,8 +382,6 @@ def load_df_to_duckdb(df, data_source, db_path):
     try: con.execute(create_table_sql)
     except Exception as e: print(f"Could not make table {table_name} \n {e}")
 
-    print(df['Date'])
-    print(df.dtypes)
     # Insert the data into the table
     insert_sql = f"""
         INSERT INTO {table_name} 
@@ -370,7 +391,7 @@ def load_df_to_duckdb(df, data_source, db_path):
             INSERT INTO {table_name} BY NAME
             SELECT * FROM df
         """)
-    except Exception as e: print(f'Fuckidyf {e}')
+    except Exception as e: print(f'\n\nDB LOAD FAILED {e}\n\n')
 
     con.close()
 
@@ -401,7 +422,7 @@ def regsho_by_range(start_date, end_date, data_source, db_path):
 
     # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
     datestrings = generate_date_strings(start_date, end_date)
-    print(f"Pulling data for the following dates: {list(datestrings)}")
+    print(f"Pulling data for dates ranging: {start_date}-{end_date}")
     dfs=[]
     for datestring in datestrings:
         # Download file
