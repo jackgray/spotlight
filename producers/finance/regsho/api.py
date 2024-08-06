@@ -498,7 +498,7 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
 
 def pull_all(data_sources, start_date, end_date='yesterday'):
     df = pd.DataFrame()
-    df = regsho_by_range(start_date=start_date, end_date='yesterday', data_sources=data_sources, db_path='./stonk.duckdb')
+    df = regsho_by_range(start_date=start_date, end_date=end_date, data_sources=data_sources, db_path='./stonk.duckdb')
     if not df.empty:
         print("Some rows were not added to duckdb")
         print(df)
@@ -509,7 +509,7 @@ def pull_all(data_sources, start_date, end_date='yesterday'):
 
 
 
-def merge_tables(tables):
+def merge_tables(db_path='./stonk.duckdb'):
     con = duckdb.connect(database=db_path, read_only=False)
     con.execute(f"""
             CREATE TABLE regsho_daily AS

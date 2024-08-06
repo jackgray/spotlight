@@ -52,9 +52,13 @@ Stocks like KOSS (Koss Corporation) are traded on Nasdaq, which reports FTDs for
 
 Nasdaq stopped including securities that reached the threshold due to OTC trades in 2014. It is unclear how far back FINRA reporting goes for Nasdaq OTC equities, if it reported on them before 2014 creating an overlap between those and Nasdaq reports, or if FINRA only started reporting when Nasdaq stopped.
 
+Nasdaq reports FTDs on 3 of their primary equities markets are designated in the reports by their letter code:
+- Q - NASDAQ Global Select Market (NGS)
+- G - NASDAQ Global Market (NGM)
+- S - NASDAQ Capital Market
 
-Source:
-
+Reference:
+https://www.nasdaqtrader.com/Trader.aspx?id=RegShoDefs
 https://www.nasdaqtrader.com/trader.aspx?id=regshothreshold
 
 ##### Short Sale Circuit Breaker
@@ -193,7 +197,7 @@ Securities traded on foreign OTC markets might not fall under FINRA's direct ove
 #### Regulation D Offerings
 These private placements are exempt from standard registration requirements but still have to comply with specific SEC rules. FINRA oversight applies to the broker-dealers involved in these transactions but not necessarily to the trading venues themselves.
 
-Source: 
+Reference: 
 
 https://www.otcmarkets.com/market-activity/reg-sho-data
 
