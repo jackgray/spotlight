@@ -151,19 +151,16 @@ While FINRA oversees most OTC trading in the U.S., certain specialized trading p
 
 
 
-
-
-
-
-
-
 ## ICE (Intercontinental Exchange)
 
 ICE owns and operates multiple exchanges, including the NYSE.
 
-Any securities traded on ICE-owned exchanges that meet the Reg SHO threshold criteria would be reported as part of the public threshold lists through the NYSE or other relevant exchanges.
+In theory, any securities traded on ICE-owned exchanges that meet the Reg SHO threshold criteria would be reported as part of the public threshold lists through the NYSE or other relevant exchanges.
 
 ICE itself does not typically produce separate, undisclosed Reg SHO threshold lists; instead, it complies with the SEC's requirements for public disclosure through its exchanges.
+
+Explore data reported through ICE here 
+https://www.ice.com/report-center
 
 
 ## Usage
