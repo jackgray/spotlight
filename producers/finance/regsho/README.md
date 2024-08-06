@@ -2,6 +2,8 @@
 
 # Regulation SHO (Reg SHO) Daily Threshold Data
 
+This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate all Reg SHO threshold reports.
+
 ## About Reg SHO
 https://www.investopedia.com/terms/t/thresholdlist.asp#toc-understanding-threshold-lists
 
@@ -30,7 +32,6 @@ Reg SHO Threshold lists are reported by the following agencies. There should not
 - Cboe Global Markets (including BZX, BYX, EDGX, and EDGA)
 - OTC Markets Group
 
-This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate them all.
 
 Nasdaq and NYSE fortunately have the same schema, but require different URL query parameters and use different datestring formats to call the data
 
