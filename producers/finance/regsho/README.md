@@ -22,12 +22,13 @@ They are are mandated to be publicly available to ensure transparency and market
 
 
 ## Data Sources
+Reg SHO Threshold lists are reported by the following agencies. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA
 
-NYSE/NYSE American
-Nasdaq
-FINRA
-Cboe Global Markets (including BZX, BYX, EDGX, and EDGA)
-OTC Markets Group
+- NYSE/NYSE American
+- Nasdaq
+- FINRA
+- Cboe Global Markets (including BZX, BYX, EDGX, and EDGA)
+- OTC Markets Group
 
 This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate them all.
 
@@ -42,9 +43,9 @@ Example from NYSE: `https://www.nyse.com/api/regulatory/threshold-securities/dow
 
 
 ### NASDAQ
-Stocks like KOSS (Koss Corporation) are traded on NASDAQ, which reports FTDs for its listed securities.
+Stocks like KOSS (Koss Corporation) are traded on Nasdaq, which reports FTDs for its listed securities.
 
-Nasdaq stopped including securities that reached the threshold due to OTC trades in 2014. This should be reported by FINRA.
+Nasdaq stopped including securities that reached the threshold due to OTC trades in 2014. It is unclear how far back FINRA reporting goes for Nasdaq OTC equities, if it reported on them before 2014 creating an overlap between those and Nasdaq reports, or if FINRA only started reporting when Nasdaq stopped.
 
 
 Source:
@@ -76,8 +77,6 @@ Note that using the FINRA Query API requires a free account API key, and code to
 
 #### Schema Mapping
 The column names do not match, NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents
-
-
 
 
 #### Data Source Info
