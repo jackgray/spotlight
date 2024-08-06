@@ -1,21 +1,9 @@
-from api import regsho_by_range
+from api import regsho_by_range, pull_all
 
 
 related_tickers = ['GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF']
 
 
-
-data_sources = ['nasdaq', 'finra', 'nyse']
-# data_sources = ['finra']
-def pull_all(data_sources):
-    for data_source in data_sources:
-       
-        df = regsho_by_range(start_date='20140101', end_date='20190101', data_source=data_source, db_path='./gme.duckdb')
-        if df:
-            print("Some rows were not added to duckdb")
-            print(df)
-        else:
-            print("All downloaded data was inserted successfully")
 
 
 
@@ -29,10 +17,12 @@ def merge_tables(tables):
             SELECT * FROM finra_regsho_daily
             ORDER BY Date;
         """
-    con = duckdb()
+    # con = duckdb()
 
 # df = load_finra_regsho()
-pull_all(data_sources)
+data_sources = ['nasdaq', 'finra', 'nyse']
+# data_sources = ['nyse']
+pull_all(data_sources, start_date='20210725')
 
 # CREATE TABLE regsho_daily AS
 # SELECT * FROM nasdaq_regsho_daily

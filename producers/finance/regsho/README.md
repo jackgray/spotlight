@@ -7,6 +7,7 @@ This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to a
 ## About Reg SHO
 https://www.investopedia.com/terms/t/thresholdlist.asp#toc-understanding-threshold-lists
 
+```
 A threshold list, also known as a Regulation SHO Threshold Security List, is a list of securities whose transactions failed to clear for five consecutive settlement days at a registered clearing agency.
 
 Threshold lists are published in accordance with regulations set by the Securities and Exchange Commission (SEC). Regulators review this information as part of their efforts to detect market manipulation.
@@ -15,7 +16,8 @@ In January 2005, the SEC implemented Regulation SHO to reduce the abuse of naked
 
 When naked short selling is used and the affected securities aren't delivered, the associated transactions will fail to clear. These failed transactions are reported regularly on a threshold list, and the SEC and other regulators can identify clues that improper naked short selling may have occurred.
 
-In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities. - Investopedia
+In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities.
+``` - Investopedia
 
 The reporting of these lists can vary based on where and how the trades are executed.
 
@@ -100,9 +102,7 @@ A short sale on a Nasdaq-listed security that takes place directly within Nasdaq
 
 https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/fixactspec.pdf
 
-#### Nasdaq Chicago TRF
-##### Cboe Trade Reporting Facility (Cboe TRF)
-Operated by Cboe Global Markets. Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities.
+
 
 #### Query API
 FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this database. 
@@ -139,6 +139,18 @@ https://www.nyse.com/regulation/threshold-securities
 
 If we go to this data source at NYSE, and search dates we know GME existed on the threshold list like 02/02/2021, we can finally see GME.
 
+#### Other TRFs
+##### NYSE Arca (ICE)
+Used by broker-dealers and market participants to report off-exchange trades in equities and equity-related products. It facilitates reporting for trades executed on alternative trading systems and dark pools, integrating with NYSE Arca’s broader trading infrastructure to ensure regulatory compliance and market transparency.
+
+https://www.nyse.com/regulation/nyse-arca/public-info
+
+#### Previously used TRFs
+##### NYSE National 
+up to periods ending on January 31, 2017
+##### NYSE Chicago
+up to periods ending February 14, 2019
+
 ### CBOE (Chicago Board Options Exchange) Global Markets
 Cboe operates various exchanges for trading options, equities, futures, and other financial instruments.
 
@@ -146,9 +158,13 @@ Includes a broad range of financial instruments, particularly options and ETFs.
 
 This includes the Cboe BZX Exchange, Cboe BYX Exchange, Cboe EDGX Exchange, and Cboe EDGA Exchange. These exchanges also provide threshold lists for securities traded on their platforms.
 
+##### Cboe Trade Reporting Facility (Cboe TRF)
+Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities.
+
+
 
 ### OTC Markets Group
-OTC Markets Group operates the following market tiers, all of which are subject to FINRA oversight in terms of broker-dealer activity and trade reporting:
+OTC Markets Group operates the following market tiers, all of which are theoretically subject to FINRA oversight in terms of broker-dealer activity and trade reporting:
 
 #### OTCQX
 The highest tier, for well-established, investor-focused companies.
