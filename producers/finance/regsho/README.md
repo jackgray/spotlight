@@ -138,32 +138,16 @@ https://www.finra.org/rules-guidance/rulebooks/finra-rules/3210
 #### Rule 4320 -- Short Sale Delivery Requirements
 https://www.finra.org/rules-guidance/rulebooks/finra-rules/4320
 
-#### Market Code (TRFs)
-https://www.finra.org/filing-reporting/trade-reporting-facility-trf
-
-There are 3 Trade Reporting Facilities in FINRA: NYTRF (NYSE), NCTRF (Nasdaq Carteret), and 
-
- ##### NYTRF 
- provides a platform for reporting trades executed away from the NYSE and ensures that all trades, including those in listed and non-listed securities, are reported to a centralized system.
 
 ### NYSE (New York Stock Exchange)
 Stocks like GME (GameStop) are traded on major exchanges like the NYSE. The exchange reports FTDs for these listed securities.
 
 https://www.nyse.com/regulation/threshold-securities
 
-If we go to this data source at NYSE, and search dates we know GME existed on the threshold list like 02/02/2021, we can finally see GME.
 
-#### Other TRFs
-##### NYSE Arca (ICE)
-Used by broker-dealers and market participants to report off-exchange trades in equities and equity-related products. It facilitates reporting for trades executed on alternative trading systems and dark pools, integrating with NYSE Arca’s broader trading infrastructure to ensure regulatory compliance and market transparency.
+#### Exchanges
+NYSE has 3: NYSE, NYSE American, and NYSE Arca. More info on these in the NYSE section
 
-https://www.nyse.com/regulation/nyse-arca/public-info
-
-#### Previously used TRFs
-##### NYSE National 
-up to periods ending on January 31, 2017
-##### NYSE Chicago
-up to periods ending February 14, 2019
 
 ### CBOE (Chicago Board Options Exchange) Global Markets
 Cboe operates various exchanges for trading options, equities, futures, and other financial instruments.
