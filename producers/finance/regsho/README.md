@@ -19,7 +19,7 @@ In order to appear on a threshold list, the security must be registered with the
 
 The reporting of these lists can vary based on where and how the trades are executed.
 
-They are are mandated to be publicly available to ensure transparency and market integrity, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
+They are are mandated to be publicly available, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
 
 
 
