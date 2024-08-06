@@ -70,6 +70,38 @@ These are trades conducted directly between parties without the use of a central
 #### Other OTC
 This category includes trades that are not listed on major exchanges and are typically traded through OTC markets. FINRA also reports FTDs for these trades.
 
+#### Trade Reporting Facilities (TRFs)
+Platforms established by FINRA to facilitate the reporting of over-the-counter (OTC) trades in equities and related securities. These facilities play a crucial role in ensuring transparency and regulatory compliance in the trading of securities that are not listed on national exchanges or are traded off-exchange. 
+
+TRF Exchange Participants: https://www.finra.org/filing-reporting/trf/trf-exchange-participants
+
+FINRA currently has 3 active TRFs
+NYSE TRF, and 2 Nasdaq TRFs: 
+
+##### NYSE Trade Reporting Facility (NYTRF)
+Provides a platform for reporting trades executed away from the NYSE and ensures that all trades, including those in listed and non-listed securities, are reported to a centralized system.
+
+It facilitates trade reporting for equities and equity-related products, ensures compliance with regulatory reporting requirements, and integrates with the NYSE’s trading and clearing systems.
+
+https://www.finra.org/sites/default/files/nyse-trf-fix-specification.pdf
+
+##### Nasdaq Trade Reporting Facility (NCTRF/?TRF)
+Nasdaq TRF Carteret/ Nasdaq TRF Chicago
+
+Serves as a platform for reporting trades in Nasdaq-listed securities and other equities. It supports trade reporting for both listed and off-exchange trades. 
+
+###### Nasdaq Chicago TRF
+A short sale executed on an alternative trading system (ATS) or through a broker-dealer not connected to Nasdaq’s infrastructure would be reported here. For instance, if a trade is executed off-exchange through an ATS in Chicago, this TRF captures and reports that data.
+
+###### Nasdaq Carteret TRF
+A short sale on a Nasdaq-listed security that takes place directly within Nasdaq’s trading environment or through its systems might be reported here. For example, if a trader shorts a Nasdaq-listed stock via Nasdaq’s own platform, the Carteret TRF reports this transaction.
+
+https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/fixactspec.pdf
+
+#### Nasdaq Chicago TRF
+##### Cboe Trade Reporting Facility (Cboe TRF)
+Operated by Cboe Global Markets. Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities.
+
 #### Query API
 FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this database. 
 
@@ -77,7 +109,7 @@ FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this d
 Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
 
 #### Schema Mapping
-The column names do not match, NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents
+The column names do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents
 
 
 #### Data Source Info
@@ -95,6 +127,8 @@ https://www.finra.org/filing-reporting/trade-reporting-facility-trf
 
 There are 3 Trade Reporting Facilities in FINRA: NYTRF (NYSE), NCTRF (Nasdaq Carteret), and 
 
+ ##### NYTRF 
+ provides a platform for reporting trades executed away from the NYSE and ensures that all trades, including those in listed and non-listed securities, are reported to a centralized system.
 
 ### NYSE (New York Stock Exchange)
 Stocks like GME (GameStop) are traded on major exchanges like the NYSE. The exchange reports FTDs for these listed securities.
