@@ -17,7 +17,8 @@ In January 2005, the SEC implemented Regulation SHO to reduce the abuse of naked
 When naked short selling is used and the affected securities aren't delivered, the associated transactions will fail to clear. These failed transactions are reported regularly on a threshold list, and the SEC and other regulators can identify clues that improper naked short selling may have occurred.
 
 In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities.
-``` - Investopedia
+``` 
+- Investopedia
 
 The reporting of these lists can vary based on where and how the trades are executed.
 
@@ -115,8 +116,17 @@ FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this d
 Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
 
 #### Schema Mapping
-The column names do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents
-
+The column names do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents (left hand side is the original field name in the FINRA dataset):
+```
+    'tradeDate': 'Date',
+    'issueSymbolIdentifier': 'Symbol',
+    'issueName': 'Security Name',
+    'marketClassCode': 'Market Category',
+    'marketCategoryDescription': 'Market',
+    'thresholdListFlag': 'Threshold List Flag',
+    'regShoThresholdFlag': 'Reg SHO Threshold Flag',
+    'rule4320Flag': 'FINRA Rule 4320 Flag'
+```
 
 #### Data Source Info
 https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
@@ -128,7 +138,7 @@ https://www.finra.org/rules-guidance/rulebooks/finra-rules/3210
 #### Rule 4320 -- Short Sale Delivery Requirements
 https://www.finra.org/rules-guidance/rulebooks/finra-rules/4320
 
-#### market code (TRFs)
+#### Market Code (TRFs)
 https://www.finra.org/filing-reporting/trade-reporting-facility-trf
 
 There are 3 Trade Reporting Facilities in FINRA: NYTRF (NYSE), NCTRF (Nasdaq Carteret), and 
