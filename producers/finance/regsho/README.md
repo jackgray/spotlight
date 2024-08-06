@@ -26,11 +26,11 @@ They are are mandated to be publicly available, but finding the right place to l
 ## Data Sources
 Reg SHO Threshold lists are reported by the following agencies. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA
 
-- NYSE/NYSE American
-- Nasdaq
-- FINRA
+- NYSE/NYSE American (non-OTC)
+- Nasdaq (non-OTC after Nov 17, 2014)
+- FINRA (OTC Equities from Nasdaq and NYSE)
 - Cboe Global Markets (including BZX, BYX, EDGX, and EDGA)
-- OTC Markets Group
+- OTC Markets Group (theoretically covered by FINRA reporting)
 
 
 Nasdaq and NYSE fortunately have the same schema, but require different URL query parameters and use different datestring formats to call the data
@@ -40,7 +40,9 @@ Example from Nasdaq: `http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth
 Example from NYSE: `https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate=03-Feb-2024&market=NYSE`
 
 
+FINRA reports need field names to be mapped to correspond to Nasdaq and NYSE schema in order to consolidate the records into the same table
 
+A description of the original data can be found here: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
 
 
 ### NASDAQ
