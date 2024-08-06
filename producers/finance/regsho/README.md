@@ -33,7 +33,6 @@ Stocks like KOSS (Koss Corporation) are traded on NASDAQ, which reports FTDs for
 Nasdaq stopped including securities that reached the threshold due to OTC trades in 2014. This should be reported by FINRA.
 
 
-
 Source:
 
 https://www.nasdaqtrader.com/trader.aspx?id=regshothreshold
@@ -90,15 +89,18 @@ https://www.nyse.com/regulation/threshold-securities
 
 If we go to this data source at NYSE, and search dates we know GME existed on the threshold list like 02/02/2021, we can finally see GME.
 
-# Other sources?
+# Cboe Global Markets
+This includes the Cboe BZX Exchange, Cboe BYX Exchange, Cboe EDGX Exchange, and Cboe EDGA Exchange. These exchanges also provide threshold lists for securities traded on their platforms.
 
-Where else is data being reported that we simply cannot access? Are there other data sources we don't know about?
 
-# ICE
 
-This is a newer intermediary with their own swap data repository, where it is legal for institutions to file a swap with ICE, instead of the SEC or DTCC, and remain anonymous to everyone except the participants in the contract.
+# ICE (Intercontinental Exchange)
 
-Most of the data reported here is not available to the public
+ICE owns and operates multiple exchanges, including the NYSE.
+
+Any securities traded on ICE-owned exchanges that meet the Reg SHO threshold criteria would be reported as part of the public threshold lists through the NYSE or other relevant exchanges.
+
+ICE itself does not typically produce separate, undisclosed Reg SHO threshold lists; instead, it complies with the SEC's requirements for public disclosure through its exchanges.
 
 
 ### Requirements
