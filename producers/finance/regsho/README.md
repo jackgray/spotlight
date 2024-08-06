@@ -17,9 +17,9 @@ When naked short selling is used and the affected securities aren't delivered, t
 
 In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities. - Investopedia
 
-Reg SHO (Regulation SHO) threshold lists are published by various entities to provide transparency into stocks with significant levels of fails-to-deliver (FTDs). The reporting of these lists can vary based on where and how the trades are executed.
+The reporting of these lists can vary based on where and how the trades are executed.
 
-They are are mandated to be publicly available to ensure transparency and market integrity.
+They are are mandated to be publicly available to ensure transparency and market integrity, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
 
 
 
