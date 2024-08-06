@@ -169,6 +169,11 @@ ICE itself does not typically produce separate, undisclosed Reg SHO threshold li
 ## Usage
 
 ### Example Usage
+
+This directory uses api.py scripts to make calls to Reg SHO Lists via a variety of HTTP requests from various sources.
+
+Included is a file that shows example usage of these functions.
+
 ```
 from api import regsho_by_range
 
@@ -191,6 +196,10 @@ for source in sources:
     df = regsho_by_range(start_date='20140101', end_date='20190101' data_source=source, db_path='./regsho.duckdb')
 ```
 
+
+Everything should be achieved by the command `regsho_by_range()`, which uses the other functions to make calls to the various sources by date range. Setting the start_date equal to end_date should get you one date, and changing the source should allow you to filter that source. DuckDB integrates well with dataframes and exports to CSV easily so you can play with the data how you normally would without having to clean it.
+
+If you don't pip install duckdb then the table load should fail and you will receive a dataframe back. Depending on the request size, this may be memory intensive.
 
 ### Requirements
 DuckDB - crazy light and fast to install, no configuration needed
