@@ -6,7 +6,7 @@ from io import StringIO
 import duckdb
 from dotenv import load_dotenv
 from os import getenv
-from typing import Optional, List, Union
+from typing import Optional, Required, List, Union
 import time
 
 
@@ -75,8 +75,11 @@ def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist
                 break
             all_data.extend(data)   
             if len(data) < limit:
-                break   # when there are fewer results than the limit we've reached the end and can break the while loop
-            offset += limit     # Move
+                # when there are fewer results than the limit we've reached the end and can break the while loop
+                break   
+           
+           # Limits throttle the request size to comply with usage rate agreement, offset moves through available data in chunks. Offset increments should be equal to limit
+            offset += limit     
         else:
             print(f"Failed to fetch group {group} dataset {dataset} for date {datestring}: {response.status_code} {response.text}")
             return pd.DataFrame()
@@ -166,15 +169,7 @@ def nyse_by_date(datestring, markets=None, db_path='./stonk.duckdb', max_retries
 
 
 def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
-    '''
-        Grabs reg sho threshold list data from one of multiple possible sources (NYSE and NASDAQ currently)
-
-        Can be used inside regsho_by_date_range function to grab data for multiple days and load into db
-
-        Args:
-
-        datestring: the date you want data for. Must be formatted 
-    '''
+    ''' datestring must be in format YYYYmmdd '''
 
     date_format = '%Y%m%d'
     date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
@@ -222,11 +217,15 @@ def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
     return df
 
 
-# Field definitions for Nasdaq here: https://www.nasdaqtrader.com/Trader.aspx?id=RegShoDefs
-# NYSE follows the same schema :)
-# For FINRA: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
-# Field definitions 
+
 def clean_df(df, data_source='NYSE'):
+    '''
+    Field definitions:
+    Nasdaq: https://www.nasdaqtrader.com/Trader.aspx?id=RegShoDefs
+    NYSE: follows the same schema :) (also I can't find a data dict for it)
+    FINRA: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
+    '''
+
     acceptable_sources = ['nyse', 'nasdaq', 'finra']
     if data_source.lower() == 'nyse':
         df['Data Provider'] = 'NYSE'
@@ -265,7 +264,7 @@ def clean_df(df, data_source='NYSE'):
     else: 
         print(f"\nReceived unknown data source value: {data_source}. Please use one of {acceptable_sources}")
     
-    # NYSE/NASDAQ put in 'Filler' columns but don't use them. Haven't learned why yet, but we don't need to carry them over
+    # NYSE/NASDAQ put in 'Filler' columns but don't use them. I haven't learned why yet, but we don't need to carry them over rn.
     drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]
     df.drop(drop_cols, axis=1, inplace=True)
 
@@ -287,6 +286,10 @@ def clean_df(df, data_source='NYSE'):
     
 
 def load_df_to_duckdb(df, db_path, data_source):
+    '''
+        loads df into duckdb by running clean_df() and asserting a table with the proper schema
+    ''' 
+
     # Easily change the table naming convention
     table_name = data_source.lower() + '_regsho_daily'
 
@@ -331,7 +334,6 @@ def load_df_to_duckdb(df, db_path, data_source):
         print("Inserted df into duckdb table")
     except Exception as e: 
         print(f'\n\n**********ERROR*******\nDB LOAD FAILED {e}\n\n')
-
     con.close()
 
     return df
@@ -340,10 +342,11 @@ def load_df_to_duckdb(df, db_path, data_source):
 
 def regsho_by_date(datestring, data_sources, db_path):
     '''
-    Abstraction for source-specific functions. Grabs records by date for all data sources supplied
+    Grabs records by date for all data sources supplied
 
     Args:
-    data_sources: [List]; List of data sources to grab records from. Currently supports one or all of ['nyse', 'nasdaq', 'finra']
+    data_sources: [List]; One or all of ['nyse', 'nasdaq', 'finra']
+    datestring: Str; YYYYmmdd format
     '''
 
     dfs=[]
@@ -368,18 +371,16 @@ def regsho_by_date(datestring, data_sources, db_path):
 
 def regsho_by_range(start_date, end_date, data_sources, db_path):
     '''
-
     Args:
-    start_date: String %Y%m%d (e.g. 20240125 = jan 25 2024)
-    end_date: String %Y%m%d or 'yesterday'
+    start_date: String %Y%m%d aka YYYYmmdd (e.g. 20240125 = jan 25 2024)
+    end_date: String %Y%m%d, or 'yesterday'
 
     Returns: df of values that failed to load into DuckDB
-
     '''
 
     # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
     datestrings = generate_date_strings(start_date, end_date)
-    print(f"\n\n\n\n\n***************\nPulling data for dates ranging: {start_date}-{end_date}")
+    print(f"\n\n\n\n\n\nPulling data for dates ranging: {start_date}-{end_date}")
     dfs = []
     for datestring in datestrings:
         # Download file
@@ -391,20 +392,23 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
             # Concatenate all DataFrames into a single DataFrame
             # final_df = pd.concat(dfs, ignore_index=True)
         except Exception as e:
-            print('\n\n\n********************\n', e)
-            print(f"Could not grab data for date: {datestring} -- Probably tried to download a weekend or holiday date -- skipping to next day\n********************\n\n")
+            print(f"\n\n\n\Could not grab data for date: {datestring} -- This was probably a holiday/non-trading day -- skipping to next day\n********************\n\n")
 
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 
 def pull_all(data_sources, start_date, end_date='yesterday', db_path='./stonk.duckdb'):
+    ''' should save data to duckdb file or return failed rows as a df. If the df is empty, all data that was retreived was loaded '''
+
+    print(f"Attempting to download requested data from: {list(data_sources)}.\n It will try to load the records by date from each source into their own DuckDB tables, then combine them. \
+    \n Any data that fails to be loaded will return as a dataframe. Any request that fails will skip to the next date.")
     df = pd.DataFrame()
     df = regsho_by_range(start_date=start_date, end_date=end_date, data_sources=data_sources, db_path='./stonk.duckdb')
     if not df.empty:
         print("Some rows were not added to duckdb")
         print(df)
     else:
-        print("No df returned, meaning that all data that was successfully retrieved was successfully loaded into database.\n\n\n")
+        print("\n\n\nNo dataframe returned, meaning that all data that was successfully retrieved was successfully loaded into database. This does not yet indicate failures to actually retrieve the data, it currently just skips to the next date.\n")
 
     return df
 
@@ -429,11 +433,7 @@ def merge_tables(db_path='./stonk.duckdb'):
             ORDER BY Date;
         """)
     con.close()
-
     return print("Merging tables...")
-
-
-
 
 
 
@@ -441,18 +441,17 @@ def merge_tables(db_path='./stonk.duckdb'):
 # Less interesting stuff
 #########################
 
-
-def generate_date_strings(start_date = '20190101', end_date='yesterday'):
+def generate_date_strings(start_date = '20190101', end_date='yesterday') -> Required[str]:
     '''
-    Generates list datestrings to supply to URL build parameters for API call
+    Generates list of datestrings to supply to URL build parameters for API call
 
-    Dates must be formatted as %Y%m%d aka YYYYmmdd
+    Dates must be formatted as %Y%m%d aka YYYYmmdd; 'yesterday' will generate the datestring based on datetime.now
     '''
 
-    date_format = '%Y%m%d'
-    yesterday = (datetime.now() - timedelta(days=1)).strftime(date_format)
-    start_date = yesterday if start_date == 'yesterday' else start_date
-    end_date = yesterday if end_date == 'yesterday' else end_date
+    dates = { 'yesterday': (datetime.now() - timedelta(days=1)).strftime(date_format),
+                'today': datetime.now().strftime(date_format) }
+    start_date = dates.get(start_date, start_date)
+    end_date = dates.get(end_date, end_date)
 
     # Parse the input date strings into datetime objects
     try:
@@ -482,8 +481,7 @@ def generate_date_strings(start_date = '20190101', end_date='yesterday'):
     return date_strings
 
 
-
-def get_finra_session(api_key: str, api_secret: str) -> Optional[str]:
+def get_finra_session(api_key: str, api_secret: str) -> Required[str]:
     """
     Retrieve a FINRA session token using the provided API key and secret.
 
@@ -492,15 +490,13 @@ def get_finra_session(api_key: str, api_secret: str) -> Optional[str]:
     api_secret (str): The API secret you set when you confirmed the API key creationA.
 
     Returns:
-    Optional[str]: The FINRA session token if the request is successful, otherwise None.
+    Required[str]: The FINRA session token if the request is successful, otherwise None.
     """
     from base64 import b64encode
 
     # Encode the API key and secret
     finra_token = f"{api_key}:{api_secret}"
-    # print(f"Using token: {finra_token}")
     encoded_token = b64encode(finra_token.encode()).decode()
-    # print(f"Using finra session token {encoded_token}")
 
     # URL for requesting the session token
     url = "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
@@ -508,8 +504,10 @@ def get_finra_session(api_key: str, api_secret: str) -> Optional[str]:
         "Authorization": f"Basic {encoded_token}"
     }
 
-    # Make the request to get the session token
-    response = requests.post(url, headers=headers)
+    try:
+        # Make the request to get the session token
+        response = requests.post(url, headers=headers)
+    except Exception as e: print("Request for FINRA session token failed :( \n", e)
 
     # Check if the request was successful
     if response.status_code == 200:

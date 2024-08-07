@@ -1,33 +1,12 @@
 
 
-# Regulation SHO (Reg SHO) Daily Threshold Data
+# Regulation SHO (Reg SHO) Daily Threshold Data (README)
 
 This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate all Reg SHO threshold reports.
 
-## About Reg SHO
-https://www.investopedia.com/terms/t/thresholdlist.asp#toc-understanding-threshold-lists
-
-```
-A threshold list, also known as a Regulation SHO Threshold Security List, is a list of securities whose transactions failed to clear for five consecutive settlement days at a registered clearing agency.
-
-Threshold lists are published in accordance with regulations set by the Securities and Exchange Commission (SEC). Regulators review this information as part of their efforts to detect market manipulation.
-
-In January 2005, the SEC implemented Regulation SHO to reduce the abuse of naked short selling, where the seller does not borrow or arrange to borrow the securities in time to make delivery to the buyer within the standard two-day settlement period. As a result, the seller fails to deliver securities to the buyer when delivery is due, known as a "failure to deliver" or "fail."
-
-When naked short selling is used and the affected securities aren't delivered, the associated transactions will fail to clear. These failed transactions are reported regularly on a threshold list, and the SEC and other regulators can identify clues that improper naked short selling may have occurred.
-
-In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities.
-``` 
-- Investopedia
-
-The reporting of these lists can vary based on where and how the trades are executed.
-
-They are are mandated to be publicly available, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
-
-
 
 ## Data Sources
-Reg SHO Threshold lists are reported by the following agencies. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA
+Reg SHO Threshold lists are reported separately by the respective agencies that manage the exchanges where the transactions failing settlement take place. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA
 
 - NYSE/NYSE American (non-OTC)
 - Nasdaq (non-OTC after Nov 17, 2014)
@@ -74,18 +53,17 @@ https://www.nasdaqtrader.com/trader.aspx?id=ShortSaleCircuitBreaker
 FINRA provides separate reports for FTDs related to OTC trades and "Other OTC" trades. This distinction helps differentiate between the standard OTC market and less regulated OTC markets.
 
 #### OTC (Over-The-Counter) Trades
-These are trades conducted directly between parties without the use of a central exchange. FINRA (Financial Industry Regulatory Authority) reports FTDs for OTC trades.
+These are trades conducted directly between parties without the use of a central exchange.
 
 #### Other OTC
-This category includes trades that are not listed on major exchanges and are typically traded through OTC markets. FINRA also reports FTDs for these trades.
+This category includes trades that are not listed on major exchanges and are typically traded through OTC markets. 
 
 #### Trade Reporting Facilities (TRFs)
-Platforms established by FINRA to facilitate the reporting of over-the-counter (OTC) trades in equities and related securities. These facilities play a crucial role in ensuring transparency and regulatory compliance in the trading of securities that are not listed on national exchanges or are traded off-exchange. 
+Platforms established by FINRA to facilitate the reporting of OTC trades in equities and related securities that may not be listed on national exchanges or are traded off-exchange. 
 
 TRF Exchange Participants: https://www.finra.org/filing-reporting/trf/trf-exchange-participants
 
-FINRA currently has 3 active TRFs
-NYSE TRF, and 2 Nasdaq TRFs: 
+FINRA currently has 3 active TRFs: 1 NYSE TRF, and 2 Nasdaq TRFs
 
 ##### NYSE Trade Reporting Facility (NYTRF)
 Provides a platform for reporting trades executed away from the NYSE and ensures that all trades, including those in listed and non-listed securities, are reported to a centralized system.
@@ -94,7 +72,7 @@ It facilitates trade reporting for equities and equity-related products, ensures
 
 https://www.finra.org/sites/default/files/nyse-trf-fix-specification.pdf
 
-##### Nasdaq Trade Reporting Facility (NCTRF/?TRF)
+##### Nasdaq Trade Reporting Facility
 Nasdaq TRF Carteret/ Nasdaq TRF Chicago
 
 Serves as a platform for reporting trades in Nasdaq-listed securities and other equities. It supports trade reporting for both listed and off-exchange trades. 
@@ -116,7 +94,7 @@ FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this d
 Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
 
 #### Schema Mapping
-The column names do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents (left hand side is the original field name in the FINRA dataset):
+The column names in FINRA datasets do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents (left hand side is the original field name in the FINRA dataset):
 ```
     'tradeDate': 'Date',
     'issueSymbolIdentifier': 'Symbol',
@@ -157,8 +135,7 @@ Includes a broad range of financial instruments, particularly options and ETFs.
 This includes the Cboe BZX Exchange, Cboe BYX Exchange, Cboe EDGX Exchange, and Cboe EDGA Exchange. These exchanges also provide threshold lists for securities traded on their platforms.
 
 ##### Cboe Trade Reporting Facility (Cboe TRF)
-Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities.
-
+Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities. I intend to add this as a data source next.
 
 
 ### OTC Markets Group
@@ -172,9 +149,7 @@ Pink Market: Includes a wide variety of companies, from speculative penny stocks
 
 The threshold qualifications are different for SEC reporting issuers and non-SEC reporting issuers (see definitions). Reporting companies are governed by Reg SHO and non-reporting companies are governed by Rule 4320. -OTC Markets
 
-OTC Markets is subject to lighter regulatory scrutiny compared to major exchanges. However, they still must comply with SEC regulations, including Reg SHO.
-
-Stocks reported on the Reg SHO lists by OTC Markets Group and FINRA *should* *appear on FINRA's list, as FINRA has oversight over the exchanges listed by OTC Markets Group
+Stocks reported on the Reg SHO lists by OTC Markets Group and FINRA *should* *appear on FINRA's list, as FINRA has oversight over the exchanges listed by OTC Markets Group. Still, I hope to scrape this data to confirm.
 
 
 ### Alternative Trading Systems (ATSs)
@@ -199,8 +174,6 @@ https://www.otcmarkets.com/market-activity/reg-sho-data
 While FINRA oversees most OTC trading in the U.S., certain specialized trading platforms like ATSs, ECNs, and international OTC markets may operate under different regulatory frameworks or additional layers of oversight. However, these still fall under broader SEC regulations, ensuring that even if FINRA isn't the primary overseer, there are stringent regulatory mechanisms in place.
 
 
-
-
 ## ICE (Intercontinental Exchange)
 
 ICE owns and operates multiple exchanges, including the NYSE.
@@ -212,36 +185,6 @@ ICE itself does not typically produce separate, undisclosed Reg SHO threshold li
 Explore data reported through ICE here 
 https://www.ice.com/report-center
 
-
-## Usage
-
-### Example Usage
-
-This directory uses api.py scripts to make calls to Reg SHO Lists via a variety of HTTP requests from various sources.
-
-Included is a file that shows example usage of these functions.
-
-```
-from api import regsho_by_range
-
-df = regsho_by_range(start_date='20140101', end_date='20190101' data_source='nasdaq', db_path='./regsho.duckdb')
-        if df:
-            print("Some rows were not added to duckdb")
-            print(df)
-        else:
-            print("All downloaded data was inserted successfully")
-```
-
-This will create a new table in DuckDB called {data_source}_regsho_daily
-
-The next version will allow CSV file export of the data.
-
-To run all in one go, create an array and loop through all the data sources
-```
-sources = ['finra', 'nasdaq', 'nyse']
-for source in sources:
-    df = regsho_by_range(start_date='20140101', end_date='20190101' data_source=source, db_path='./regsho.duckdb')
-```
 
 
 Everything should be achieved by the command `regsho_by_range()`, which uses the other functions to make calls to the various sources by date range. Setting the start_date equal to end_date should get you one date, and changing the source should allow you to filter that source. DuckDB integrates well with dataframes and exports to CSV easily so you can play with the data how you normally would without having to clean it.
@@ -255,8 +198,10 @@ python3 (3.11 recommended)
 
 pip packages: datetime, pandas, duckdb, dotenv
 
+##### FINRA API KEY 
+For FINRA to be used as a source, you must have a .env file in the same directory with an API key and secret. The secret is a password you set through a confirmation email link after creating an API token in FINRA's API Console. You can access this by creating a free individual investor account. 
 
-Note that for FINRA to be used as a source, you must have a .env file in the same directory with an API key and secret. The secret is a password you set through a confirmation email link after creating an API token in FINRA's API Console. You can access this by creating a free individual investor account. 
+hint--GME or related tickers didn't show up in my FINRA table
 
 ### Queries
 
@@ -309,3 +254,26 @@ COPY (
     WHERE Symbol IN ('GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF')
 ) TO regsho_stonks.csv
 ```
+
+
+
+## About Reg SHO
+https://www.investopedia.com/terms/t/thresholdlist.asp#toc-understanding-threshold-lists
+
+```
+A threshold list, also known as a Regulation SHO Threshold Security List, is a list of securities whose transactions failed to clear for five consecutive settlement days at a registered clearing agency.
+
+Threshold lists are published in accordance with regulations set by the Securities and Exchange Commission (SEC). Regulators review this information as part of their efforts to detect market manipulation.
+
+In January 2005, the SEC implemented Regulation SHO to reduce the abuse of naked short selling, where the seller does not borrow or arrange to borrow the securities in time to make delivery to the buyer within the standard two-day settlement period. As a result, the seller fails to deliver securities to the buyer when delivery is due, known as a "failure to deliver" or "fail."
+
+When naked short selling is used and the affected securities aren't delivered, the associated transactions will fail to clear. These failed transactions are reported regularly on a threshold list, and the SEC and other regulators can identify clues that improper naked short selling may have occurred.
+
+In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities.
+``` 
+- Investopedia
+
+The reporting of these lists can vary based on where and how the trades are executed.
+
+They are are mandated to be publicly available, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
+
