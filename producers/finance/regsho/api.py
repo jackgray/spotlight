@@ -397,7 +397,7 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 
-def pull_all(data_sources, start_date, end_date='yesterday'):
+def pull_all(data_sources, start_date, end_date='yesterday', db_path='./stonk.duckdb'):
     df = pd.DataFrame()
     df = regsho_by_range(start_date=start_date, end_date=end_date, data_sources=data_sources, db_path='./stonk.duckdb')
     if not df.empty:
@@ -418,7 +418,7 @@ def merge_tables(db_path='./stonk.duckdb'):
     if table_exists:
         # Drop the existing table
         con.execute("DROP TABLE regsho_daily")
-        
+
     con.execute(f"""
             CREATE TABLE regsho_daily AS
             SELECT * FROM nasdaq_regsho_daily

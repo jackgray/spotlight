@@ -1,10 +1,30 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
 import duckdb
-import pandas as pd
+from api import regsho_by_range, pull_all, merge_tables
 
+
+
+# df = load_finra_regsho()
+data_sources = ['nasdaq', 'finra', 'nyse']
+# data_sources = ['nyse']
+
+###################
+# GATHER ZEE DATA
+###################
+
+pull_all(data_sources=data_sources, start_date='20130101', end_date='20140201')
+
+merge_tables()
+
+
+
+###################
+# EXPOLORE ZEE DATA
+###################
+
+ticker_fam = ['GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF']
 
 def load_data(ticker_list, db_path='./stonk.duckdb'):
     con = duckdb.connect(database=db_path, read_only=False)
@@ -17,9 +37,13 @@ def load_data(ticker_list, db_path='./stonk.duckdb'):
     con.close()
     return df
 
-import pandas as pd
 
-import pandas as pd
+ticker_fam = ['GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF']
+df = load_data(ticker_fam)
+
+###################
+# TRANSFORM ZEE DATA
+###################
 
 def heatmap_df(df):
     # Ensure Date column is of datetime type
@@ -45,17 +69,19 @@ def heatmap_df(df):
     return heatmap_df
 
 
-def save_to_csv(df, file_path='heatmap_data.csv'):
+def save_to_csv(df, file_path='regsho_stonks_output.csv'):
     df.to_csv(file_path)
 
-# Example usage
-ticker_fam = ['GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF']
-df = load_data(ticker_fam)
+
 print('loaded data: ', df)
 transformed_df = heatmap_df(df)
 print(transformed_df)
-save_to_csv(transformed_df)
+transformed_df.to_csv('regsho_stonks_heatmap.csv')
 
+
+###################
+# PLOT ZEE DATA
+###################
 
 def plot_heatmap(df):
     '''
@@ -78,5 +104,3 @@ def plot_heatmap(df):
     # Show the plot
     plt.tight_layout()
     plt.show()
-
-# plot_heatmap(transformed_df)

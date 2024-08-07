@@ -262,7 +262,7 @@ Note that for FINRA to be used as a source, you must have a .env file in the sam
 
 Enter the database with `duckdb gme.duckdb` or whatever you named the db
 
-To query the top 5 most occurring stocks on Reg SHO Daily Threshold list and display their rate of occurence
+To query the top n most occurring stocks on Reg SHO Daily Threshold list and display their rate of occurence
 
 ```
 SELECT
@@ -280,7 +280,7 @@ ORDER BY
 LIMIT 15;
 ```
 
-To combine tables from nyse nasdaq and finra:
+To combine tables from nyse nasdaq and finra (already performed by pipeline assuming all sources were retrieved):
 ```
 CREATE TABLE regsho_daily AS
 SELECT * FROM nasdaq_regsho_daily
@@ -300,4 +300,12 @@ WHERE Symbol IN ('GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH
 Create a CSV file:
 ```
 COPY regsho_daily TO 'regsho_complete.csv' (HEADER, DELIMITER ',');
+```
+
+Create a csv file from query results
+```
+COPY (
+    SELECT * FROM regsho_daily
+    WHERE Symbol IN ('GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF')
+) TO regsho_stonks.csv
 ```
