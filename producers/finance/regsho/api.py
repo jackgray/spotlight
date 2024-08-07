@@ -11,89 +11,6 @@ import time
 
 
 
-def generate_date_strings(start_date = '20190101', end_date='yesterday'):
-    '''
-    Generates list datestrings to supply to URL build parameters for API call
-
-    start_date: Input start date in format YYYYmmdd
-    end_date: same format as above or 'yesterday' to automatically download up to the latest release
-    date_format: the format that the data source URL uses. 
-        Nasdaq: '%d-%b-%Y'
-        NYSE: '%Y%m%d', 
-        FINRA: '%Y-%m-%d'
-    '''
-    date_format = '%Y%m%d'
-    yesterday = (datetime.now() - timedelta(days=1)).strftime(date_format)
-    start_date = yesterday if start_date == 'yesterday' else start_date
-    end_date = yesterday if end_date == 'yesterday' else end_date
-
-    # Parse the input date strings into datetime objects
-    try:
-        # Parse the input date strings into datetime objects
-        start_date = datetime.strptime(start_date, date_format)
-        end_date = datetime.strptime(end_date, date_format)
-    except ValueError as e:
-        print(f"Error parsing dates: {e}")
-        print(f"Start date input: {start_date}")
-        print(f"End date input: {end_date}")
-        return []
-    # Initialize an empty list to hold the date strings
-    date_strings = []
-    
-    # Iterate over each day in the date range
-    current_date = start_date
-    while current_date <= end_date:
-        # only add to list if it is a weekday (monday-friday)
-        if current_date.weekday() < 5:
-            # Format the current date as 'YYYYmmdd'
-            date_str = current_date.strftime(date_format)
-            date_strings.append(date_str)
-            
-        # Move to the next day
-        current_date += timedelta(days=1)
-    
-    return date_strings
-
-
-
-def get_finra_session(api_key: str, api_secret: str) -> Optional[str]:
-    """
-    Retrieve a FINRA session token using the provided API key and secret.
-
-    Parameters:
-    api_key (str): The API key for FINRA you generated.
-    api_secret (str): The API secret you set when you confirmed the API ke creationA.
-
-    Returns:
-    Optional[str]: The FINRA session token if the request is successful, otherwise None.
-    """
-    from base64 import b64encode
-
-    # Encode the API key and secret
-    finra_token = f"{api_key}:{api_secret}"
-    # print(f"Using token: {finra_token}")
-    encoded_token = b64encode(finra_token.encode()).decode()
-    # print(f"Using finra session token {encoded_token}")
-
-    # URL for requesting the session token
-    url = "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
-    headers = {
-        "Authorization": f"Basic {encoded_token}"
-    }
-
-    # Make the request to get the session token
-    response = requests.post(url, headers=headers)
-
-    # Check if the request was successful
-    if response.status_code == 200:
-        return response.json().get('access_token')
-    else:
-        print(f"Failed to get session token: {response.status_code} {response.text}")
-        return None
-
-
-
-
 def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist', datestring='20240704', db_path='./stonk.duckdb', limit=1000) -> Optional[Union[List[dict], List]]:
     """
     Query against FINRA Query API data from FINRA API for a specific date.
@@ -115,14 +32,14 @@ def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist
     # Generate session token
     token = get_finra_session(api_key, api_secret)
     if not token:
-        print("Token for FINRA API could not be generated.")
+        print("\nToken for FINRA API could not be generated.")
         return pd.DataFrame()  # Changed from None to an empty DataFrame
 
     url = f"https://api.finra.org/{datareq_type}/group/{group}/name/{dataset}"
     date_format = '%Y-%m-%d'
     datestring = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
 
-    print(f"Querying FINRA API at {url} for date {datestring}")
+    print(f"\nQuerying FINRA API at {url} for date {datestring}")
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -131,12 +48,9 @@ def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist
 
     all_data = []
     offset = 0
-    
-    # Initialize an empty DataFrame to collect all results
     df = pd.DataFrame()
-    print(f"Requesting data for date: {datestring}")
     while True:
-        # This part allows filtering by running comparisons on field values. Here, date must equal the supplied datestring
+        # This part allows date filtering
         params = {
             "limit": limit,
             "offset": offset,
@@ -149,32 +63,26 @@ def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist
         if response.status_code == 200:
             response.raise_for_status()
 
+            # Extract response as CSV
             if response.headers.get('Content-Type') == 'text/plain':
                 csv_data = StringIO(response.text)
                 reader = csv.DictReader(csv_data)
                 data = list(reader)
             else:
                 data = response.json()
-
             if not data:
                 print('No data returned from FINRA API')
                 break
-
             all_data.extend(data)   
-
-            # print('Whats going on here: ', all_data)
-
             if len(data) < limit:
-                break   # when there are fewer results than the limit we've reached the end
-
+                break   # when there are fewer results than the limit we've reached the end and can break the while loop
             offset += limit     # Move
-
         else:
             print(f"Failed to fetch group {group} dataset {dataset} for date {datestring}: {response.status_code} {response.text}")
             return pd.DataFrame()
 
     df = pd.DataFrame(all_data)
-    print("Returning FINRA df: ", df)
+    print("Returning FINRA df (preview): ", df.head(3))
     df['Source URL'] = url
     df = load_df_to_duckdb(df=df, db_path=db_path, data_source='FINRA')
     return df
@@ -196,35 +104,31 @@ def nyse_by_date(datestring, markets=None, db_path='./stonk.duckdb', max_retries
     date_format = '%d-%b-%Y'    # Format that the url query string expects
     date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
     
-    # Initialize an empty DataFrame to collect all results
     all_data = pd.DataFrame()
-
     # NYSE has 3 Exchanges/TRFs that report FTDs: NYSE, NYSE American, and NYSE Arca
     for market in markets:
         print("Pulling from NYSE market: ", market)
         
         url = f'https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate={date}&market={market}'
-        print(f"Grabbing data from url: {url}")
+        print(f"\nGrabbing data from url: {url}")
         retries = 0
         # Send request to server using generated URL
         while retries < max_retries:
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    print(f"Got successful response from server.")
+                    print(f"\nGot successful response from server.")
                     data = StringIO(response.text)
-                    print("Data: ", data)
                     df = pd.read_csv(data, sep='|')
+                    print("Preview: ", df.head)
                     # Remove the last line which is only datestring
                     if not df.empty:
-                        print("Removing last line from df: ", df)
                         df = df.iloc[:-1]
 
                     # Add the date as a new column
                     if not df.empty:
-                        print("Not empty:", df)
                         try:
-                            print("Adding date, source URL, and market as columns")
+                            print("\nAdding date, source URL, and market as columns")
                             df['Date'] = pd.to_datetime(datestring, format='%Y%m%d').strftime('%Y-%m-%d')
                             df['Source URL'] = url
                             df['Market'] = market.replace('%20', ' ')
@@ -284,7 +188,7 @@ def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
         try:
             response = requests.get(url)
             if response.status_code == 200:
-                print(f"Got successfull response from server.")
+                print(f"\nGot successfull response from server.")
                 # print(response['Content-Type'])
                 data = StringIO(response.text)
                 df = pd.read_csv(data, sep='|')
@@ -292,7 +196,7 @@ def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
                 df = df.iloc[:-1]
                 # Add the date as a new column
                 try:
-                    print("Adding date and source URL as columns")
+                    print("\nAdding date and source URL as columns")
                     # Convert date from supplied datestring to standard ISO format (using whatever date format was chosen for converting datestrings)
                     df['Date'] = pd.to_datetime(datestring, format='%Y%m%d').strftime('%Y-%m-%d')
                     df['Source URL'] = url
@@ -319,13 +223,15 @@ def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
 
 
 # Field definitions for Nasdaq here: https://www.nasdaqtrader.com/Trader.aspx?id=RegShoDefs
+# NYSE follows the same schema :)
 # For FINRA: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
 # Field definitions 
 def clean_df(df, data_source='NYSE'):
     acceptable_sources = ['nyse', 'nasdaq', 'finra']
     if data_source.lower() == 'nyse':
         df['Data Provider'] = 'NYSE'
-        df['FINRA Rule 4320 Flag'] = ' '
+        # Make fields only provided by FINRA satisfy SQL dimension requirements
+        df['FINRA Rule 4320 Flag'] = ''
         df['Rule 3210'] = ' '
         df['Threshold List Flag'] = ' '
     elif data_source.lower() == 'nasdaq':
@@ -333,6 +239,7 @@ def clean_df(df, data_source='NYSE'):
         df['Data Provider'] = 'Nasdaq'
         df['Threshold List Flag'] = ' '
         df['FINRA Rule 4320 Flag'] = ' '
+    # Convert FINRA field names to NASDAQ/NYSE equivalents
     elif data_source.lower() == 'finra':
         df['Data Provider'] = 'FINRA'
         df['Rule 3210'] = ' '
@@ -347,30 +254,27 @@ def clean_df(df, data_source='NYSE'):
             'rule4320Flag': 'FINRA Rule 4320 Flag'
         }
 
-        print(f"Renaming column names of df: {df.columns} \n according to this map: {column_map}")
+        print(f"\nRenaming column names of df: {df.columns} \n according to this map: {column_map}")
         try:
             df.rename(columns=column_map, inplace=True)
-            print(f"Rename successful: {df.columns}")
+            print(f"\nRename successful - new column names: {df.columns}")
 
         except Exception as e:
             print("\n\n\n********************\n", e, "\n********************\n\n")
-            print("Error cleaning df")
+            print("\nError cleaning df")
     else: 
-        print(f"Received unknown data source value: {data_source}. Please use one of {acceptable_sources}")
+        print(f"\nReceived unknown data source value: {data_source}. Please use one of {acceptable_sources}")
     
-    # Filler column present in NYSE and Nasdaq reports is not being used
-    try: df.drop('Filler', axis=1, inplace=True)
-    except Exception as e: print("\n\n\n********************\n", e, "\n********************\n\n")
-    # Filler column present in NYSE and Nasdaq reports is not being used
-    try: df.drop('Filler.1', axis=1, inplace=True)
-    except Exception as e: print("\n\n\n********************\n", e, "\n********************\n\n")
+    # NYSE/NASDAQ put in 'Filler' columns but don't use them. Haven't learned why yet, but we don't need to carry them over
+    drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]
+    df.drop(drop_cols, axis=1, inplace=True)
 
-    # Generate unique row ID
-    print("Generating ID string")
+    # Generate unique row ID programatically to avoid duplicate insertions
+    print("\nGenerating ID string from data_source + Symbol + Date + Market Category")
     df['ID'] = (data_source.lower() + df['Symbol'] + 
             df['Date'].str.replace('-', '').str.replace('_', '') + df['Market Category'].str.replace(' ', '').str.lower())
 
-    # print(df['ID'])
+    # drop the unecessary pandas index (which doesn't get inserted to duckdb)
     df.reset_index(drop=True, inplace=True)
 
     # Check for null values in the ID column
@@ -383,17 +287,17 @@ def clean_df(df, data_source='NYSE'):
     
 
 def load_df_to_duckdb(df, db_path, data_source):
-
+    # Easily change the table naming convention
     table_name = data_source.lower() + '_regsho_daily'
 
     if df.empty:
         print("DataFrame is empty. Skipping insertion.")
         return
 
-    # Unify field names
+    # Unify field names (renaming, drop columns, reset index)
     df = clean_df(df=df, data_source=data_source)
 
-    print(f"Inserting cleaned dataframe: {df.head}")
+    print(f"Inserting cleaned dataframe: {df.head(3)}")
 
     con = duckdb.connect(database=db_path, read_only=False)
     # Ensure the table exists with the correct schema
@@ -416,12 +320,9 @@ def load_df_to_duckdb(df, db_path, data_source):
     """)
     except Exception as e: 
         print(f"\n\n******ERROR******\nCould not make table {table_name} \n {e}\n\n\n\n")
+        return None
 
     # Insert the data into the table
-    insert_sql = f"""
-        INSERT INTO {table_name} 
-        SELECT * FROM df
-        """
     try: 
         con.execute(f"""
             INSERT INTO {table_name} BY NAME
@@ -438,12 +339,18 @@ def load_df_to_duckdb(df, db_path, data_source):
 
 
 def regsho_by_date(datestring, data_sources, db_path):
+    '''
+    Abstraction for source-specific functions. Grabs records by date for all data sources supplied
+
+    Args:
+    data_sources: [List]; List of data sources to grab records from. Currently supports one or all of ['nyse', 'nasdaq', 'finra']
+    '''
+
     dfs=[]
     for data_source in data_sources:
         print(f"Pulling data from {data_source} for {datestring}")
 
         if data_source == 'finra':
-            print("\n\nPulling FINRA Data\n")
             df = finra_by_date(datestring=datestring, db_path=db_path)
         elif data_source == 'nasdaq':
             df = nasdaq_by_date(datestring=datestring, db_path=db_path)
@@ -470,12 +377,6 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
 
     '''
 
-    # Allow 'yesterday' to be supplied as an input for start or end date
-    # If start date is set to 'yesterday' a list of one day (yesterdays date) should be returned
-    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d') # Function requires string input so use strftime to convert
-    start_date = yesterday if start_date == 'yesterday' else start_date
-    end_date = yesterday if end_date == 'yesterday' else end_date
-
     # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
     datestrings = generate_date_strings(start_date, end_date)
     print(f"\n\n\n\n\n***************\nPulling data for dates ranging: {start_date}-{end_date}")
@@ -483,7 +384,7 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
     for datestring in datestrings:
         # Download file
         try: 
-            print(f"\n\n\n\n\n\n\n\n\n\n\nDownloading data for date: {datestring}")
+            print(f"\n\n\nDownloading data for date: {datestring}")
             df = regsho_by_date(datestring=datestring, data_sources=data_sources, db_path=db_path)
             if not df.empty:
                 dfs.append(df)
@@ -511,6 +412,13 @@ def pull_all(data_sources, start_date, end_date='yesterday'):
 
 def merge_tables(db_path='./stonk.duckdb'):
     con = duckdb.connect(database=db_path, read_only=False)
+    # Check if the table exists
+    table_exists = con.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'regsho_daily'").fetchone()[0] > 0
+    
+    if table_exists:
+        # Drop the existing table
+        con.execute("DROP TABLE regsho_daily")
+        
     con.execute(f"""
             CREATE TABLE regsho_daily AS
             SELECT * FROM nasdaq_regsho_daily
@@ -523,3 +431,90 @@ def merge_tables(db_path='./stonk.duckdb'):
     con.close()
 
     return print("Merging tables...")
+
+
+
+
+
+
+#########################
+# Less interesting stuff
+#########################
+
+
+def generate_date_strings(start_date = '20190101', end_date='yesterday'):
+    '''
+    Generates list datestrings to supply to URL build parameters for API call
+
+    Dates must be formatted as %Y%m%d aka YYYYmmdd
+    '''
+
+    date_format = '%Y%m%d'
+    yesterday = (datetime.now() - timedelta(days=1)).strftime(date_format)
+    start_date = yesterday if start_date == 'yesterday' else start_date
+    end_date = yesterday if end_date == 'yesterday' else end_date
+
+    # Parse the input date strings into datetime objects
+    try:
+        # Parse the input date strings into datetime objects
+        start_date = datetime.strptime(start_date, date_format)
+        end_date = datetime.strptime(end_date, date_format)
+    except ValueError as e:
+        print(f"Error parsing dates: {e}")
+        print(f"Start date input: {start_date}")
+        print(f"End date input: {end_date}")
+        return []
+    # Initialize an empty list to hold the date strings
+    date_strings = []
+    
+    # Iterate over each day in the date range
+    current_date = start_date
+    while current_date <= end_date:
+        # only add to list if it is a weekday (monday-friday)
+        if current_date.weekday() < 5:
+            # Format the current date as 'YYYYmmdd'
+            date_str = current_date.strftime(date_format)
+            date_strings.append(date_str)
+            
+        # Move to the next day
+        current_date += timedelta(days=1)
+    
+    return date_strings
+
+
+
+def get_finra_session(api_key: str, api_secret: str) -> Optional[str]:
+    """
+    Retrieve a FINRA session token using the provided API key and secret.
+
+    Parameters:
+    api_key (str): The API key for FINRA you generated.
+    api_secret (str): The API secret you set when you confirmed the API key creationA.
+
+    Returns:
+    Optional[str]: The FINRA session token if the request is successful, otherwise None.
+    """
+    from base64 import b64encode
+
+    # Encode the API key and secret
+    finra_token = f"{api_key}:{api_secret}"
+    # print(f"Using token: {finra_token}")
+    encoded_token = b64encode(finra_token.encode()).decode()
+    # print(f"Using finra session token {encoded_token}")
+
+    # URL for requesting the session token
+    url = "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
+    headers = {
+        "Authorization": f"Basic {encoded_token}"
+    }
+
+    # Make the request to get the session token
+    response = requests.post(url, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        return response.json().get('access_token')
+    else:
+        print(f"Failed to get session token: {response.status_code} {response.text}")
+        return None
+
