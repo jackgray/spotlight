@@ -2,21 +2,20 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import duckdb
-from api import regsho_by_range, pull_all, merge_tables
+from api import pull_all, merge_tables
 
 
 
-# df = load_finra_regsho()
-data_sources = ['nasdaq', 'finra', 'nyse']
-# data_sources = ['nyse']
+# data_sources = ['nasdaq', 'finra', 'nyse', 'cboe']
+data_sources = ['cboe']
 
 ###################
 # GATHER ZEE DATA
 ###################
 
-pull_all(data_sources=data_sources, start_date='20130101', end_date='20140201')
+pull_all(data_sources=data_sources, start_date='20240801', end_date='today')
 
-merge_tables()
+# merge_tables()
 
 
 
@@ -39,7 +38,7 @@ def load_data(ticker_list, db_path='./stonk.duckdb'):
 
 
 ticker_fam = ['GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF']
-df = load_data(ticker_fam)
+# df = load_data(ticker_fam)
 
 ###################
 # TRANSFORM ZEE DATA
@@ -73,34 +72,8 @@ def save_to_csv(df, file_path='regsho_stonks_output.csv'):
     df.to_csv(file_path)
 
 
-print('loaded data: ', df)
-transformed_df = heatmap_df(df)
-print(transformed_df)
-transformed_df.to_csv('regsho_stonks_heatmap.csv')
+# print('loaded data: ', df)
+# transformed_df = heatmap_df(df)
+# print(transformed_df)
+# transformed_df.to_csv('regsho_stonks_heatmap.csv')
 
-
-###################
-# PLOT ZEE DATA
-###################
-
-def plot_heatmap(df):
-    '''
-    This function needs a lot of work
-    '''
-
-    # df.set_index('Symbol', inplace=True)
-    # Plot the heat map
-    plt.figure(figsize=(10, 6))
-    ax = sns.heatmap(df, annot=True, cmap='YlGnBu', fmt='d', linewidths=0.5)
-
-    # Customizing the plot
-    ax.set_title('Heat Map of Cumulative Occurrences')
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Symbol')
-
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=0)
-
-    # Show the plot
-    plt.tight_layout()
-    plt.show()

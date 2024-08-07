@@ -10,6 +10,56 @@ from typing import Optional, Required, List, Union
 import time
 
 
+def cboe_by_date(datestring, db_path='./stonk.duckdb', max_retries=5, backoff_factor=1):
+    date_format = '%Y-%m-%d'
+
+    try:
+        datestring = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+    except Exception as e:
+        print(e)
+    url = f'https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/{datestring}/csv'
+
+    print(f"Pulling from CBOE for date {datestring} at url: {url}")
+    retries = 0
+    # Send request to server using generated URL
+    while retries < max_retries:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                print(f"\nGot successfull response from server.")
+                # print(response['Content-Type'])
+                data = StringIO(response.text)
+                df = pd.read_csv(data, sep='|')
+                # Remove the last line  which is only datestring
+                df = df.iloc[:-1]
+                # Add the date as a new column
+                try:
+                    print("\nAdding date and source URL as columns")
+                    # Convert date from supplied datestring to standard ISO format (using whatever date format was chosen for converting datestrings)
+                    df['Date'] = datestring
+                    df['Source URL'] = url
+                except Exception as e: 
+                    print("\n\n\n********************\n", e, "\n********************\n\n")                # Lazy solve for problem of duplicate column being created -- come back and find a better fix
+                
+                # Load it into database
+                df = load_df_to_duckdb(df=df, db_path=db_path, data_source='cboe')
+
+                return df  # Return the dataframe if successful
+
+            elif response.status_code == 404:
+                print(f"Error 404: Data not found for {datestring}.")
+                return None  # Exit if data is not found
+            else:
+                print(f"Received status code {response.status_code}. Retrying...")
+        except requests.RequestException as e:
+            print(f"Error fetching data from {url}: {e}")
+        retries += 1
+        time.sleep(backoff_factor * retries)  # Exponential backoff
+    
+    print("Max retries reached. Failed to fetch data.")
+    return df
+
+
 
 def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist', datestring='20240704', db_path='./stonk.duckdb', limit=1000) -> Optional[Union[List[dict], List]]:
     """
@@ -233,6 +283,13 @@ def clean_df(df, data_source='NYSE'):
         df['FINRA Rule 4320 Flag'] = ''
         df['Rule 3210'] = ' '
         df['Threshold List Flag'] = ' '
+    elif data_source.lower() == 'cboe':
+        df['Data Provider'] = 'Cboe'
+        df['Threshold List Flag'] = ' '
+        df['FINRA Rule 4320 Flag'] = ' '
+        df['Market'] = 'BZX'
+        df['Market Category'] = ''
+        df.rename(columns={'CompanyName':'Security Name'}, inplace=True)
     elif data_source.lower() == 'nasdaq':
         df['Market'] = 'Nasdaq'
         df['Data Provider'] = 'Nasdaq'
@@ -270,8 +327,13 @@ def clean_df(df, data_source='NYSE'):
 
     # Generate unique row ID programatically to avoid duplicate insertions
     print("\nGenerating ID string from data_source + Symbol + Date + Market Category")
-    df['ID'] = (data_source.lower() + df['Symbol'] + 
+    if len(df['Market Category'][0].replace(' ', '')) > 0:
+        print(len(df['Market Category'][0].replace(' ', '')))
+        df['ID'] = (data_source.lower() + df['Symbol'] + 
             df['Date'].str.replace('-', '').str.replace('_', '') + df['Market Category'].str.replace(' ', '').str.lower())
+    else:
+        df['ID'] = (data_source.lower() + df['Symbol'] + 
+            df['Date'].str.replace('-', '').str.replace('_', '') + df['Market'].str.replace(' ', '').str.lower())
 
     # drop the unecessary pandas index (which doesn't get inserted to duckdb)
     df.reset_index(drop=True, inplace=True)
@@ -350,11 +412,17 @@ def regsho_by_date(datestring, data_sources, db_path):
     '''
 
     dfs=[]
+    print(data_sources)
     for data_source in data_sources:
         print(f"Pulling data from {data_source} for {datestring}")
 
         if data_source == 'finra':
             df = finra_by_date(datestring=datestring, db_path=db_path)
+        elif data_source == 'cboe':
+            try:
+                df = cboe_by_date(datestring=datestring, db_path=db_path)
+            except Exception as e:
+                print(e)
         elif data_source == 'nasdaq':
             df = nasdaq_by_date(datestring=datestring, db_path=db_path)
         elif data_source == 'nyse':
@@ -392,7 +460,7 @@ def regsho_by_range(start_date, end_date, data_sources, db_path):
             # Concatenate all DataFrames into a single DataFrame
             # final_df = pd.concat(dfs, ignore_index=True)
         except Exception as e:
-            print(f"\n\n\n\Could not grab data for date: {datestring} -- This was probably a holiday/non-trading day -- skipping to next day\n********************\n\n")
+            print(f"\n\n\nCould not grab data for date: {datestring} -- This was probably a holiday/non-trading day -- skipping to next day\n********************\n\n")
 
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
@@ -430,6 +498,8 @@ def merge_tables(db_path='./stonk.duckdb'):
             SELECT * FROM nyse_regsho_daily
             UNION ALL
             SELECT * FROM finra_regsho_daily
+            UNION ALL
+            SELECT * FROM cboe_regsho_daily
             ORDER BY Date;
         """)
     con.close()
@@ -447,7 +517,7 @@ def generate_date_strings(start_date = '20190101', end_date='yesterday') -> Requ
 
     Dates must be formatted as %Y%m%d aka YYYYmmdd; 'yesterday' will generate the datestring based on datetime.now
     '''
-
+    date_format = '%Y%m%d'
     dates = { 'yesterday': (datetime.now() - timedelta(days=1)).strftime(date_format),
                 'today': datetime.now().strftime(date_format) }
     start_date = dates.get(start_date, start_date)

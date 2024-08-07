@@ -4,9 +4,13 @@
 
 This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate all Reg SHO threshold reports.
 
+The reporting of these lists can vary based on where and how the trades are executed.
+
+They are are mandated to be publicly available, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
+
 
 ## Data Sources
-Reg SHO Threshold lists are reported separately by the respective agencies that manage the exchanges where the transactions failing settlement take place. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA
+Reg SHO Threshold lists are reported separately by the respective agencies that manage the exchanges where the transactions failing settlement take place. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA, but this script does not yet pull data from this source, nor does it yet pull from Cboe. This is a list of all of my known sources for Reg SHO Threshold reporting.
 
 - NYSE/NYSE American (non-OTC)
 - Nasdaq (non-OTC after Nov 17, 2014)
@@ -52,39 +56,7 @@ https://www.nasdaqtrader.com/trader.aspx?id=ShortSaleCircuitBreaker
 ### FINRA 
 FINRA provides separate reports for FTDs related to OTC trades and "Other OTC" trades. This distinction helps differentiate between the standard OTC market and less regulated OTC markets.
 
-#### OTC (Over-The-Counter) Trades
-These are trades conducted directly between parties without the use of a central exchange.
-
-#### Other OTC
-This category includes trades that are not listed on major exchanges and are typically traded through OTC markets. 
-
-#### Trade Reporting Facilities (TRFs)
-Platforms established by FINRA to facilitate the reporting of OTC trades in equities and related securities that may not be listed on national exchanges or are traded off-exchange. 
-
-TRF Exchange Participants: https://www.finra.org/filing-reporting/trf/trf-exchange-participants
-
-FINRA currently has 3 active TRFs: 1 NYSE TRF, and 2 Nasdaq TRFs
-
-##### NYSE Trade Reporting Facility (NYTRF)
-Provides a platform for reporting trades executed away from the NYSE and ensures that all trades, including those in listed and non-listed securities, are reported to a centralized system.
-
-It facilitates trade reporting for equities and equity-related products, ensures compliance with regulatory reporting requirements, and integrates with the NYSE’s trading and clearing systems.
-
-https://www.finra.org/sites/default/files/nyse-trf-fix-specification.pdf
-
-##### Nasdaq Trade Reporting Facility
-Nasdaq TRF Carteret/ Nasdaq TRF Chicago
-
-Serves as a platform for reporting trades in Nasdaq-listed securities and other equities. It supports trade reporting for both listed and off-exchange trades. 
-
-###### Nasdaq Chicago TRF
-A short sale executed on an alternative trading system (ATS) or through a broker-dealer not connected to Nasdaq’s infrastructure would be reported here. For instance, if a trade is executed off-exchange through an ATS in Chicago, this TRF captures and reports that data.
-
-###### Nasdaq Carteret TRF
-A short sale on a Nasdaq-listed security that takes place directly within Nasdaq’s trading environment or through its systems might be reported here. For example, if a trader shorts a Nasdaq-listed stock via Nasdaq’s own platform, the Carteret TRF reports this transaction.
-
-https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/fixactspec.pdf
-
+OTC trades conducted directly between parties without the use of a central exchange, while "Other OTC" denotes trades that are not listed on major exchanges and are typically traded through OTC markets. 
 
 
 #### Query API
@@ -171,7 +143,7 @@ Reference:
 https://www.otcmarkets.com/market-activity/reg-sho-data
 
 ### Summary
-While FINRA oversees most OTC trading in the U.S., certain specialized trading platforms like ATSs, ECNs, and international OTC markets may operate under different regulatory frameworks or additional layers of oversight. However, these still fall under broader SEC regulations, ensuring that even if FINRA isn't the primary overseer, there are stringent regulatory mechanisms in place.
+While FINRA oversees most OTC trading in the U.S., certain specialized trading platforms like ATSs, ECNs, and international OTC markets may operate under different regulatory frameworks or additional layers of oversight. They still fall under broader SEC regulations, but it's unclear where they would be published. If FINRA only has 3 active trade reporting facilities, and they are all associated with either Nasdaq or NYSE, it would depend on if those markets are reporting back to Nasdaq or NYSE.
 
 
 ## ICE (Intercontinental Exchange)
@@ -254,26 +226,4 @@ COPY (
     WHERE Symbol IN ('GME', 'KOSS', 'CHWY', 'XRT', 'MDY', 'FNDA', 'IWB', 'IWM', 'IJH', 'VTI', 'VBR', 'VXF')
 ) TO regsho_stonks.csv
 ```
-
-
-
-## About Reg SHO
-https://www.investopedia.com/terms/t/thresholdlist.asp#toc-understanding-threshold-lists
-
-```
-A threshold list, also known as a Regulation SHO Threshold Security List, is a list of securities whose transactions failed to clear for five consecutive settlement days at a registered clearing agency.
-
-Threshold lists are published in accordance with regulations set by the Securities and Exchange Commission (SEC). Regulators review this information as part of their efforts to detect market manipulation.
-
-In January 2005, the SEC implemented Regulation SHO to reduce the abuse of naked short selling, where the seller does not borrow or arrange to borrow the securities in time to make delivery to the buyer within the standard two-day settlement period. As a result, the seller fails to deliver securities to the buyer when delivery is due, known as a "failure to deliver" or "fail."
-
-When naked short selling is used and the affected securities aren't delivered, the associated transactions will fail to clear. These failed transactions are reported regularly on a threshold list, and the SEC and other regulators can identify clues that improper naked short selling may have occurred.
-
-In order to appear on a threshold list, the security must be registered with the SEC and fail to settle for five or more consecutive days. The failed settlements must also involve a transaction size totaling 10,000 shares or more, or at least 0.5% of the security's shares outstanding. Securities that meet these criteria and are included on the list are known as threshold securities.
-``` 
-- Investopedia
-
-The reporting of these lists can vary based on where and how the trades are executed.
-
-They are are mandated to be publicly available, but finding the right place to look can be tricky, which is why this project aims to pull all the lists into one place with a unified schema
 
