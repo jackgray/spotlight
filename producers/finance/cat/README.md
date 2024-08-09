@@ -2,8 +2,9 @@
 
 CAT reports on errors in the transaction chain for buy and sell orders.
 
+[image]('./graph.png')
 
-
+## Earliest Availability
 These reports started being published on June 22, 2022. It is unknown whether earlier reports were ever published elsewhere.
 
 Here's a link to the google sheets containing everything so far.
