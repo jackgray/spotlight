@@ -7,6 +7,7 @@ import duckdb
 from dotenv import load_dotenv
 from os import getenv
 from typing import Optional, Required, List, Union
+from datetime import datetime
 import time
 
 
@@ -324,6 +325,9 @@ def clean_df(df, data_source='NYSE'):
     # NYSE/NASDAQ put in 'Filler' columns but don't use them. I haven't learned why yet, but we don't need to carry them over rn.
     drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]
     df.drop(drop_cols, axis=1, inplace=True)
+    # Remove spaces to the right and left of all values
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
 
     # Generate unique row ID programatically to avoid duplicate insertions
     print("\nGenerating ID string from data_source + Symbol + Date + Market Category")
@@ -332,7 +336,7 @@ def clean_df(df, data_source='NYSE'):
         df['ID'] = (data_source.lower() + df['Symbol'] + 
             df['Date'].str.replace('-', '').str.replace('_', '') + df['Market Category'].str.replace(' ', '').str.lower())
     else:
-        df['ID'] = (data_source.lower() + df['Symbol'] + 
+        df['ID'] = (data_source.lower() + df['Symbol'].str.replace(' ', '') + 
             df['Date'].str.replace('-', '').str.replace('_', '') + df['Market'].str.replace(' ', '').str.lower())
 
     # drop the unecessary pandas index (which doesn't get inserted to duckdb)
@@ -504,7 +508,6 @@ def merge_tables(db_path='./stonk.duckdb'):
         """)
     con.close()
     return print("Merging tables...")
-
 
 
 #########################

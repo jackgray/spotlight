@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package swapdata;
+
+message SwapRecord {
+  string dissemination_id = 1;
+  string original_dissemination_id = 2;
+  string action_type = 3;
+  string effective_date = 4;
+  string event_timestamp = 5;
+  string execution_timestamp = 6;
+  string expiration_date = 7;
+  string notional_amount_leg1 = 8;
+  string notional_currency_leg1 = 9;
+  string total_notional_quantity_leg1 = 10;
+  string price = 11;
+  string price_unit_of_measure = 12;
+  string underlier_id_leg1 = 13;
+  string underlier_id_source_leg1 = 14;
+  string jurisdiction = 15;
+  string report_type = 16;
+  string asset_class = 17;
+  bytes content = 18;
+}

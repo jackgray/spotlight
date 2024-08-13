@@ -2,7 +2,7 @@
 
 # Regulation SHO (Reg SHO) Daily Threshold Data (README)
 
-This component so far aggregates data from Nasdaq, NYSE, and FINRA. It aims to aggregate all Reg SHO threshold reports.
+This component so far aggregates data from Nasdaq, NYSE, Cboe-BZX, and FINRA. It aims to aggregate all Reg SHO threshold reports.
 
 The reporting of these lists can vary based on where and how the trades are executed.
 
@@ -10,7 +10,7 @@ They are are mandated to be publicly available, but finding the right place to l
 
 
 ## Data Sources
-Reg SHO Threshold lists are reported separately by the respective agencies that manage the exchanges where the transactions failing settlement take place. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA, but this script does not yet pull data from this source, nor does it yet pull from Cboe. This is a list of all of my known sources for Reg SHO Threshold reporting.
+Reg SHO Threshold lists are reported separately by the respective agencies that manage the exchanges where the transactions failing settlement take place. There should not be overlap between them except potentially in the OTC Markets Group reports, as their exchanges are expected to be overseen and reported on by FINRA, but this script does not yet pull data from this source. This is a list of all of my known sources for Reg SHO Threshold reporting.
 
 - NYSE/NYSE American (non-OTC)
 - Nasdaq (non-OTC after Nov 17, 2014)
@@ -19,14 +19,15 @@ Reg SHO Threshold lists are reported separately by the respective agencies that 
 - OTC Markets Group (theoretically covered by FINRA reporting)
 
 
-Nasdaq and NYSE fortunately have the same schema, but require different URL query parameters and use different datestring formats to call the data
+Nasdaq and NYSE fortunately have the same schema, but require different URL query parameters and use different datestring formats to call the data.
 
 Example from Nasdaq: `http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth20240130.txt`
 
 Example from NYSE: `https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate=03-Feb-2024&market=NYSE`
 
+Cboe-BZX: `https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/2013-03-20/csv` -- The script will map Company Name to correspond to the standard 'Security Name' field name
 
-FINRA reports need field names to be mapped to correspond to Nasdaq and NYSE schema in order to consolidate the records into the same table
+FINRA reports require wrapping API requests with a session token, then need their field names to be mapped to correspond to Nasdaq and NYSE schema in order to consolidate the records into the same table
 
 A description of the original data can be found here: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
 
@@ -58,12 +59,8 @@ FINRA provides separate reports for FTDs related to OTC trades and "Other OTC" t
 
 OTC trades conducted directly between parties without the use of a central exchange, while "Other OTC" denotes trades that are not listed on major exchanges and are typically traded through OTC markets. 
 
-
-#### Query API
-FINRA's Query API has reports on OTC RegSHO lists, GME does not pop up in this database. 
-
 #### Requirements
-Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time
+Note that using the FINRA Query API requires a free account API key, and code to generate a session key for 30 minutes of connection at a time. The code is available in api.get_finra_session()
 
 #### Schema Mapping
 The column names in FINRA datasets do not match NYSE AND Nasdaq reporting schema, so the function `clean_df()` converts them to NYSE/Nasdaq equivalents (left hand side is the original field name in the FINRA dataset):
@@ -90,13 +87,12 @@ https://www.finra.org/rules-guidance/rulebooks/finra-rules/4320
 
 
 ### NYSE (New York Stock Exchange)
-Stocks like GME (GameStop) are traded on major exchanges like the NYSE. The exchange reports FTDs for these listed securities.
+Exchange GameStop and most large companies are traded on. It reports on FTDs that occur on it's platforms, while FINRA reports on FTDs that occur for NYSE securities on OTC platforms
 
 https://www.nyse.com/regulation/threshold-securities
 
 
-#### Exchanges
-NYSE has 3: NYSE, NYSE American, and NYSE Arca. More info on these in the NYSE section
+NYSE has 3 exchanges: NYSE, NYSE American, and NYSE Arca. This component scans all by default, or can be set to pull select marketpaces.
 
 
 ### CBOE (Chicago Board Options Exchange) Global Markets
@@ -106,9 +102,9 @@ Includes a broad range of financial instruments, particularly options and ETFs.
 
 This includes the Cboe BZX Exchange, Cboe BYX Exchange, Cboe EDGX Exchange, and Cboe EDGA Exchange. These exchanges also provide threshold lists for securities traded on their platforms.
 
-##### Cboe Trade Reporting Facility (Cboe TRF)
-Originally known as the BATS TRF before Cboe acquired BATS Global Markets. It reports trades executed off-exchange, including those in equities listed on various exchanges and non-listed securities. I intend to add this as a data source next.
+I have added the ability to pull data from Cboe for BZX listed securities: `https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/` but that is the only exchange for which I can find these reports.    
 
+Records go back as far as Sept. 02, 2014
 
 ### OTC Markets Group
 OTC Markets Group operates the following market tiers, all of which are theoretically subject to FINRA oversight in terms of broker-dealer activity and trade reporting:
@@ -227,3 +223,80 @@ COPY (
 ) TO regsho_stonks.csv
 ```
 
+To get the 5 most occuring stocks under each marketplace and each month:
+```
+CREATE TABLE monthly_heatmap AS 
+WITH MonthlyCounts AS (
+    SELECT
+        SUBSTRING(CAST(Date AS VARCHAR), 1, 7) AS Month, -- Extract YYYY-MM
+        Market,
+        Symbol,
+        COUNT(*) AS SymbolCount
+    FROM
+        regsho_daily
+    GROUP BY
+        SUBSTRING(CAST(Date AS VARCHAR), 1, 7), Market, Symbol
+),
+RankedSymbols AS (
+    SELECT
+        Month,
+        Market,
+        Symbol,
+        SymbolCount,
+        RANK() OVER (PARTITION BY Month, Market ORDER BY SymbolCount DESC) AS SymbolRank
+    FROM
+        MonthlyCounts
+)
+SELECT
+    Month,
+    Market,
+    Symbol,
+    SymbolCount
+FROM
+    RankedSymbols
+WHERE
+    SymbolRank <= 5
+ORDER BY
+    Month,
+    Market,
+    SymbolRank;
+```
+
+By Week
+```
+CREATE TABLE weekly_totals AS
+WITH WeeklyCounts AS (
+    SELECT
+        strftime('%Y-%W', Date) AS Week, -- Extract YYYY-WW
+        Market,
+        Symbol,
+        COUNT(*) AS SymbolCount
+    FROM
+        regsho_daily
+    GROUP BY
+        strftime('%Y-%W', Date), Market, Symbol
+),
+RankedSymbols AS (
+    SELECT
+        Week,
+        Market,
+        Symbol,
+        SymbolCount,
+        RANK() OVER (PARTITION BY Week, Market ORDER BY SymbolCount DESC) AS SymbolRank
+    FROM
+        WeeklyCounts
+)
+SELECT
+    Week,
+    Market,
+    Symbol,
+    SymbolCount
+FROM
+    RankedSymbols
+WHERE
+    SymbolRank <= 10
+ORDER BY
+    Week,
+    Market,
+    SymbolRank;
+```
