@@ -47,16 +47,10 @@ asset_classes = ['CREDITS', 'EQUITIES', 'RATES']
 
 def download_batch(start_date, end_date, table_name, schema_dict, ch_settings):
     '''
-    Downloads SEC Swap data files for a range of dates
-
-    Depends on: generate_date_strings(), download_and_unzip()
-
     Args:
     start_date: String %Y%m%d (e.g. 20240125 = jan 25 2024)
     end_date: String
     '''
-
-    # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
     datestrings = generate_date_strings(start_date, end_date)
     print(f"Pulling data for the following dates: {list(datestrings)}")
     for datestring in datestrings:
@@ -69,8 +63,7 @@ def download_batch(start_date, end_date, table_name, schema_dict, ch_settings):
         print(df.head(3))
         print("Inserting data to clickhouse db")
 
-        # csv_to_clickhouse(headers= data=data, table_name=table_name, schema_dict=schema_dict, ch_settings=ch_settings )
-
+        # Insert df to db or save to csv
 
 def fetch_zip_to_memory(url):
     res = backoff_fetch(url)
