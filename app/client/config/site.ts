@@ -1,8 +1,8 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Stonk Army",
-  description: "Aggregations for hard to find data",
+  name: "Spotlight",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
       label: "Home",
@@ -11,6 +11,10 @@ export const siteConfig = {
     {
       label: "Data",
       href: "/data",
+    },
+    {
+      label: "Financial Data",
+      href: "/data/finance",
     },
     {
       label: "About",

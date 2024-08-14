@@ -15,7 +15,7 @@ export default function Home() {
         <h1 className={title({ color: "violet" })}>SPOTLIGHT&nbsp;</h1>
         <br />
         <h1 className={title()}>
-          on abuses of power.
+          on abuse of power.
         </h1>
         <h2 className={subtitle({ class: "mt-4" })}>
           With data driven reporting.
