@@ -1,7 +1,7 @@
 # Build the app
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY client/ .
+COPY . .
 RUN npm install && npm run build
 
 # Production image

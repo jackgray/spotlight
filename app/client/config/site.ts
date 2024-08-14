@@ -17,6 +17,14 @@ export const siteConfig = {
       href: "/data/finance",
     },
     {
+      label: "Financial Data - CAT",
+      href: "/data/finance/cat",
+    },
+    {
+      label: "Financial Data - Reg SHO",
+      href: "/data/finance/regsho",
+    },
+    {
       label: "About",
       href: "/about",
     },
@@ -56,7 +64,7 @@ export const siteConfig = {
   //   },
   // ],
   links: {
-    github: "https://github.com/jackgray",
+    github: "https://github.com/jackgray/spotlight",
     // twitter: "https://twitter.com/getnextui",
     // docs: "https://nextui.org",
     // discord: "https://discord.gg/9b6yyZKmH4",

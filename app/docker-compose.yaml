@@ -1,22 +1,23 @@
 version: '3.8'
 
 services:
-  # server:
-  #   build: ./server
-  #   volumes:
-  #     - ./server/config/dashboards:/app/dashboards
-  #   ports:
-  #     - '3001:3001'
+  server:
+    build: ./server
+    volumes:
+      - ./server/config/dashboards:/app/dashboards
+    ports:
+      - '3001:3001'
 
   client:
-    build: .
+    build: ./client
     ports:
       - '3006:3000'
-    # depends_on:
-    #   - server
+    depends_on:
+      - cloudflare
   cloudflare:
     image: cloudflare/cloudflared:latest
-    container_name: spotlight
+    container_name: spotlight-cloudlfare
     command: tunnel --config /etc/cloudflared/config.yaml run
     volumes:
       - ./cloudflare:/etc/cloudflared
+  

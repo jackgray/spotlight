@@ -10,7 +10,7 @@ app.use(cors({
 
 // Root route
 app.get('/', (req, res) => {
-    res.send('Stonk Army, assemble!');
+    res.send('Now you\'re talkin my language!');
 });
 
 // API endpoint

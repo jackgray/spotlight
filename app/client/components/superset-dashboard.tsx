@@ -96,7 +96,8 @@ const SupersetDashboard = ({
               hideChartControls: true,
               hideTab: true,
               filters: {
-                expanded: true,
+                expanded: false,
+                visible: false
               }
             },
           });
