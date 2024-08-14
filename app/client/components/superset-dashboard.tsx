@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { embedDashboard } from "@superset-ui/embedded-sdk";
 
@@ -78,6 +78,8 @@ const SupersetDashboard = ({
       return response.data.token;
     };
 
+
+
     const initializeDashboard = async () => {
       try {
         const accessToken = await fetchAccessToken();
@@ -89,8 +91,22 @@ const SupersetDashboard = ({
             supersetDomain: supersetUrl,
             mountPoint: mountPoint,
             fetchGuestToken: () => guestToken,
-            dashboardUiConfig: { hideTitle: true } 
+            dashboardUiConfig: {
+              hideTitle: true,
+              hideChartControls: true,
+              hideTab: true,
+              filters: {
+                expanded: true,
+              }
+            },
           });
+
+          // Ensure iframe is properly sized
+          const iframeSuperset = mountPoint.children[0] as HTMLIFrameElement;
+          if (iframeSuperset) {
+            iframeSuperset.style.width = "100%";
+            iframeSuperset.style.height = "100%";
+          }
         } else {
           console.error("Mount point element not found");
         }
@@ -100,21 +116,19 @@ const SupersetDashboard = ({
     };
 
     initializeDashboard();
+
   }, [supersetUrl, dashboardId, username, password, guestUsername, guestFirstName, guestLastName]);
 
-
+  
   return (
     <div 
       ref={divRef}
       title={dashboardTitle}
       id="superset-container"
       style={{
-        display: 'block',          // Enables flexbox
-        overflow: 'auto',
-        justifyContent: 'center', // Centers content horizontally
-        alignItems: 'center',     // Centers content vertically
-        height: '100vh',          // Full viewport height
-        width: '100vw',           // Full viewport width
+        width: '100%',
+        height: '100vh',
+        overflow: 'hidden',
       }}
     />
   );
