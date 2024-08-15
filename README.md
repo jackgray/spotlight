@@ -10,11 +10,11 @@ It aims largely to keep the focus of activist/investigative journalism on hard d
 It's also a way for me to hone some skills I am interested in, which is why you might see some 'over-engineered' components here. 
 
 ## Architecture
-In an effort to optimize resource utilization through speed and efficiency of underlying platform infrastructure, servers will couple database storage with distributed S3 storage on the same machine, and leverage parallel processing and Kafka streaming to handle retreival and transformation requests with optimal efficiency.
+In an effort to optimize resource utilization through speed and efficiency of underlying platform infrastructure, servers couple database storage with distributed S3 storage on the same machine, and leverage parallel processing and Kafka streaming to handle retreival and transformation requests with optimal efficiency.
 
-Clickhouse is a crazy fast columnar OLAP engine, and integrates with MinIO for remote s3 storage. Hosting both services together on the same cluster will allow optimal handling of vast amounts of data at speeds exceeding the capabilities of traditional designs.
+Clickhouse is a crazy fast columnar OLAP engine, and integrates with MinIO for remote s3 storage. Hosting both services together on the same cluster allows optimal handling of vast amounts of data at speeds exceeding the capabilities of traditional designs.
 
-Kafka producers will run inside a container orchestration platform such as Airflow to make requests to external data, and  will either explicitly transform and publish to appropriate topics for table ingestion, or forwarding the responses to NiFI for automatic ingestion.
+Kafka producers orchestrated by Airflow make requests to external data, and  either explicitly transform and publish to appropriate topics for table ingestion, or forward the responses to NiFI for automatic ingestion.
 
 
 ![Diagram](./architecture.png)
@@ -22,7 +22,7 @@ Kafka producers will run inside a container orchestration platform such as Airfl
 
 # Front end
 
-I am merging my GovTrackr project with this to serve as the user client. It is built on Next.js, React, material-ui, Node/Express, GrapQL, Prisma CRM, and PostgreSQL. 
+I am slowly merging my GovTrackr project with this to serve as the user client. It is built on Next.js, React, material-ui, Node/Express, GrapQL, Prisma CRM, and PostgreSQL. 
 
 ## See producers directory for data retreival pipelines
 
