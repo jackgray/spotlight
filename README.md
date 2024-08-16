@@ -10,12 +10,21 @@ It aims largely to keep the focus of activist/investigative journalism on hard d
 It's also a way for me to hone some skills I am interested in, which is why you might see some 'over-engineered' components here. 
 
 ## Architecture
-In an effort to optimize resource utilization through speed and efficiency of underlying platform infrastructure, servers couple database storage with distributed S3 storage on the same machine, and leverage parallel processing and Kafka streaming to handle retreival and transformation requests with optimal efficiency.
+### Scheduling / Data retrieval
+Data extraction pipelines run as Kafka Producers
+Batch-heavy pipelines are scheduled and run by Airflow
+'Always running' streaming data pipelines run in containers managed and load balanced by Hashicorp's Nomad
 
-Clickhouse is a crazy fast columnar OLAP engine, and integrates with MinIO for remote s3 storage. Hosting both services together on the same cluster allows optimal handling of vast amounts of data at speeds exceeding the capabilities of traditional designs.
+## Storage
+Clickhouse and MinIO together handle data storage. Minio offers S3 API compatible object storage, and works as a backend to Clickhouse, so Clickhouse instances can run in distributed mode and be completely agnostic to where the data is mounted, decoupling db endpoints from storage. Some db servers could be on the same machine as S3 and this would be quite fast, but it's also not a requirement, and allows better configurability over data replication and availability efforts. 
 
-Kafka producers orchestrated by Airflow make requests to external data, and  either explicitly transform and publish to appropriate topics for table ingestion, or forward the responses to NiFI for automatic ingestion.
+## Processing
+Apache NiFi will listen on Kafka topics the raw data is sent to and attempt to infer the proper type casts and insert the data into Clickhouse DB.
 
+
+## Visualizaation
+### Apache Superset
+Clickhouse feeds right in to superset whcih auto-refreshs on configured intervals
 
 ![Diagram](./architecture.png)
 
