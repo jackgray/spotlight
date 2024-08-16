@@ -9,6 +9,8 @@ It aims largely to keep the focus of activist/investigative journalism on hard d
 
 It's also a way for me to hone some skills I am interested in, which is why you might see some 'over-engineered' components here. 
 
+Demo: beta.spotlight-us.com
+
 ## Architecture
 ### Scheduling / Data retrieval
 Data extraction pipelines run as Kafka Producers
