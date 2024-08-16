@@ -12,51 +12,26 @@ import time
 from clickhouse_connect import get_client as ch
 import re
 
+    
+    
 
-
-def pull_all(data_sources, start_date, ch_settings, end_date='yesterday', db_path='./stonk.duckdb'):
-    ''' should save data to duckdb file or return failed rows as a df. If the df is empty, all data that was retreived was loaded '''
-
-    print(f"Attempting to download requested data from: {list(data_sources)}.\n It will try to load the records by date from each source into their own DuckDB tables, then combine them. \
-    \n Any data that fails to be loaded will return as a dataframe. Any request that fails will skip to the next date.")
-    df = pd.DataFrame()
-    df = regsho_by_range(start_date=start_date, end_date=end_date, data_sources=data_sources, ch_settings=ch_settings, db_path='./stonk.duckdb')
-    if not df.empty:
-        print("Some rows were not added to duckdb")
-        print(df)
-    else:
-        print("\n\n\nNo dataframe returned, meaning that all data that was successfully retrieved was successfully loaded into database. This does not yet indicate failures to actually retrieve the data, it currently just skips to the next date.\n")
-
-    return df
-
-
-def regsho_by_range(start_date, end_date, data_sources, ch_settings, db_path):
+def regsho_by_range(start_date, end_date, data_sources, ch_settings):
     '''
     Args:
-    start_date: String %Y%m%d aka YYYYmmdd (e.g. 20240125 = jan 25 2024)
-    end_date: String %Y%m%d, or 'yesterday'
-
-    Returns: df of values that failed to load into DuckDB
+    start_date/end_date: String %Y%m%d aka YYYYmmdd (e.g. 20240125 = jan 25 2024)
     '''
 
-    # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
-    datestrings = generate_date_strings(start_date, end_date)
-    print(f"\n\n\n\n\n\nPulling data for dates ranging: {start_date}-{end_date}")
-    dfs = []
+    datestrings = generate_date_strings(start_date, end_date)    # Gather properly formated list of datestrings (e.g. "YYYY_MM_dd"to feed into download url string 
+    
+    print(f"\nPulling data for dates ranging: {start_date}-{end_date}")
     for datestring in datestrings:
         # Download file
-        print(f"\n\n\nDownloading data for date: {datestring}")
-        df = regsho_by_date(datestring=datestring, data_sources=data_sources, ch_settings=ch_settings, db_path=db_path)
-        if not df.empty:
-            dfs.append(df)
-        # Concatenate all DataFrames into a single DataFrame
-        # final_df = pd.concat(dfs, ignore_index=True)
+        print(f"\n\n****** Downloading data for date: {datestring}")
 
-    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+        regsho_by_date(datestring=datestring, data_sources=data_sources, ch_settings=ch_settings)
 
 
-
-def regsho_by_date(datestring, data_sources, db_path, ch_settings):
+def regsho_by_date(datestring, data_sources, ch_settings):
     '''
     Grabs records by date for all data sources supplied
 
@@ -66,75 +41,59 @@ def regsho_by_date(datestring, data_sources, db_path, ch_settings):
     '''
 
     dfs=[]
-    print(data_sources)
     for data_source in data_sources:
-        print(f"Pulling data from {data_source} for {datestring}")
+        table_name = 'regsho_daily'          # Easily change the table naming convention
+        print(f"\n\n**** Pulling data from {data_source} for {datestring}")
+        try:
+            if data_source == 'finra':
+                df = finra_by_date(datestring=datestring, ch_settings=ch_settings)
+            elif data_source == 'cboe':
+                df = cboe_by_date(datestring=datestring, ch_settings=ch_settings)
+            elif data_source == 'nasdaq':
+                df = nasdaq_by_date(datestring=datestring, ch_settings=ch_settings)
+            elif data_source == 'nyse':
+                df = nyse_by_date(datestring=datestring, ch_settings=ch_settings)
+            else:
+                print("\nERROR: No valid data source supplied\n\n")
+                return
 
-        if data_source == 'finra':
-            df = finra_by_date(datestring=datestring, ch_settings=ch_settings, db_path=db_path)
-        elif data_source == 'cboe':
+            df['Date'] = pd.to_datetime(datestring, format='%Y%m%d') #.strptime('%Y-%m-%d').   
+            print(f"\n\nCleaning df \n{df.head(3)}")
+            cleaned = clean_df(df=df, data_source=data_source)
+            print(f"\n\nInserting cleaned df to Clickhouse\n", df.head(3))
             try:
-                df = cboe_by_date(datestring=datestring, ch_settings=ch_settings, db_path=db_path)
+                df_to_clickhouse(df=cleaned, table_name=table_name, settings=ch_settings)
+                print("\n\nSuccess!")
             except Exception as e:
                 print(e)
-        if data_source == 'nasdaq':
-            df = nasdaq_by_date(datestring=datestring, ch_settings=ch_settings, db_path=db_path)
-        elif data_source == 'nyse':
-            df = nyse_by_date(datestring=datestring, ch_settings=ch_settings, db_path=db_path)
-        else:
-            print("\nERROR: No valid data source supplied\n\n")
+        
+        except:
+            continue
 
-        if df is not None and not df.empty:
-            dfs.append(df)
+   
 
-    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
-    
-
-
-def cboe_by_date(datestring, ch_settings, db_path='./stonk.duckdb', max_retries=5, backoff_factor=1):
+def cboe_by_date(datestring, ch_settings, max_retries=5, backoff_factor=1):
     date_format = '%Y-%m-%d'
-
-    try:
-        datestring = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
-    except Exception as e:
-        print(e)
+    datestring = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
     url = f'https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/{datestring}/csv'
 
     print(f"Pulling from CBOE for date {datestring} at url: {url}")
+
     retries = 0
     # Send request to server using generated URL
     while retries < max_retries:
         try:
             response = requests.get(url)
             if response.status_code == 200:
-                print(f"\nGot successfull response from server.")
-                # print(response['Content-Type'])
                 data = StringIO(response.text)
                 df = pd.read_csv(data, sep='|')
-                # Remove the last line  which is only datestring
-                df = df.iloc[:-1]
-                # Add the date as a new column
-                try:
-                    print("\nAdding date and source URL as columns")
-                    # Convert date from supplied datestring to standard ISO format (using whatever date format was chosen for converting datestrings)
-                    df['Date'] = pd.to_datetime(datestring, format=date_format)
-                    print(df.dtypes)
-                    df['Source URL'] = url
-                except Exception as e: 
-                    print("\n\n\n********************\n", e, "\n********************\n\n")                # Lazy solve for problem of duplicate column being created -- come back and find a better fix
-                
-                # Send to clickhouse
-                print(f"Trying to load into clickhouse")
-                try:    
-                    print(df.head(3))
-                    cleaned = clean_df(df=df, data_source='cboe')
-                    df_to_clickhouse(df=cleaned, data_source="cboe", settings=ch_settings)  
-                    print("Success!")
-                except Exception as e:
-                    print(e)
+                df = df.iloc[:-1]   # Remove the last line  which is only datestring
 
-                # return errdf  # Return the dataframe if successful
-
+                print("\nAdding date and source URL as columns")
+                df['Date'] = pd.to_datetime(datestring, format=date_format)     # Convert date from supplied datestring to standard ISO format (using whatever date format was chosen for converting datestrings)
+                df['Source URL'] = url
+                return df
+             
             elif response.status_code == 404:
                 print(f"Error 404: Data not found for {datestring}.")
                 return None  # Exit if data is not found
@@ -144,13 +103,10 @@ def cboe_by_date(datestring, ch_settings, db_path='./stonk.duckdb', max_retries=
             print(f"Error fetching data from {url}: {e}")
         retries += 1
         time.sleep(backoff_factor * retries)  # Exponential backoff
-    
     print("Max retries reached. Failed to fetch data.")
-    # return errdf
 
 
-
-def finra_by_date(ch_settings, datareq_type='data', group='otcmarket', dataset='thresholdlist', datestring='20240704', db_path='./stonk.duckdb', limit=1000) -> Optional[Union[List[dict], List]]:
+def finra_by_date(ch_settings, datareq_type='data', group='otcmarket', dataset='thresholdlist', datestring='20240704', limit=1000) -> Optional[Union[List[dict], List]]:
     """
     Query against FINRA Query API data from FINRA API for a specific date.
 
@@ -164,19 +120,19 @@ def finra_by_date(ch_settings, datareq_type='data', group='otcmarket', dataset='
     Returns:
     Optional[Union[List[dict], List]]: data if the request is successful, otherwise None.
     """
-    load_dotenv()
-    # Load environment variables
+    load_dotenv() # Load environment variables
     api_key = getenv('FINRA_API_KEY')
     api_secret = getenv('FINRA_API_SECRET')
-    # Generate session token
+
+    # Generate FINRA API session token
     token = get_finra_session(api_key, api_secret)
     if not token:
         print("\nToken for FINRA API could not be generated.")
-        return pd.DataFrame()  # Changed from None to an empty DataFrame
+        return
 
     url = f"https://api.finra.org/{datareq_type}/group/{group}/name/{dataset}"
     date_format = '%Y-%m-%d'
-    datestring = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+    datestring = f'{datestring[:3]}-{datestring[4:5]}-{datestring[6:7]}' # this is faster than datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
 
     print(f"\nQuerying FINRA API at {url} for date {datestring}")
 
@@ -197,12 +153,10 @@ def finra_by_date(ch_settings, datareq_type='data', group='otcmarket', dataset='
         }
         print(f"With params: {params}")
 
-        response = requests.post(url, headers=headers, json=params)     # Note that the request type must be POST for filtering the query
+        response = requests.post(url, headers=headers, json=params)     # Note: the request type must be POST for filtering the query
 
         if response.status_code == 200:
             response.raise_for_status()
-
-            # Extract response as CSV
             if response.headers.get('Content-Type') == 'text/plain':
                 csv_data = StringIO(response.text)
                 reader = csv.DictReader(csv_data)
@@ -212,32 +166,59 @@ def finra_by_date(ch_settings, datareq_type='data', group='otcmarket', dataset='
             if not data:
                 print('No data returned from FINRA API')
                 break
-            all_data.extend(data)   
-            if len(data) < limit:
-                # when there are fewer results than the limit we've reached the end and can break the while loop
+
+            all_data.extend(data)
+
+            if len(data) < limit:   # requests next chuck until the data returned is less than the chuck requested
                 break   
-           
-           # Limits throttle the request size to comply with usage rate agreement, offset moves through available data in chunks. Offset increments should be equal to limit
-            offset += limit     
+            offset += limit     # Limits throttle the request size to comply with usage rate agreement, offset moves through available data in chunks. Offset increments should be equal to limit
         else:
             print(f"Failed to fetch group {group} dataset {dataset} for date {datestring}: {response.status_code} {response.text}")
-            return pd.DataFrame()
-
+            return
+    
     df = pd.DataFrame(all_data)
-    print("Returning FINRA df (preview): ", df.head(3))
     df['Source URL'] = url
-    print(f"Trying to load into clickhouse")
-    try:    
-        cleaned = clean_df(df=df, data_sourc='finra')
-        df_to_clickhouse(df=cleaned, data_source='finra', settings=ch_settings)  
-        print("Success!")
-    except Exception as e:
-        print(e)
 
-    # return errdf
+    return df
+
+def nasdaq_by_date(datestring, ch_settings, max_retries=3, backoff_factor=1):
+    ''' datestring must be in format YYYYmmdd '''
+
+    date_format = '%Y%m%d'
+    date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
+
+    url =f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt'
+
+    print(f"Grabbing data from url: {url}")
+    retries = 0    
+    while retries < max_retries:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = StringIO(response.text)
+            df = pd.read_csv(data, sep='|')
+            df = df.iloc[:-1]  # Remove the last line  which is only datestring
+            df['Source URL'] = url
+
+            if len(df) < 3: # bail if df is too small to have real data
+                return
+            else:
+                return df
+
+        elif response.status_code == 404:
+            print(f"Error 404: Data not found for {datestring}.")
+            return
+        else:
+            print(f"Received status code {response.status_code}. Retrying...")
+
+        retries += 1
+        time.sleep(backoff_factor * retries)  # Exponential backoff
+        
+    print("Max retries reached. Failed to fetch data.")
+
+    return
 
 
-def nyse_by_date(datestring, ch_settings, markets=None, db_path='./stonk.duckdb', max_retries=3, backoff_factor=1):
+def nyse_by_date(datestring, ch_settings, markets=None, max_retries=3, backoff_factor=1):
     '''
         Grabs reg sho threshold list data from all NYSE markets (.self, American, and Arca)
 
@@ -254,7 +235,9 @@ def nyse_by_date(datestring, ch_settings, markets=None, db_path='./stonk.duckdb'
     date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
     
     all_data = pd.DataFrame()
+
     # NYSE has 3 Exchanges/TRFs that report FTDs: NYSE, NYSE American, and NYSE Arca
+    # This collects records from all of them before returning df (modify markets argument to limit)
     for market in markets:
         print("Pulling from NYSE market: ", market)
         
@@ -268,30 +251,21 @@ def nyse_by_date(datestring, ch_settings, markets=None, db_path='./stonk.duckdb'
                 if response.status_code == 200:
                     print(f"\nGot successful response from server.")
                     data = StringIO(response.text)
-                    df = pd.read_csv(data, sep='|')
-                    print("Preview: ", df.head)
-                    # Remove the last line which is only datestring
+                    df = pd.read_csv(data, sep= '|')
+                    print("Preview: ", df.head(3))
                     if not df.empty:
-                        df = df.iloc[:-1]
-
-                    # Add the date as a new column
-                    if not df.empty:
-                        try:
-                            print("\nAdding date, source URL, and market as columns")
-                            df['Date'] = pd.to_datetime(datestring, format='%Y%m%d') #.strptime('%Y-%m-%d').
-                            df['Source URL'] = url
-                            df['Market'] = market.replace('%20', ' ')
-                        except Exception as e: 
-                            print("\n\n\n********************\n", e, "\n********************\n\n")
+                        df = df.iloc[:-1]   # Remove the last line which is only datestring
+                        print("\nAdding date, source URL, and market as columns")
+                        df['Date'] = pd.to_datetime(datestring, format='%Y%m%d') #.strptime('%Y-%m-%d').            # Add the date as a new column
+                        df['Source URL'] = url
+                        df['Market'] = market.replace('%20', ' ')
 
                         # Append the DataFrame to the all_data DataFrame
                         all_data = pd.concat([all_data, df], ignore_index=True)
-                        break  # Exit while loop after successful fetch
-
+                        break  # Exit while loop after successful fetch     
                     else:
                         print("No data found")
                         break
-
                 elif response.status_code == 404:
                     print(f"Error 404: Data not found for {datestring}.")
                     break  # Exit if data is not found
@@ -307,69 +281,7 @@ def nyse_by_date(datestring, ch_settings, markets=None, db_path='./stonk.duckdb'
 
     # Check if all_data is still empty
     if not all_data.empty:
-
-        try:    
-            cleaned = clean_df(df=all_data, data_source='nyse')
-            df_to_clickhouse(df=cleaned, data_source='nyse', settings=ch_settings)
-            print("Success!")
-        except Exception as e:
-            print(e)
-
-    # return errdf
-         
-
-def nasdaq_by_date(datestring, db_path, ch_settings, max_retries=3, backoff_factor=1):
-    ''' datestring must be in format YYYYmmdd '''
-
-    date_format = '%Y%m%d'
-    try:
-        date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
-    except:
-        print('date error')
-    url =f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt'
-
-    print(f"Grabbing data from url: {url}")
-    retries = 0
-    
-    # Send request to server using generated URL
-    while retries < max_retries:
-    
-        response = requests.get(url)
-        if response.status_code == 200:
-            print(f"\nGot successfull response from server.")
-            # print(response['Content-Type'])
-            try:
-                data = StringIO(response.text)
-            except: return
-            try:
-                df = pd.read_csv(data, sep='|')
-            except:
-                return
-            # Remove the last line  which is only datestring
-            df = df.iloc[:-1]
-            # Add the date as a new column
-            if len(df) < 3:
-                return
-            print(f"Trying to load into clickhouse")
-                    # Unify field names (renaming, drop columns, reset index)
-            cleaned = clean_df(df=df, data_source='nasdaq')
-            print('clean ', cleaned.head(3))
-            df_to_clickhouse(df=cleaned, data_source='nasdaq', settings=ch_settings)
-            print("Success!")
-        
-        elif response.status_code == 404:
-            print(f"Error 404: Data not found for {datestring}.")
-            return None  # Exit if data is not found
-        else:
-            print(f"Received status code {response.status_code}. Retrying...")
-    # except requests.RequestException as e:
-    #     print(f"Error fetching data from {url}: {e}")
-    retries += 1
-    time.sleep(backoff_factor * retries)  # Exponential backoff
-    
-    print("Max retries reached. Failed to fetch data.")
-    # return df
-
+       return all_data
 
 
 def clean_df(df, data_source='NYSE'):
@@ -379,7 +291,7 @@ def clean_df(df, data_source='NYSE'):
     NYSE: follows the same schema :) (also I can't find a data dict for it)
     FINRA: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
     '''
-
+ 
     acceptable_sources = ['nyse', 'nasdaq', 'finra']
     if data_source.lower() == 'nyse':
         df['Data Provider'] = 'NYSE'
@@ -390,17 +302,19 @@ def clean_df(df, data_source='NYSE'):
     elif data_source.lower() == 'cboe':
         df['Data Provider'] = 'Cboe'
         df['Threshold List Flag'] = ' '
+        df['Reg SHO Threshold Flag'] = ' '
+        df['Rule 3210'] = ' '
         df['FINRA Rule 4320 Flag'] = ' '
         df['Market'] = 'BZX'
         df['Market Category'] = ''
         df.rename(columns={'CompanyName':'Security Name'}, inplace=True)
+        print("Changed cboe df ", df)
     elif data_source.lower() == 'nasdaq':
         df['Market'] = 'Nasdaq'
         df['Data Provider'] = 'Nasdaq'
         df['Threshold List Flag'] = ' '
         df['FINRA Rule 4320 Flag'] = ' '
-    # Convert FINRA field names to NASDAQ/NYSE equivalents
-    elif data_source.lower() == 'finra':
+    elif data_source.lower() == 'finra':    # Convert FINRA field names to NASDAQ/NYSE equivalents
         df['Data Provider'] = 'FINRA'
         df['Rule 3210'] = ' '
         column_map = {
@@ -415,36 +329,39 @@ def clean_df(df, data_source='NYSE'):
         }
 
         print(f"\nRenaming column names of df: {df.columns} \n according to this map: {column_map}")
-        try:
-            df.rename(columns=column_map, inplace=True)
-            print(f"\nRename successful - new column names: {df.columns}")
-
-        except Exception as e:
-            print("\n\n\n********************\n", e, "\n********************\n\n")
-            print("\nError cleaning df")
+        df.rename(columns=column_map, inplace=True)
+        print(f"\nRename successful - new column names: {df.columns}")
     else: 
         print(f"\nReceived unknown data source value: {data_source}. Please use one of {acceptable_sources}")
     
-    drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]    # NYSE/NASDAQ put in 'Filler' columns but don't use them. Idk why, but we don't need them rn.
-    df.drop(drop_cols, axis=1, inplace=True)
-    # Remove spaces to the right and left of all values ()
-    # df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
+    drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]    # NYSE/NASDAQ put in 'Filler' columns but don't use them. I haven't learned why yet, but we don't need to carry them over rn.
+    df.drop(drop_cols, axis=1, inplace=True)    
+
+    # Remove spaces to the right and left of all values (..is this needed?)
+    # df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
     # Generate unique row ID programatically to avoid duplicate insertions
     print("\nGenerating ID string from data_source + Symbol + Date + Market Category")
-  
-    # # Check for null values in the ID column
-    null_ids = df['ID'].isnull()
-    if null_ids.any():
-        print("Null values found in ID column:")
-        print(df[null_ids])
+    if len(df['Market Category'][0]) > 0:
+        market_tag = df['Market Category'].str.replace(' ', '').str.lower()
+    elif len(df['Market'][0])  > 0:
+        market_tag = df['Market'].str.replace(' ', '').str.lower()
+    else:
+        print('No market identifier for ID formatting, need more unique points to make ID')
+        return
+
+    datestring = df['Date'].dt.strftime('%Y%m%d')
+
+    df['ID'] = (data_source.lower() + df['Symbol'] + datestring + market_tag)
+
+    df.reset_index(drop=True, inplace=True)    # drop the unecessary pandas index (which doesn't get inserted to duckdb)
 
     schema_mapping = {
         "ID": "str",
         "Date": "datetime64[ns]",
         "Symbol": "str",
-        "Security_Name": "str",
+        "Security Name": "str",
         "Market Category": "str",
         "Market": "str",
         "Reg SHO Threshold Flag": "str",
@@ -455,34 +372,10 @@ def clean_df(df, data_source='NYSE'):
         "Source URL": "str"
     }
 
-    return df  print(df['Date'])
-    if len(df['Market Category'][0].replace(' ', '')) > 0:
-        print(len(df['Market Category'][0].replace(' ', '')))
-        df['ID'] = (data_source.lower() + df['Symbol'] + 
-            df['Date'].dt.strftime('%Y%m%d').replace('-', '_') + df['Market Category'].str.replace(' ', '').str.lower())
-    else:
-        df['ID'] = (data_source.lower() + df['Symbol'].str.replace(' ', '') + 
-            df['Date'].dt.strftime('%Y%m%d').replace('-', '') + df['Market'].str.replace(' ', '').str.lower())
+    df = df.astype({col: dtype for col, dtype in schema_mapping.items() if col in df.columns})     # Assert data types for any df columns that exist in schema_mapping
+    print("cleaned df:", df)
 
-    # drop the unecessary pandas index (which doesn't get inserted to duckdb)
-    df.reset_index(drop=True, inplace=True)
-
-
-
-    
-def df_to_clickhouse(df, data_source, settings):
-    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
-
-    # Easily change the table naming convention
-    table_name = data_source.lower() + '_regsho_daily'
-
-    if df.empty:
-        print("DataFrame is empty. Skipping insertion.")
-        return
-
-    create_table_from_df(df, table_name=table_name, settings=settings)
-
-    ch_conn.insert_df(table_name, df)
+    return df
 
 
 def create_table_from_df(df, table_name, settings):
@@ -511,31 +404,23 @@ def create_table_from_df(df, table_name, settings):
         ORDER BY tuple()
     """
     ch_conn.command(create_table_query)
+    print("\nTable created")
 
+                     
+def df_to_clickhouse(df, table_name, settings):
+    print(f"\nConnecting to {settings['host']} table: {table_name} with settings\n{settings}")
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
 
+    if df.empty:
+        print("DataFrame is empty. Skipping insertion.")
+        return
 
-def merge_tables(db_path='./stonk.duckdb'):
-    con = duckdb.connect(database=db_path, read_only=False)
-    # Check if the table exists
-    table_exists = con.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'regsho_daily'").fetchone()[0] > 0
-    
-    if table_exists:
-        # Drop the existing table
-        con.execute("DROP TABLE regsho_daily")
+    df.columns = df.columns.str.replace(' ', '_')   # Remove spaces from column names
 
-    con.execute(f"""
-            CREATE TABLE regsho_daily AS
-            SELECT * FROM nasdaq_regsho_daily
-            UNION ALL
-            SELECT * FROM nyse_regsho_daily
-            UNION ALL
-            SELECT * FROM finra_regsho_daily
-            UNION ALL
-            SELECT * FROM cboe_regsho_daily
-            ORDER BY Date;
-        """)
-    con.close()
-    return print("Merging tables...")
+    create_table_from_df(df, table_name=table_name, settings=settings)
+    print("\n\nInserting from df: ", df)
+    ch_conn.insert_df(table_name, df)
+    print("\nSuccess")
 
 
 #########################

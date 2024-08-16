@@ -1,3 +1,4 @@
+
 import requests
 from zipfile import ZipFile
 from os import listdir, path, remove, makedirs
@@ -6,14 +7,15 @@ from datetime import datetime, timedelta
 # for parallel downloads
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from aiohttp import ClientSession
+import aiohttp
 from argparse import ArgumentParser
+import pandas as pd
+import asyncio
 
 swaps_dir = '../data/sourcedata/swaps'
 jurisdictions = ['SEC', 'CFTC']
 report_types = ['SLICE', 'CUMULATIVE', 'FOREX', 'INTEREST']
 asset_classes = ['CREDITS', 'EQUITIES', 'RATES']
-
-
 
 def gen_url(jurisdiction, report_type, asset_class, datestring):
     dtcc_url = 'https://pddata.dtcc.com/ppd/api/report'
@@ -40,6 +42,7 @@ def generate_date_strings(start_date, end_date):
         current_date += timedelta(days=1)
     return date_strings
 
+
 def gen_urls(start_date: str, end_date: str, jurisdiction: str, report_type: str, asset_class: str) -> list[str]:
     ''' 
         Returns array of formatted strings for URLs to DTCC swap data 
@@ -63,18 +66,15 @@ def gen_urls(start_date: str, end_date: str, jurisdiction: str, report_type: str
     return urls
 
 
-
 async def fetch_zip(session: ClientSession, url: str) -> BytesIO:
     ''' Downloads and returns zip byte stream from url '''
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            response.raise_for_status()
-            zipbytes = BytesIO(await response.read())
-            return zipbytes
+    async with session.get(url) as response:
+        response.raise_for_status()
+        zipbytes = BytesIO(await response.read())
+        return zipbytes
 
 
-
-async def download_zip_to_df(session: ClientSession, url: str) -> pl.DataFrame:
+async def download_zip_to_df(session: ClientSession, url: str) -> pd.DataFrame:
     '''
         Returns a dataframe after downloading zipfile from a source
         without needing to save to disk
@@ -83,21 +83,68 @@ async def download_zip_to_df(session: ClientSession, url: str) -> pl.DataFrame:
         or more efficient format or to remote storage rather than csv on local disk as an extra step
     '''
     # Download zip file to memory
-    zipbytes = await fetch_zip()
+    zipbytes = await fetch_zip(session, url)
 
     with ZipFile(zipbytes, 'r') as ref:
         csv = ref.namelist()[0]
         with ref.open(csv) as file:
-            df = pl.read_csv(file)
+            df = pd.read_csv(file)
     
     return df
 
 
-async def process_urls(urls: list[str]) -> list[pl.DataFrame]:
+async def process_urls(urls: list[str]) -> list[pd.DataFrame]:
     async with aiohttp.ClientSession() as session:
         tasks = [download_zip_to_df(session, url) for url in urls]
         dfs = await asyncio.gather(*tasks, return_exceptions=True)
+        # print("urlproc:\n",df)
         return dfs
+
+
+
+def create_table_from_df(df, table_name, settings):
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+
+    columns = []
+    print(f"Creating clickhouse table for {table_name}, and generating schema from pandas dtypes")
+    for col_name, dtype in zip(df.columns, df.dtypes):
+        if "int" in str(dtype):
+            ch_type = "Int64"
+        elif "float" in str(dtype):
+            ch_type = "Float64"
+        elif "datetime64" in str(dtype):
+            ch_type = "DateTime"
+        elif "object" in str(dtype):
+            ch_type = "String"
+        else:
+            ch_type = "String"  # Default to String for other types
+        columns.append(f"`{col_name}` {ch_type}")
+    print("Generated schema: ", columns)
+    columns_str = ", ".join(columns)
+    create_table_query = f"""
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            {columns_str}
+        ) ENGINE = MergeTree()
+        ORDER BY tuple()
+    """
+    ch_conn.command(create_table_query)
+    print("\nTable created")
+
+                     
+def df_to_clickhouse(df, table_name, settings):
+    print(f"\nConnecting to {settings['host']} table: {table_name} with settings\n{settings}")
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+
+    if df.empty:
+        print("DataFrame is empty. Skipping insertion.")
+        return
+
+    df.columns = df.columns.str.replace(' ', '_')   # Remove spaces from column names
+
+    create_table_from_df(df, table_name=table_name, settings=settings)
+    print("\n\nInserting from df: ", df)
+    ch_conn.insert_df(table_name, df)
+    print("\nSuccess")
 
 
 
@@ -121,4 +168,4 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    main(args.start_date, args.end_date, args.jurisdiction, args.report_type, args.asset_class))
+    main(args.start_date, args.end_date, args.jurisdiction, args.report_type, args.asset_class)

@@ -1,32 +1,4 @@
-variable "minio_port" {
-  description = "Port for MinIO service"
-  type        = number
-}
 
-variable "minio_console_port" {
-  description = "Console port for MinIO service"
-  type        = number
-}
-
-variable "minio_root_user" {
-  description = "Root user for MinIO"
-  type        = string
-}
-
-variable "minio_root_password" {
-  description = "Root password for MinIO"
-  type        = string
-}
-
-variable "minio_bucket" {
-  description = "The MinIO bucket to use"
-  type        = string
-}
-
-variable "minio_region" {
-  description = "The MinIO region"
-  type        = string
-}
 
 variable "zookeeper_port" {
   description = "Port for Zookeeper service"

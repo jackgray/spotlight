@@ -27,4 +27,4 @@ def load_df_to_duckdb(df, table_name, db_path):
         # Create a new table and insert data
         con.execute(f"CREATE TABLE {table_name} AS SELECT * FROM df")
 
-load_df_to_duckdb(df, 'finra_regsho_daily', './gme.duckdb')
+load_df_to_duckdb(df, 'finra_regsho_daily', '../gme.duckdb')

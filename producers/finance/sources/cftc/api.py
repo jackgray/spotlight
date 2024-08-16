@@ -24,6 +24,8 @@ reports = {
     "disaggregated_futopt",
     "traders_in_financial_futures_fut"
 }
+
+
 def fetch_report(report):
     '''
     Returns: report as dataframe

@@ -1,0 +1,6 @@
+camelot-py
+opencv-python
+pandas
+duckdb
+datetime
+clickhouse-connect
