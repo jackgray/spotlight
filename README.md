@@ -12,7 +12,9 @@ It's also a way for me to hone some skills I am interested in, which is why you 
 ## Architecture
 ### Scheduling / Data retrieval
 Data extraction pipelines run as Kafka Producers
+
 Batch-heavy pipelines are scheduled and run by Airflow
+
 'Always running' streaming data pipelines run in containers managed and load balanced by Hashicorp's Nomad
 
 ## Storage
