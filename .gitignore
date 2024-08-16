@@ -8,3 +8,7 @@ data/
 **cloudflare/config.yaml
 **/.env
 **node_modules
+
+**.json
+./app/cloudflare/*.json
+./app/cloudflare/config.yaml

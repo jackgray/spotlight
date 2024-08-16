@@ -11,6 +11,9 @@ from datetime import datetime
 import time
 
 
+
+
+
 def cboe_by_date(datestring, db_path='./stonk.duckdb', max_retries=5, backoff_factor=1):
     date_format = '%Y-%m-%d'
 
@@ -43,9 +46,18 @@ def cboe_by_date(datestring, db_path='./stonk.duckdb', max_retries=5, backoff_fa
                     print("\n\n\n********************\n", e, "\n********************\n\n")                # Lazy solve for problem of duplicate column being created -- come back and find a better fix
                 
                 # Load it into database
-                df = load_df_to_duckdb(df=df, db_path=db_path, data_source='cboe')
+                errdf = df_to_duckdb(df=df, db_path=db_path, data_source='cboe')
 
-                return df  # Return the dataframe if successful
+                # Send to clickhouse
+                print(f"Trying to load into clickhouse")
+                try:    
+                    create_table_from_df(df=df, table_name='cboe', settings=ch_settings)
+                    df_to_clickhouse(df=df, data_source='cboe', settings=ch_settings)  
+                    print("Success!")
+                except Exception as e:
+                    print(e)
+
+                return errdf  # Return the dataframe if successful
 
             elif response.status_code == 404:
                 print(f"Error 404: Data not found for {datestring}.")
@@ -138,8 +150,16 @@ def finra_by_date(datareq_type='data', group='otcmarket', dataset='thresholdlist
     df = pd.DataFrame(all_data)
     print("Returning FINRA df (preview): ", df.head(3))
     df['Source URL'] = url
-    df = load_df_to_duckdb(df=df, db_path=db_path, data_source='FINRA')
-    return df
+    errdf = load_df_to_duckdb(df=df, db_path=db_path, data_source='FINRA')
+    print(f"Trying to load into clickhouse")
+    try:    
+        create_table_from_df(df=df, source='finra', settings=ch_settings)
+        df_to_clickhouse(df=df, source='finra', settings=ch_settings)  
+        print("Success!")
+    except Exception as e:
+        print(e)
+
+    return errdf
 
 
 def nyse_by_date(datestring, markets=None, db_path='./stonk.duckdb', max_retries=3, backoff_factor=1):
@@ -214,9 +234,16 @@ def nyse_by_date(datestring, markets=None, db_path='./stonk.duckdb', max_retries
     if not all_data.empty:
         # Load results to database
         print(f"Loading NYSE data for date {datestring} into database: {df}")
-        df = load_df_to_duckdb(df=all_data, db_path=db_path, data_source='NYSE')
-    
-    return df
+        errdf = load_df_to_duckdb(df=all_data, db_path=db_path, data_source='NYSE')
+        print(f"Trying to load into clickhouse")
+        try:    
+            create_table_from_df(df=df, datasource='nasdaq', settings=ch_settings)
+            df_to_clickhouse(df=df, table_name=table_name, settings=ch_settings)
+            print("Success!")
+        except Exception as e:
+            print(e)
+
+    return errdf
 
 
 def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
@@ -250,9 +277,16 @@ def nasdaq_by_date(datestring, db_path, max_retries=3, backoff_factor=1):
                     print("\n\n\n********************\n", e, "\n********************\n\n")                # Lazy solve for problem of duplicate column being created -- come back and find a better fix
                 
                 # Load it into database
-                df = load_df_to_duckdb(df=df, db_path=db_path, data_source='nasdaq')
+                errdf = load_df_to_duckdb(df=df, db_path=db_path, data_source='nasdaq')
+                print(f"Trying to load into clickhouse")
+                try:    
+                    create_table_from_df(df=df, datasource='nasdaq', settings=ch_settings)
+                    df_to_clickhouse(df=df, table_name=table_name, settings=ch_settings)
+                    print("Success!")
+                except Exception as e:
+                    print(e)
 
-                return df  # Return the dataframe if successful
+                return errdf  # Return the dataframe if successful
 
             elif response.status_code == 404:
                 print(f"Error 404: Data not found for {datestring}.")
@@ -348,10 +382,49 @@ def clean_df(df, data_source='NYSE'):
         print("Null values found in ID column:")
         print(df[null_ids])
 
-    return df
-    
+    schema_mapping = {
+        "ID": "str",
+        "Date": "datetime64[ns]",
+        "Symbol": "str",
+        "Security_Name": "str",
+        "Market Category": "str",
+        "Market": "str",
+        "Reg SHO Threshold Flag": "str",
+        "Threshold List Flag": "str",
+        "FINRA Rule 4320 Flag": "str",
+        "Rule 3210": "str",
+        "Data Provider": "str",
+        "Source URL": "str"
+    }
 
-def load_df_to_duckdb(df, db_path, data_source):
+    for column, dtype in schema_mapping.items():
+        if column in df.columns:
+            try:
+                df[column] = df[column].replace(' ', '_').astype(dtype)    # Assert data types and reformat column names. Some things don't like spaces in field names so this will save a few headaches
+            except Exception as e:
+                print(f'Problem setting type for column {column}')
+                print(e)
+
+    return df
+
+
+    
+def df_to_clickhouse(df, data_source, settings):
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+
+    # Easily change the table naming convention
+    table_name = data_source.lower() + '_regsho_daily'
+
+    if df.empty:
+        print("DataFrame is empty. Skipping insertion.")
+        return
+
+    # Unify field names (renaming, drop columns, reset index)
+    df = clean_df(df=df, data_source=data_source)
+    ch_conn.insert_df(table_name, df)
+
+
+def df_to_duckdb(df, db_path, data_source):
     '''
         loads df into duckdb by running clean_df() and asserting a table with the proper schema
     ''' 
@@ -406,7 +479,7 @@ def load_df_to_duckdb(df, db_path, data_source):
 
 
 
-def regsho_by_date(datestring, data_sources, db_path):
+def regsho_by_date(datestring, data_sources, db_path, ch_settings):
     '''
     Grabs records by date for all data sources supplied
 

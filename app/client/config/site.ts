@@ -8,14 +8,14 @@ export const siteConfig = {
       label: "Home",
       href: "/",
     },
-    {
-      label: "Data",
-      href: "/data",
-    },
-    {
-      label: "Financial Data",
-      href: "/data/finance",
-    },
+    // {
+    //   label: "Data",
+    //   href: "/data",
+    // },
+    // {
+    //   label: "Financial Data",
+    //   href: "/data/finance",
+    // },
     {
       label: "Financial Data - CAT",
       href: "/data/finance/cat",
