@@ -8,21 +8,17 @@ export const siteConfig = {
       label: "Home",
       href: "/",
     },
-    // {
-    //   label: "Data",
-    //   href: "/data",
-    // },
-    // {
-    //   label: "Financial Data",
-    //   href: "/data/finance",
-    // },
     {
-      label: "Financial Data - CAT",
+      label: "CAT Data",
       href: "/data/finance/cat",
     },
     {
-      label: "Financial Data - Reg SHO",
+      label: "Reg SHO Data",
       href: "/data/finance/regsho",
+    },
+    {
+      label: "Swap Contracts",
+      href: "/data/finance/swaps",
     },
     {
       label: "About",

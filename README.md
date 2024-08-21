@@ -20,9 +20,9 @@ Kafka producers orchestrated by Airflow make requests to external data, and  eit
 ![Diagram](./architecture.png)
 
 
-# Front end
+# Client Appliction
 
-I am slowly merging my GovTrackr project with this to serve as the user client. It is built on Next.js, React, material-ui, Node/Express, GrapQL, Prisma CRM, and PostgreSQL. 
+It is built on Next.js, React, next-ui, Node/Express, GrapQL, Prisma CRM, and PostgreSQL. 
 
 ## See producers directory for data retreival pipelines
 
