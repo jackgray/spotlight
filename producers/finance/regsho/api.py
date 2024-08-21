@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from os import getenv
 from typing import Optional, Required, List, Union
 from datetime import datetime
+from datetime import datetime
 import time
 from clickhouse_connect import get_client as ch
 import re

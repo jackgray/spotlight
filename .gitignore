@@ -2,3 +2,13 @@ data/
 .env
 **.duckdb
 **.csv
+
+**cert.pem
+**cloudflare/*.json
+**cloudflare/config.yaml
+**/.env
+**node_modules
+
+**.json
+./app/cloudflare/*.json
+./app/cloudflare/config.yaml

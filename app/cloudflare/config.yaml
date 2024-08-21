@@ -1,0 +1,12 @@
+tunnel: b76981a3-2237-4f1a-8c08-e833a44656fb
+credentials-file: /etc/cloudflared/b76981a3-2237-4f1a-8c08-e833a44656fb.json
+
+ingress:
+  - hostname: beta.spotlight-us.com
+    service: http://192.168.8.246:3006
+  - hostname: superset.spotlight-us.com
+    service: http://192.168.8.246:8088
+  # - hostname: beta.superstonk.army
+  #   service: http://localhost:3000
+ 
+  - service: http_status:404

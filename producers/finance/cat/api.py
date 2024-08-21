@@ -3,9 +3,12 @@ import requests
 import pdfplumber
 import pandas as pd
 import pandahouse as ph
+import pandahouse as ph
 import duckdb
 from io import BytesIO
 from typing import Optional, Required, List, Union
+from clickhouse_connect import get_client as ch
+import re
 from clickhouse_connect import get_client as ch
 import re
 
@@ -231,6 +234,173 @@ def create_table_from_df(df, table_name, settings):
     """
     ch_conn.command(create_table_query)
 
+def df_to_clickhouse(df, table_name, settings):
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+    ch_conn.insert_df(table_name, df)
+
+
+def cat_by_date(datestring, ch_settings, db_path='default_data.duckdb'):
+
+    """Process the PDF data and load it into DuckDB."""
+    try:
+        data, url = fetch_pdf_to_list(datestring)
+    except:
+        return None
+
+    dynamic_slices = generate_slices(len(data))
+
+    params = { 
+        'rolling': {
+            'schema': {
+                'Date': 'datetime64[ns]',
+                'Late': 'float',
+                'Rejection_Initial': 'float',
+                'Rejection_Adjusted': 'float',
+                'Intrafirm_Initial': 'float',
+                'Intrafirm_Adjusted': 'float',
+                'Interfirm_Sent_Initial': 'float',
+                'Interfirm_Sent_Adjusted': 'float',
+                'Interfirm_Received_Initial': 'float',
+                'Interfirm_Received_Adjusted': 'float',
+                'Exchange_Initial': 'float',
+                'Exchange_Adjusted': 'float',
+                'Trade_Initial': 'float',
+                'Trade_Adjusted': 'float',
+                'Overall_Error_Rate_Initial': 'float',
+                'Overall_Error_Rate_Adjusted': 'float',
+                'Trade_Type': 'str',
+                'Report_Date': 'datetime64[ns]',
+                'Source_URL': 'str',
+                'ID': 'str',
+            },
+            'date format': '%m/%d/%Y',
+            'pages': dynamic_slices['rolling']
+        },
+        'trade stats': {
+            'schema': {
+                'Date': 'datetime64[ns]',
+                'Processed': 'int',
+                'Accepted': 'int',
+                'Late': 'int',
+                'Overall_Errors_Count': 'int',
+                'Trade_Type': 'str',
+                'Report_Date': 'datetime64[ns]',
+                'Source_URL': 'str',
+                'ID': 'str'
+            },
+            'date format': '%Y-%m-%d',
+            'pages': dynamic_slices['trade stats']
+        }
+    }
+
+    print("\n\n\n\n*******\nFetched CAT data from ", url)
+    # print(text)
+    for report in params:
+        combined_df = pd.DataFrame()  # Initialize an empty DataFrame for combining
+        
+        for trade_type in params[report]['pages']:
+            print(f"\nProcessing: {report}-{trade_type}")
+            # data = [item for item in text if item is not None]
+            # Pull for specific trade type (Options or Equities)
+            rawdata = data[params[report]['pages'][trade_type]]
+            # Get data into formatted list
+            try:
+                combined = [row for sublist in rawdata for row in sublist[1:]]
+            except:
+                combined = rawdata
+            # Convert to df
+            print(f"Converting {report} report to df...")
+            df = clean_to_df(data=combined, params=params[report])
+            # Generate unique ID for each entry
+            df['ID'] = 'cat' + report.lower()[:3] + df['Date'].dt.strftime('%Y%m%d').replace('-', '') + trade_type[:2]
+            df['Report_Date'] = datetime.strptime(datestring, '%Y%m%d').strftime('%Y-%m-%d')
+            df['Source_URL'] = url
+            # df['Data Provider'] = 'FINRA'     # Currently this is the only provider so it's implied
+            df['Trade_Type'] = trade_type.capitalize()  # Add the trade type column
+
+            print(f'\nCombiniing dfs: {df.head} & {combined_df}') 
+            # Combine with the previous DataFrame
+            combined_df = pd.concat([combined_df, df])
+
+        # Determine the table name based on the report type
+        rptname=report.capitalize().replace(' ', '_')
+        table_name = f'CAT_{rptname}'
+        # Load the combined DataFrame into DuckDB
+        # load_to_duckdb(combined_df, table_name, params=params[report], con=con)
+        
+        print(f"Trying to load into clickhouse")
+        try:    
+            create_table_from_df(df=combined_df, table_name=table_name, settings=ch_settings)
+            df_to_clickhouse(df=combined_df, table_name=table_name, settings=ch_settings)
+            
+        except Exception as e:
+            print(e)
+
+def cat_by_range(start_date, end_date, ch_settings, db_path='../../../data/stonk.duckdb'):
+    print(f"Pulling data for date range: {start_date}-{end_date}")
+    for datestring in generate_date_strings(start_date=start_date, end_date=end_date):
+        res = cat_by_date(datestring, ch_settings=ch_settings, db_path=db_path)
+        if res == None:
+            continue
+
+
+
+###########
+#  UTILS
+###########
+
+def generate_slices(total_pages):
+    """
+    Generate dynamic slices for 'pages' based on total number of pages and page size.
+
+    Args:
+    - total_pages (int): Total number of pages available.
+    - page_size (int): Size of each page group.
+
+    Returns:
+    - dict: A dictionary with dynamic slices for 'equities' and 'options'.
+    """
+    idx = total_pages // 4
+
+    # Generate slices based on the number of groups
+    slices = {
+        'rolling': {
+            'equities': slice(0, min(idx, total_pages)),
+            'options': slice(idx, min(idx * 2, total_pages))
+        },
+        'trade stats': {
+            'equities': slice(2 * idx, 3 * idx),
+            'options': slice(3 * idx, 4 * idx),
+        }
+    }
+    return slices
+
+def create_table_from_df(df, table_name, settings):
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+
+    columns = []
+    for col_name, dtype in zip(df.columns, df.dtypes):
+        if "int" in str(dtype):
+            ch_type = "Int64"
+        elif "float" in str(dtype):
+            ch_type = "Float64"
+        elif "object" in str(dtype):
+            ch_type = "String"
+        elif "datetime" in str(dtype):
+            ch_type = "DateTime"
+        else:
+            ch_type = "String"  # Default to String for other types
+        columns.append(f"`{col_name}` {ch_type}")
+    
+    columns_str = ", ".join(columns)
+    create_table_query = f"""
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            {columns_str}
+        ) ENGINE = MergeTree()
+        ORDER BY tuple()
+    """
+    ch_conn.command(create_table_query)
+
 def load_to_duckdb(df, table_name, params, con):
     """Load the DataFrame into a DuckDB table named by the report and trade_type."""
 
@@ -290,10 +460,37 @@ def duckdb_to_clickhouse(db_path='./stonk.duckdb', ch_host='localhost', ch_port=
         else:
             return 'str'  # Default to str for unknown types
 
+    
+    # Define a function to map ClickHouse types to Pandas dtypes
+    def clickhouse_to_pandas_type(ch_type):
+        if ch_type == 'DATE':
+            return 'datetime64[ns]'
+        elif ch_type == 'INTEGER':
+            return 'Int64'  # Int64 for nullable integers in Pandas
+        elif ch_type == 'FLOAT64':
+            return 'float64'
+        elif ch_type == 'VARCHAR':
+            return 'str'
+        elif ch_type == 'BOOLEAN':
+            return 'bool'
+        else:
+            return 'str'  # Default to str for unknown types
+
     # Iterate over each table and load it into ClickHouse
     for (table_name,) in table_names:
         # Load table into a Pandas DataFrame
         df = con.execute(f"SELECT * FROM {table_name}").df()
+        
+        # Fetch ClickHouse table schema
+        clickhouse_columns = client.query(f'DESCRIBE TABLE {table_name}').result_rows
+        clickhouse_column_types = {row[0]: row[1] for row in clickhouse_columns}
+
+        # Dynamically convert DataFrame columns to match ClickHouse schema
+        for col, ch_type in clickhouse_column_types.items():
+            if col in df.columns:
+                pandas_type = clickhouse_to_pandas_type(ch_type)
+                df[col] = df[col].astype(pandas_type, errors='ignore')
+
         
         # Fetch ClickHouse table schema
         clickhouse_columns = client.query(f'DESCRIBE TABLE {table_name}').result_rows
@@ -311,11 +508,21 @@ def duckdb_to_clickhouse(db_path='./stonk.duckdb', ch_host='localhost', ch_port=
         # Convert DataFrame to list of tuples
         data_tuples = list(df.itertuples(index=False, name=None))
         
+        # Convert DataFrame to list of tuples
+        data_tuples = list(df.itertuples(index=False, name=None))
+        
+        # Print row data types for debugging
+        for row in data_tuples:
+            print("Row data types:", [type(item) for item in row])
         # Print row data types for debugging
         for row in data_tuples:
             print("Row data types:", [type(item) for item in row])
         
         # Insert the DataFrame into ClickHouse
+        try:
+            client.insert(table_name, data_tuples, column_names=list(df.columns))
+        except Exception as e:
+            print(f"Error inserting data into table {table_name}: {e}")
         try:
             client.insert(table_name, data_tuples, column_names=list(df.columns))
         except Exception as e:
