@@ -13,7 +13,7 @@ ch_settings = {
 # https://www.catnmsplan.com/sites/default/files/2022-07/07.28.22-Monthly-CAT-Update.pdf
 
 
-cat_by_range('20220701', 'yesterday', ch_settings=ch_settings, db_path=db_path)
+cat_by_range('20240812', 'yesterday', ch_settings=ch_settings, db_path=db_path)
 
 # duckdb_to_clickhouse(db_path=db_path, ch_host=clickhouse_host, ch_user='default', ch_port=8123, ch_db='default')
 

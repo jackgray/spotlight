@@ -29,32 +29,39 @@ def fetch_pdf_to_list(datestring):
                     text.append(page.extract_table())
         # print(len(text))
         return text, url
-    except:
+    except Exception as e:
         return None
 
 
-
-
 def clean_to_df(data, params):
-    """Convert cleaned list data into a DataFrame and format the Date column."""
-    # print(f"Cols: {params['schema'].keys()}")
     columns = list(params['schema'].keys())
-    df = pd.DataFrame(columns=columns)
-    # Add default values if dimensions don't match (happens when generating new fields to add to the input data)
-    padded = [row[:len(columns)] + [None] * (len(columns) - len(row[:len(columns)])) for row in data]
-    df = pd.DataFrame(padded, columns=columns)
-    df['Date'] = pd.to_datetime(df['Date'], format=params['date format']) #.dt.strftime('%Y-%m-%d')
+    print("Padding columns: ", columns)
     
-    df = df.replace(' ', '', regex=True).replace('%', '', regex=True).replace(',', '', regex=True).reset_index(drop=True)
-
+    padded = [row[:len(columns)] + [None] * (len(columns) - len(row[:len(columns)])) for row in data]
+    df2 = pd.DataFrame(padded, columns=columns)
+    
+    print("Cleaning df: ", df2.head(3))
+    
+    # Remove rows with non-date values in 'Date' column
+    df2 = df2[~df2['Date'].str.contains('Trade|Date', na=False)].copy()
+    
+    try:
+        df2['Date'] = pd.to_datetime(df2['Date'], format=params['date format'])
+    except ValueError as e:
+        print(f"Error parsing date: {e}")
+    
+    df2 = df2.replace(' ', '', regex=True).replace('%', '', regex=True).replace(',', '', regex=True).reset_index(drop=True)
+    
     for column, dtype in params['schema'].items():
-        if column in df.columns:
+        if column in df2.columns:
             try:
-                df[column] = df[column].astype(dtype)
+                df2[column] = df2[column].astype(dtype)
             except Exception as e:
                 print(f'Problem setting type for column {column}')
                 print(e)
-    return df
+    
+    return df2
+
 
 
 def df_to_clickhouse(df, table_name, settings):
@@ -151,11 +158,11 @@ def cat_by_date(datestring, ch_settings, db_path='default_data.duckdb'):
         # Load the combined DataFrame into DuckDB
         # load_to_duckdb(combined_df, table_name, params=params[report], con=con)
         
-        print(f"Trying to load into clickhouse")
+        print(f"Trying to load into clickhouse...")
         try:    
             create_table_from_df(df=combined_df, table_name=table_name, settings=ch_settings)
             df_to_clickhouse(df=combined_df, table_name=table_name, settings=ch_settings)
-            
+            print("...Success")
         except Exception as e:
             print(e)
 

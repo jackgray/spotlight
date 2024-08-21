@@ -14,11 +14,13 @@ import pandas as pd
 import polars as pl
 from datetime import datetime, timedelta
 from glob import glob
+from clickhouse_connect import get_client as ch
+
 
 local_run = True
 
-# table_name = 'sec_swaps_raw'
-table_name = 'gme_swaps_raw'
+table_name = 'sec_swaps_dtcc'
+# table_name = 'gme_swaps_raw'
 
 
 sourcedata_path = f'../data/sourcedata'
@@ -41,7 +43,7 @@ asset_classes = ['CREDITS', 'EQUITIES', 'RATES']
 
 def gen_url(jurisdiction, report_type, asset_class, datestring):
     dtcc_url = 'https://pddata.dtcc.com/ppd/api/report'
-    return f'{dtcc_url}/{report_type.lower()}{jurisdiction.lower()}/{jurisdiction}_{report_type}_{asset_class}_{datestring}.zip'
+    return f'{dtcc_url}/{report_type.lower()}/{jurisdiction.lower()}/{jurisdiction}_{report_type}_{asset_class}_{datestring}.zip'
 
 
 def generate_date_strings(start_date, end_date):
@@ -101,7 +103,30 @@ def download_and_unzip(url, extract_to=swaps_dir):
     return pd.read_csv(filepath, low_memory=False)
 
 
-def clean_df(df, underlier_filter_st):
+def cast_columns(df: pd.DataFrame, columns: list, dtype: str) -> pd.DataFrame:
+    """
+    Cast specified columns in a DataFrame to the given data type.
+
+    Parameters:
+    - df: pd.DataFrame - The DataFrame to modify.
+    - columns: list - List of column names to cast.
+    - dtype: str - Data type to cast the columns to (e.g., 'int', 'float', 'str', 'datetime64').
+
+    Returns:
+    - pd.DataFrame - DataFrame with the specified columns cast to the new data type.
+    """
+
+    for col in columns:
+        if col in df.columns:
+            try:
+                df[col] = df[col].astype(dtype)
+            except Exception as e:
+                print(f"Error casting column {col} to {dtype}: {e}")
+
+    return df
+
+
+def clean_df(df):
     # Assert uniformity for changing column labels across data releases (schema drift)
 
     # column names and Action type labels in the reports changed on 12/04/22 
@@ -118,6 +143,7 @@ def clean_df(df, underlier_filter_st):
         'Action Type': 'Action type',
         'Action': 'Action type',
         'Effective Date': 'Effective Date',
+        'Expiration Date': 'Expiration Date',
         'Event Timestamp': 'Event timestamp',
         'Execution Timestamp': 'Execution Timestamp',
         'Expiration Date': 'Expiration Date',
@@ -133,23 +159,76 @@ def clean_df(df, underlier_filter_st):
     print(f"Renaming column names of df: {df} \n according to this map: {column_map}")
     
     df.rename(columns=column_map)
-
     print(f"Rename successful: {df}")
 
-    # # Drop other columns
-    if trim_source = True:
-        print("Dropping irrelevant columns..")
-        df = df[list(column_map.values())]
-        print(f"Drop successful: {df}")
+
+    # # # Drop other columns
+    # if trim_source == True:
+    # print("Dropping irrelevant columns..")
+    # df = df[list(column_map.values())]
+    # print(f"Drop successful: {df}")
 
     # Drop rows that dont have specified ticker listed as an underlying asset
-    df = df[df["Underlier ID-Leg 1"].str.contains(underlier_filter_str, na=False)]
+    # df = df[df["Underlier ID-Leg 1"].str.contains(underlier_filter_str, na=False)]
         
     '''
     SEC Changed some names of labels for the 'Action type' field, 
     making them inconsistent across datasets, so we need to assert uniformity
     '''
+    
+    # df['swonkid'] = datestring.replace('_', '')
 
+    # df = df.loc[:,df.columns.duplicated()].copy()
+
+    df.replace(',','', regex=True, inplace=True)
+    # Convert all float columns to integers if they only contain whole numbers
+    for col in df.select_dtypes(include='float').columns:
+        if (df[col] % 1 == 0).all():  # Check if all values are whole numbers
+            df[col] = df[col].astype('Int64')  # Use 'Int64' for integer type with NaN support
+
+    # df = df.replace(np.nan, '', regex=True)
+    # Convert only numeric columns to integers
+    # df = df.apply(lambda x: pd.to_numeric(x, errors='coerce').fillna(0).astype(int) if pd.api.types.is_numeric_dtype(x) else x)
+
+        # Identify datetime columns
+    # Convert numeric columns to integers, ignoring datetime columns
+    numeric_columns = df.select_dtypes(include=['number']).columns
+    df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce').fillna(0).astype(int)
+
+    for col in df.select_dtypes(include='float').columns:
+        # Check if all values are whole numbers
+        if (df[col] % 1 == 0).all():
+            df[col] = df[col].astype('Int64', errors='ignore')
+
+    # Convert boolean columns to strings
+    # bool_columns = df.select_dtypes(include=['bool']).columns
+    # df[bool_columns] = df[bool_columns].astype(str)
+
+    # Convert object columns to appropriate types
+    # object_columns = df.select_dtypes(include=['object']).columns.difference(df.select_dtypes(include=['datetime']).columns)
+    # df[object_columns] = df[object_columns].apply(pd.to_numeric, errors='coerce').fillna(0).astype(str)
+
+    # Fill NaN values in non-numeric columns with empty strings
+    df = df.fillna('')
+
+    if 'Expiration Date' in df.columns:
+        print(df['Expiration Date'])
+        # df['Expiration Date'] = df['Expiration Date'].astype(str).str[:8]
+        df['Expiration Date'] = pd.to_datetime(df['Expiration Date'], errors='coerce')
+        # df['Expiration Date'] = df['Expiration Date'].fillna(pd.Timestamp('1970-01-01'), inplace=True)
+    else:
+        print("Column 'Expiration_Date' not found.")
+
+    print(df)
+
+    # Option 2: Drop rows with N aT values
+    df.dropna(subset=['Expiration Date'], inplace=True)
+
+
+    # date_fixed = cast_columns(df=df, columns=['Effective Date', 'Expiration Date', 'Execution Timestamp', 'Event timestamp', 'First exercise date'], dtype='datetime64[ns]')
+    print('cleaned df', df)
+    df = df[list(column_map.values())]
+    print("\nFixng action type")
     # Check if 'Action type' column exists
     if 'Action type' in df.columns:
         # Fill missing values
@@ -160,19 +239,14 @@ def clean_df(df, underlier_filter_st):
             'CANCEL': 'TERM',
             'NEW': 'NEWT'
         })
+    # Remove duplicate columns by keeping only the first occurrence
+    df = df.loc[:, ~df.columns.duplicated()]
 
-    # df['swonkid'] = datestring.replace('_', '')
-
-    df = df.loc[:,~df.columns.duplicated()].copy()
-
-    df.replace(',','', regex=True, inplace=True)
-    # c = df.select_dtypes(object).columns
-    # df[c] = df[c].apply(pd.to_numeric,errors='coerce')
 
     return df
 
 
-def download_batch(start_date, end_date, table_name):
+def download_batch(start_date, end_date, table_name, ch_settings):
     '''
     Downloads SEC Swap data files for a range of dates
 
@@ -191,25 +265,25 @@ def download_batch(start_date, end_date, table_name):
         # Download file
         url = gen_url('SEC', 'CUMULATIVE', 'EQUITIES', datestring)
         print(f"Retrieving {url}")
-        try: 
-            df = download_and_unzip(url)
 
-            df = clean_df(df, column_map)
-       
-            # Make sure table exists before trying to append it
-            try:
-                con.execute(f"""
-                    CREATE TABLE {table_name}
-                    AS SELECT * from df
-                """)
-            except:
-                print(f"Inserting data into table {table_name}:\n{df}")
-                con.execute(f"""
-                    INSERT INTO {table_name} BY NAME
-                    SELECT * FROM df
-                """)
+        
+        try:
+            df = download_and_unzip(url)
         except:
             continue
+        print("Data retreived: ", df)
+        cleaned = clean_df(df)
+        cleaned['Date'] = pd.to_datetime(datestring, format='%Y_%m_%d')
+
+        print("loading df:\n ", cleaned.head(3))
+        print(cleaned.dtypes)
+        print("using ch settings: ", ch_settings)
+        create_table_from_df(df=cleaned, table_name=table_name, settings=ch_settings)
+    
+        print("loading into clickhouse")
+        df_to_clickhouse(df=cleaned, table_name=table_name, settings=ch_settings)
+        print("\n\nSuccess!")
+ 
         
             
 def load_csv_to_duckdb(csv, table_name):
@@ -250,6 +324,57 @@ def process_ice_data(swaps_dir, table_name):
         load_csv_to_duckdb(file, table_name)
 
 
+
+
+
+def create_table_from_df(df, table_name, settings):
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+    df.columns = df.columns.str.strip().str.replace(' ', '_')   # Remove spaces from column names
+    columns = []
+    print(f"Creating clickhouse table for {table_name}, and generating schema from pandas dtypes")
+    for col_name, dtype in zip(df.columns, df.dtypes):
+        if "int" in str(dtype):
+            ch_type = "Int64"
+        elif "float" in str(dtype):
+            ch_type = "Float64"
+        elif "datetime64" in str(dtype):
+            ch_type = "DateTime"
+        elif "object" in str(dtype):
+            ch_type = "String"
+        elif "bool" in str(dtype):
+            ch_type = "Bool"
+        else:
+            ch_type = "String"  # Default to String for other types
+        columns.append(f"`{col_name}` {ch_type}")
+    print("Generated schema: ", columns)
+    columns_str = ", ".join(columns)
+    create_table_query = f"""
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            {columns_str}
+        ) ENGINE = MergeTree()
+        ORDER BY tuple()
+    """
+    ch_conn.command(create_table_query)
+    print("\nTable created")
+
+                     
+def df_to_clickhouse(df, table_name, settings):
+    print(f"\nConnecting to {settings['host']} table: {table_name} with settings\n{settings}")
+    ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
+
+    if df.empty:
+        print("DataFrame is empty. Skipping insertion.")
+        return
+
+    df.columns = df.columns.str.strip().str.replace(' ', '_')   # Remove spaces from column names
+
+    # create_table_from_df(df, table_name=table_name, settings=settings)
+    print("\n\nInserting from df: ", df)
+    ch_conn.insert_df(table_name, df)
+    print("\nSuccess")
+
+
+
 # master = filter_merge()
 # master=master.drop(columns=['Unnamed: 0'])
 
@@ -260,10 +385,15 @@ con = duckdb.connect(database='../data/gme.duckdb', read_only=False)
 # Yesterday's date
 yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d') # Function requires string input so use strftime to convert
 
+ch_settings = {
+    'host': '192.168.8.246',
+    'port': 8123,
+    'database': 'default',
+    'username': 'default',
+    'password': ''
+}
 # print(yesterday)
-def dowload_all():
-    for 
-    download_batch('20230723', yesterday, table_name)
+download_batch('20190723', yesterday, table_name, ch_settings=ch_settings)
 
 # con.execute(f"""
 #     COPY {tabe_name} 
@@ -277,3 +407,5 @@ def dowload_all():
 
 # Close the DuckDB connection
 con.close()   
+
+
