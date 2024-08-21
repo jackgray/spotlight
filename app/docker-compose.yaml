@@ -7,13 +7,29 @@ services:
       - ./server/config/dashboards:/app/dashboards
     ports:
       - '3001:3001'
-
-  client:
-    build: ./client
-    ports:
-      - '3006:3000'
     depends_on:
       - cloudflare
+
+  client:
+    build: 
+      context: ./client
+      # args: 
+      #   - NEXT_PUBLIC_SUPERSET_URL=${NEXT_PUBLIC_SUPERSET_URL}
+      #   - NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_CAT=${NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_CAT}
+      #   - NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_REGSHO=${NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_REGSHO}
+      #   - NEXT_PUBLIC_SUPERSET_ADMIN_USERNAME=${NEXT_PUBLIC_SUPERSET_ADMIN_USERNAME}
+      #   - NEXT_PUBLIC_SUPERSET_ADMIN_PASSWORD=${NEXT_PUBLIC_SUPERSET_ADMIN_PASSWORD}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_USERNAME=${NEXT_PUBLIC_SUPERSET_GUEST_USERNAME}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_FIRST_NAME=${NEXT_PUBLIC_SUPERSET_GUEST_FIRST_NAME}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_LAST_NAME=${NEXT_PUBLIC_SUPERSET_GUEST_LAST_NAME}
+
+    ports:
+      - '3006:3000'
+    env_file: 
+      - .env
+    depends_on:
+      - server
+      
   cloudflare:
     image: cloudflare/cloudflared:latest
     container_name: spotlight-cloudlfare
