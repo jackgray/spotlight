@@ -1,23 +1,31 @@
 import pandas as pd
+from datetime import datetime, timedelta
+import json
+import duckdb
+from dotenv import load_dotenv
+from os import getenv
+from typing import Optional, Required, List, Union
+from datetime import datetime
+import time
+import re
 from io import StringIO
 import csv
 import requests
 import time
+import backoff
 from clickhouse_connect import get_client as ch
 
 from sources import sources
 
-print(sources)
 
-
+@backoff.on_exception(
+    backoff.expo,
+    requests.exceptions.RequestException,
+    max_tries=1
+)
 def get_ice_token():
-    # Initialize a session
     session = requests.Session()
-
-    # URL to access the portal or obtain the initial cookie
-    initial_url = "https://tradevault.ice.com/tvsec/ticker/webpi/getToken"
-
-    # Optional: Provide headers if required (replicate browser headers as needed)
+    url = "https://tradevault.ice.com/tvsec/ticker/webpi/getToken"
     headers = {
         "Accept": "application/json, text/plain, */*",
         "Accept-Encoding": "gzip, deflate, br",
@@ -25,24 +33,46 @@ def get_ice_token():
         "Connection": "keep-alive",
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15"
     }
-
     # Make the initial request to establish a session and get cookies
-    response = session.post(initial_url, headers=headers)
+    response = session.post(url, headers=headers)
 
     if response.status_code == 200:
-        # Extract token if needed
-        token = response.json().get('token')
-        print("Token obtained:", token)
-        return token
+        return response.json().get('token')
     else:
         print(f"Failed to obtain the token. Status code: {response.status_code}")
         exit()
     
+@backoff.on_exception(
+    backoff.expo,  # Exponential backoff
+    requests.exceptions.RequestException,  # Retry on any request exception
+    max_tries=1  # Number of retries before giving up
+)
+def fetch_csv(url, token):
+    session = requests.Session()
+    # Update headers to include Authorization if required
+    session.headers.update({
+        "Authorization": f"Bearer {token}"
+    })
+    res = session.get(url.strip(), stream=True)
+    res.raise_for_status()
+
+    response = session.get(url)
+    if res.status_code == 200:
+        data = StringIO(response.text)
+        csvreader = csv.reader(data)
+        # nested = [row for row in csvreader]
+        df = pd.read_csv(data, sep=',')                
+        return df
+    else:
+        return None
+
 
 def pull_csv_from_url(url, token):
     retries = 0
     max_retries=1
     backoff_factor=1
+
+
 
     while retries < max_retries:
         try:
@@ -192,7 +222,7 @@ def drop_tables(table_names, settings):
     ch_conn = ch(host=settings['host'], port=settings['port'], username=settings['username'], database=settings['database'])
 
     for table in table_names:
-        ch_conn.command(f""" DROP TABLE {table};""")
+        ch_conn.command(f""" DROP TABLE IF EXISTS {table};""")
 
 
 ### Now the data is in a table, but needs to be typecast
@@ -241,6 +271,49 @@ def ch_typecast(og_table, new_table, settings, desired_schema):
     ch_conn.command(copy_data_query)
 
     print("\nSuccess")
+
+
+
+
+def generate_date_strings(start_date = '20190101', end_date='today') -> Required[str]:
+    '''
+    Generates list of datestrings to supply to URL build parameters for API call
+
+    Dates must be formatted as %Y%m%d aka YYYYmmdd; 'yesterday' will generate the datestring based on datetime.now
+    '''
+    date_format = '%Y%m%d'
+    dates = { 'yesterday': (datetime.now() - timedelta(days=1)).strftime(date_format),
+                'today': datetime.now().strftime(date_format) }
+    start_date = dates.get(start_date, start_date)
+    end_date = dates.get(end_date, end_date)
+
+    # Parse the input date strings into datetime objects
+    try:
+        # Parse the input date strings into datetime objects
+        start_date = datetime.strptime(start_date, date_format)
+        end_date = datetime.strptime(end_date, date_format)
+    except ValueError as e:
+        print(f"Error parsing dates: {e}")
+        print(f"Start date input: {start_date}")
+        print(f"End date input: {end_date}")
+        return []
+    # Initialize an empty list to hold the date strings
+    date_strings = []
+    
+    # Iterate over each day in the date range
+    current_date = start_date
+    while current_date <= end_date:
+        # only add to list if it is a weekday (monday-friday)
+        if current_date.weekday() < 5:
+            # Format the current date as 'YYYYmmdd'
+            date_str = current_date.strftime(date_format)
+            date_strings.append(date_str)
+            
+        # Move to the next day
+        current_date += timedelta(days=1)
+    
+    return date_strings        
+
 
 
 
@@ -389,23 +462,46 @@ ch_settings = {
     'password': ''
 }
 
-token = get_ice_token()
-url_datestring = '2024-07-31'
-url = f'https://tradevault.ice.com/tvsec/ticker/webpi/exportTicks?date={url_datestring}'
-df = pull_csv_from_url(url=url, token=token)
-
-origin_df = prep_origin_df(df=df, url=url, datestring=url_datestring)
-
-print(origin_df.head(5))
-
-# prep_origin_list(table_name='isr', rows=df, url=url, datestring=url_datestring, schema_dict=schema_dict, settings=ch_settings)
-print('\n\n\nyeeeee\n\n\n')
-
-drop_tables(table_names=['isr', 'swaps_ice'], settings=ch_settings)
-# Create table and insert with all data as string type
-create_table_from_dict(schema_dict=schema_dict, table_name='isr', settings=ch_settings)
-
-df_to_clickhouse(df=origin_df, table_name='isr', settings=ch_settings)
 
 
-ch_typecast('isr', 'Swaps_ICE_SEC', ch_settings, schema_dict_2)
+def download_batch(start_date, end_date, table_name, schema_dict1, schema_dict2, ch_settings):
+    '''
+    start_date: String %Y%m%d (e.g. 20240125 = jan 25 2024)
+    end_date: String
+    '''
+    try:
+        drop_tables(table_names=['isr', ''], settings=ch_settings)
+    except:
+        pass
+
+    token = get_ice_token()
+    datestrings = generate_date_strings(start_date, end_date)
+    print(f"Pulling data for the following dates: {list(datestrings)}")
+    for datestring in datestrings:  
+        try:      
+            process_by_date(datestring, table_name, token, ch_settings, schema_dict1)   
+            print("Inserting data to clickhouse db")
+        except:
+            pass
+    
+    ch_typecast(table_name, 'Swaps_ICE_SEC', ch_settings, schema_dict_2)
+
+
+
+def process_by_date(datestring, table_name, token, ch_settings, schema_dict1):
+    url_datestring = '-'.join([datestring[:4], datestring[4:6], datestring[6:8]])
+    url = f'https://tradevault.ice.com/tvsec/ticker/webpi/exportTicks?date={url_datestring}'
+    print(f"Retrieving {url}")
+    # df = pull_csv_from_url(url=url, token=token)
+    df = fetch_csv(url=url, token=token)
+
+    origin_df = prep_origin_df(df=df, url=url, datestring=url_datestring)
+
+    # Create table and insert with all data as string type
+    create_table_from_dict(schema_dict=schema_dict1, table_name=table_name, settings=ch_settings)
+
+    df_to_clickhouse(df=origin_df, table_name=table_name, settings=ch_settings)
+
+
+    
+download_batch(start_date='20210101', end_date='20241231', table_name='rawiceswaps', schema_dict1=schema_dict, schema_dict2=schema_dict_2, ch_settings=ch_settings)
