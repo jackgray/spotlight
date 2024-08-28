@@ -111,10 +111,10 @@ dtcc_source_schema = {
     "Package_transaction_spread_notation": "Nullable(String)",
     "Physical_delivery_location_Leg_1": "Nullable(String)",
     "Delivery_Type": "Nullable(String)",
-    "Report_Date": "Nullable(String)",
-    "Source_URL": "Nullable(String)",
-    "_EventID": "String",
-    "Report_Retrieval_Timestamp": 'Datetime64'
+    "_Report_Date": "Nullable(String)",
+    "_Source_URL": "Nullable(String)",
+    "_RecordID": "String"
+    # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
 dtcc_source_schema2 = {
@@ -228,10 +228,10 @@ dtcc_source_schema2 = {
     "Unique_Product_Identifier": "Nullable(String)",
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
-    "Report_Date": "Nullable(String)",
-    "Source_URL": "Nullable(String)",
-    "_EventID": "String",
-    "Report_Retrieval_Timestamp": 'Datetime64'
+    "_Report_Date": "Nullable(String)",
+    "_Source_URL": "Nullable(String)",
+    "_RecordID": "String"
+    # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
 
@@ -348,10 +348,10 @@ dtcc_staging_schema = {
     "Package_transaction_spread_notation": "Nullable(String)",
     "Physical_delivery_location_Leg_1": "Nullable(String)",
     "Delivery_Type": "Nullable(String)",
-    "Report_Date": "Nullable(Date)",
-    "Source_URL": "Nullable(String)",
-    "_EventID": "String",
-    "Report_Retrieval_Timestamp": 'Datetime64'
+    "_Report_Date": "Nullable(Date)",
+    "_Source_URL": "Nullable(String)",
+    "_RecordID": "String"
+    # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
 
@@ -420,10 +420,10 @@ ice_source_schema = {
     'Original_dissemination_identifier': 'Nullable(String)',
     'Dissemination_timestamp': 'Nullable(String)',
     'Unique_product_identifier': 'Nullable(String)',
-    'Report_Date': 'Nullable(String)',
-    'Source_URL': 'Nullable(String)',
-    '_EventID': 'String',
-    "Report_Retrieval_Timestamp": 'Datetime64'
+    '_Report_Date': 'Nullable(String)',
+    '_Source_URL': 'Nullable(String)',
+    '_RecordID': 'String'
+    # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
 
@@ -490,10 +490,10 @@ ice_staging_schema = {
     'Original_dissemination_identifier': 'Nullable(String)',
     'Dissemination_timestamp': 'Nullable(Datetime64)',
     'Unique_product_identifier': 'Nullable(String)',
-    'Report_Date': 'Nullable(String)',
-    'Source_URL': 'Nullable(String)',
-    '_EventID': 'String',
-    "Report_Retrieval_Timestamp": 'Datetime64'
+    '_Report_Date': 'Nullable(String)',
+    '_Source_URL': 'Nullable(String)',
+    '_RecordID': 'String'
+    # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
 

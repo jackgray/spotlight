@@ -221,13 +221,15 @@ def create_table_from_df(df, table_name, settings):
         else:
             ch_type = "String"  # Default to String for other types
         columns.append(f"`{col_name}` {ch_type}")
-    
+    key_col = 'ID'
     columns_str = ", ".join(columns)
     create_table_query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             {columns_str}
         ) ENGINE = MergeTree()
-        ORDER BY tuple()
+        PRIMARY KEY ({key_col})
+        ORDER BY ({key_col})
+        SETTINGS storage_policy = 's3_main';
     """
     ch_conn.command(create_table_query)
 

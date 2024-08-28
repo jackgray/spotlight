@@ -96,7 +96,7 @@ def diff_schema(table1, table2, ch_settings):
 def drop_tables(table_names, ch_settings):
     print(f"\nConnecting to {ch_settings['host']} with settings\n{ch_settings}")
     ch_conn = ch(host=ch_settings['host'], port=ch_settings['port'], username=ch_settings['username'], database=ch_settings['database'])
-
+    print("\nDropping tables ", table_names)
     for table in table_names:
         ch_conn.command(f""" DROP TABLE IF EXISTS {table};""")
 
@@ -181,7 +181,7 @@ def diff_stats(table1, table2, ch_settings):
 
     return diff_wleg
 
-print("WHAT THE FUCKK")
+print("\nStaging tables...")
 # ch_typecast(og_table='Swaps_ICE_source', new_table='Swaps_ICE_staging', ch_settings=ch_settings, schema=ice_staging_schema)
 # ch_typecast(og_table='Swaps_DTCC_source', new_table='Swaps_DTCC_staging', ch_settings=ch_settings, schema=dtcc_staging_schema)
 

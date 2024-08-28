@@ -5,7 +5,6 @@ import duckdb
 from dotenv import load_dotenv
 from os import getenv
 from typing import Optional, Required, List, Union
-from datetime import datetime
 import time
 import re
 from io import StringIO, BytesIO
@@ -19,7 +18,7 @@ from zipfile import ZipFile
 
 
 """ ***************************************** """
-"""             GET TOKEN                     """
+"""             GET ICE SDR TOKEN             """
 """ ***************************************** """
 @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=1)
 def get_ice_token():
@@ -59,8 +58,8 @@ def fetch_csv(url, token):
     if res.status_code == 200:
         data = StringIO(response.text)
         csvreader = csv.reader(data)
-        # nested = [row for row in csvreader]
-        df = pd.read_csv(data, sep=',')                
+        # nested = [row for row in csvreader]   # Faster than pandas, but messier for manipulation
+        df = pd.read_csv(data, sep=',')         # Use df for more readable code until speed matters more  
         return df
     else:
         return None
@@ -86,9 +85,13 @@ def prep_origin_df(df, url, datestring):
     df.columns = df.columns.str.strip().str.replace(' ', '_').str.replace('_-_','_').str.replace('-','_').str.replace('/','_')  # Remove spaces from column names
     df = df.astype(str)
     df.replace('nan', None, inplace=True)   # Ensure clickhouse handles null values properly
-    df['Report_Date'] = datestring          
-    df['Source_URL'] = url
-    df['Report_Retrieval_Timestamp'] = datetime.now()
+    df['_Report_Date'] = datestring          
+    df['_Source_URL'] = url
+
+    # print("\nAdding timestamp for retrieval (now)")
+    # df['Report_Retrieval_Timestamp'] = pd.Timestamp.now()
+    # print(df['Report_Retrieval_Timestamp'])
+    # print(df)
 
     return df
 
@@ -103,13 +106,19 @@ def create_table_from_dict(schema_dict, table_name, key_col, ch_settings):
     create_table_query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             {columns_str}
-        ) ENGINE = ReplacingMergeTree(Report_Retrieval_Timestamp)
+        ) ENGINE = MergeTree()
         PRIMARY KEY ({key_col})
         ORDER BY ({key_col})
-        SETTINGS storage_policy = 's3_main';
+        SETTINGS index_granularity='8192',
+        async_insert=1,
+        storage_policy = 's3_main';
     """
     print("\nRunning query: \n", create_table_query)
-    ch_conn.command(create_table_query)
+    try:
+        ch_conn.command(create_table_query)
+    except Exception as e:
+        print(e)
+        exit()
 
 
 """ ***************************************** """
@@ -124,10 +133,20 @@ def df_to_clickhouse(df, table_name, ch_settings):
         return
 
     print("\n\nInserting from df: ", df)
-    print("Cols: ")
-    [print(col) for col in df.columns]
-    ch_conn.insert_df(table_name, df)
-    print("\nSuccessfully inserted df")
+    chunk_size = 100000 # Clickhouse recommends bulk inserts of 10k-100k
+    num_rows = len(df)
+    num_chunks = (num_rows // chunk_size) + (1 if num_rows % chunk_size > 0 else 0)
+    for i in range(num_chunks):
+        chunk = df[i * chunk_size:(i + 1) * chunk_size]
+        print(f"Inserting chunk {i+1}/{num_chunks} with {len(chunk)} rows")
+        try:
+            ch_conn.insert_df(table_name, chunk)
+            print(f"Successfully inserted chunk {i+1}/{num_chunks}")
+        except Exception as e:
+            print(f"Error inserting chunk {i+1}/{num_chunks}: {e}")
+            exit()
+
+    print("\nSuccessfully inserted all data")
 
 
 
@@ -196,8 +215,10 @@ def ice_by_date(datestring, table_name, token, ch_settings, schema_dict):
     url = f'https://tradevault.ice.com/tvsec/ticker/webpi/exportTicks?date={url_datestring}'
     print(f"Retrieving {url}")
     df = fetch_csv(url=url, token=token)
+    print('dddduouou')
+    df['_RecordID'] = df['Dissemination identifier'] + df['Event timestamp'].astype(str).str.replace(r'[-:TZ]', '', regex=True)
     origin_df = prep_origin_df(df=df, url=url, datestring=url_datestring)   # Staging df
-    create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='Original_Dissemination_identifier', ch_settings=ch_settings)   # Create staging table
+    create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='_RecordID', ch_settings=ch_settings)   # Create staging table
     df_to_clickhouse(df=origin_df, table_name=table_name, ch_settings=ch_settings) # Load staging df to staging table
 
 def dtcc_by_date(datestring, table_name, ch_settings, schema_dict):
@@ -211,13 +232,13 @@ def dtcc_by_date(datestring, table_name, ch_settings, schema_dict):
     print(f"Retrieving {url}")
     df = fetch_zipped_csv(url=url)
     print("\nGot source data with columns: ")
-    for col in df.columns:
-        print(col)
+
+    df['_RecordID'] = df['Dissemination Identifier'].astype(str) + df['Event timestamp'].astype(str).str.replace(r'[-:TZ]', '', regex=True)
     origin_df = prep_origin_df(df=df, url=url, datestring=url_datestring)   # Staging df
     print("\nCleaned column names resulting in: ")
     for col in origin_df.columns:
         print(col)
-    create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='Dissemination_Identifier', ch_settings=ch_settings)   # Create staging table
+    create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='_RecordID', ch_settings=ch_settings)   # Create staging table
     df_to_clickhouse(df=origin_df, table_name=table_name, ch_settings=ch_settings) # Load staging df to staging table
 
 
