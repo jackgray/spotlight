@@ -10,7 +10,7 @@ const FinanceSwapsDataPage: FC = () => {
       <h1 className={subtitle()}>Swap Contract Data</h1>
   
       <p>
-        Note: the other date provided on this site are derived from open source code available in the github project linked on this site. The swap data that is currently displayed was compiled by redditor bobprice, and has not been fully verified.
+        Note: Derivatives contracts are extremely easy to misinterpret as they are high dimensional and can take so many different shapes and forms. Use this data with caution. It is still in the process of being aggregated and normalized. Notional sums by date without the proper filtering are inaccurate, as swap records are ADDED (not modified) whenever a modification is made to the agreement, resulting in inflated notional sums for a given contract. 
       </p>
 
       <SupersetDashboard

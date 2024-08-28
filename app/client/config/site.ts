@@ -5,29 +5,34 @@ export const siteConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
-      label: "Home",
-      href: "/",
+      label: "Data",
+      href: "/data",
+      dropdown: [
+        {
+          label: "Financial",
+          href: "/data/finance",
+          dropdown: [
+            {
+              label: "Consolidated Audit Trail",
+              href: "/data/finance/cat"
+            },
+            {
+              label: "Regulation SHO",
+              href: "/data/finance/regsho",
+            },
+            {
+              label: "Swaps",
+              href: "/data/finance/swaps"
+            }
+          ]
+        },
+      ]
     },
+
     // {
-    //   label: "Data",
-    //   href: "/data",
+    //   label: "About",
+    //   href: "/about",
     // },
-    // {
-    //   label: "Financial Data",
-    //   href: "/data/finance",
-    // },
-    {
-      label: "Financial Data - CAT",
-      href: "/data/finance/cat",
-    },
-    {
-      label: "Financial Data - Reg SHO",
-      href: "/data/finance/regsho",
-    },
-    {
-      label: "About",
-      href: "/about",
-    },
   ],
   // navMenuItems: [
   //   {
