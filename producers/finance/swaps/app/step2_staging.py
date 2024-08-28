@@ -101,7 +101,7 @@ def drop_tables(table_names, ch_settings):
         ch_conn.command(f""" DROP TABLE IF EXISTS {table};""")
 
 
-# Make third table with ICE field names matching DTCC schema
+# Make third table with ICE field names matching DTCC schema (similar field names, only DTCC adds "_Leg-n")
 def add_leg(src_table, dst_table, diff, ch_settings):
     ''' Create a new table with transformed column names based on the diff list and rename rules '''
 

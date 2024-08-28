@@ -8,22 +8,21 @@ export const siteConfig = {
       label: "Home",
       href: "/",
     },
-    // {
-    //   label: "Data",
-    //   href: "/data",
-    // },
-    // {
-    //   label: "Financial Data",
-    //   href: "/data/finance",
-    // },
     {
-      label: "Financial Data - CAT",
-      href: "/data/finance/cat",
+      label: "Data",
+      href: "/data",
+      dropdown: [
+        {
+          label: "Financial Data - CAT",
+          href: "/data/finance/cat",
+        },
+        {
+          label: "Financial Data - Reg SHO",
+          href: "/data/finance/regsho",
+        },
+      ]
     },
-    {
-      label: "Financial Data - Reg SHO",
-      href: "/data/finance/regsho",
-    },
+
     {
       label: "About",
       href: "/about",

@@ -1,7 +1,7 @@
 # Spotlight 
 ## Aggregated data from hard to reach places
 
-Currently this project is focusing on aggregating financial data that is not currently offered by traditional platforms, and providing interactive environments to explore or download it, but its ultimate goal is to increase transparency over powerful entities such as major corporations or elected officials to shine a light on practices which may be negatively impacting society at large.
+Currently this project is focusing on aggregating financial data that is not currently offered by traditional platforms, and providing interactive environments to explore or download it, but its ultimate goal is to increase transparency over powerful entities such as major corporations or elected officials to shine a light on practices which may be negatively impacting society at as a whole.
 
 It's also a way for me to hone some skills I am interested in, which is why you might see some 'over-engineered' components here. 
 

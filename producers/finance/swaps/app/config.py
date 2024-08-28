@@ -496,6 +496,23 @@ ice_staging_schema = {
     # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
+# At some point these values change, again -- this map is to put field names in the same inclusive format
+dtcc_map = {
+    'Dissemination ID': 'Dissemination Identifier',
+    'Original Dissemination ID': 'Original Dissemination Identifier',
+    'Action Type': 'Action type',
+    'Action': 'Action type',
+    'Event Timestamp': 'Event timestamp',
+    'Notional Amount 1': 'Notional amount-Leg 1',
+    'Notional Currency 1': 'Notional currency-Leg 1',
+    'Total Notional Quantity 1': 'Total notional quantity-Leg 1',
+    'Price 1': 'Price',
+    'Price Unit Of Measure 1': 'Price unit of measure',
+    'Underlying Asset ID': 'Underlier ID-Leg 1',
+    'Underlying Asset ID Type': 'Underlier ID source-Leg 1'
+}
+
+
 
 
 ch_settings = {
@@ -542,9 +559,3 @@ ch_settings = {
     #     "monthfmt": "mm"
 #     }   
 # ]
-
-
-#     # Note that SEC data does not contain Foreign exchange (FOREX) or interest swap reports this should be converted to a dict but rn it's just for reference
-#     jurisdictions = ['SEC', 'CFTC']
-#     report_types = ['SLICE', 'CUMULATIVE', 'FOREX', 'INTEREST' ]
-#     asset_classes = ['CREDITS', 'EQUITIES', 'RATES']

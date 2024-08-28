@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  server-dev:
+    build: ./server
+    volumes:
+      - ./server/config/dashboards:/app/dashboards
+    ports:
+      - '3068:3001'
+    depends_on:
+      - cloudflare
+
+  client-dev:
+    build: 
+      context: ./client
+      # args: 
+      #   - NEXT_PUBLIC_SUPERSET_URL=${NEXT_PUBLIC_SUPERSET_URL}
+      #   - NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_CAT=${NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_CAT}
+      #   - NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_REGSHO=${NEXT_PUBLIC_SUPERSET_DASHBOARD_ID_REGSHO}
+      #   - NEXT_PUBLIC_SUPERSET_ADMIN_USERNAME=${NEXT_PUBLIC_SUPERSET_ADMIN_USERNAME}
+      #   - NEXT_PUBLIC_SUPERSET_ADMIN_PASSWORD=${NEXT_PUBLIC_SUPERSET_ADMIN_PASSWORD}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_USERNAME=${NEXT_PUBLIC_SUPERSET_GUEST_USERNAME}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_FIRST_NAME=${NEXT_PUBLIC_SUPERSET_GUEST_FIRST_NAME}
+      #   - NEXT_PUBLIC_SUPERSET_GUEST_LAST_NAME=${NEXT_PUBLIC_SUPERSET_GUEST_LAST_NAME}
+
+    ports:
+      - '3069:3000'
+    env_file: 
+      - .env
+    depends_on:
+      - server-dev
+      
+  # cloudflare-dev:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: spotlight-cloudlfare
+  #   command: tunnel --config /etc/cloudflared/config.yaml run
+  #   volumes:
+  #     - ./cloudflare:/etc/cloudflared
+  
