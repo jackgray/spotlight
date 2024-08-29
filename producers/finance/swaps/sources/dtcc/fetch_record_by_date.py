@@ -4,7 +4,7 @@ from config import dtcc_source_schema, dtcc_source_schema2, ch_settings
 
 
 
-def main(datestring=20240101, dtcc_schema=dtcc_source_schema, dtcc_schema2=dtcc_source_schema2, ch_settings=ch_settings):
+async def main(datestring='20240101', dtcc_schema=dtcc_source_schema, dtcc_schema2=dtcc_source_schema2, ch_settings=ch_settings):
 
     print("Requesting swap records from DTCC for ", datestring)
     
@@ -17,9 +17,6 @@ def main(datestring=20240101, dtcc_schema=dtcc_source_schema, dtcc_schema2=dtcc_
 
     url_datestring = '_'.join([datestring[:4], datestring[4:6], datestring[6:8]])   # Convert date into format url uses
 
-    def gen_dtcc_url(jurisdiction, report_type, asset_class, datestring):
-        dtcc_url = 'https://pddata.dtcc.com/ppd/api/report'
-        return f'{dtcc_url}/{report_type.lower()}/{jurisdiction.lower()}/{jurisdiction}_{report_type}_{asset_class}_{datestring}.zip'
     url = gen_dtcc_url('SEC', 'CUMULATIVE', 'EQUITIES', url_datestring) # This function can be used for pulling from cftc and other asset classes
 
     print(f"Retrieving {url}")
@@ -42,3 +39,7 @@ def main(datestring=20240101, dtcc_schema=dtcc_source_schema, dtcc_schema2=dtcc_
         print(e)
         return e
 
+
+def gen_dtcc_url(jurisdiction, report_type, asset_class, datestring):
+    dtcc_url = 'https://pddata.dtcc.com/ppd/api/report'
+    return f'{dtcc_url}/{report_type.lower()}/{jurisdiction.lower()}/{jurisdiction}_{report_type}_{asset_class}_{datestring}.zip'

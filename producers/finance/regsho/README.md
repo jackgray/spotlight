@@ -87,7 +87,7 @@ https://www.finra.org/rules-guidance/rulebooks/finra-rules/4320
 
 
 ### NYSE (New York Stock Exchange)
-Exchange GameStop and most large companies are traded on. It reports on FTDs that occur on it's platforms, while FINRA reports on FTDs that occur for NYSE securities on OTC platforms
+Exchange where most large companies are traded on. It reports on FTDs that occur on it's platforms, while FINRA reports on FTDs that occur for NYSE securities on OTC platforms
 
 https://www.nyse.com/regulation/threshold-securities
 
@@ -159,12 +159,7 @@ Everything should be achieved by the command `regsho_by_range()`, which uses the
 
 If you don't pip install duckdb then the table load should fail and you will receive a dataframe back. Depending on the request size, this may be memory intensive.
 
-### Requirements
-DuckDB - crazy light and fast to install, no configuration needed
 
-python3 (3.11 recommended)
-
-pip packages: datetime, pandas, duckdb, dotenv
 
 ##### FINRA API KEY 
 For FINRA to be used as a source, you must have a .env file in the same directory with an API key and secret. The secret is a password you set through a confirmation email link after creating an API token in FINRA's API Console. You can access this by creating a free individual investor account. 
@@ -173,7 +168,6 @@ hint--GME or related tickers didn't show up in my FINRA table
 
 ### Queries
 
-Enter the database with `duckdb gme.duckdb` or whatever you named the db
 
 To query the top n most occurring stocks on Reg SHO Daily Threshold list and display their rate of occurence
 
