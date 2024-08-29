@@ -111,9 +111,8 @@ dtcc_source_schema = {
     "Package_transaction_spread_notation": "Nullable(String)",
     "Physical_delivery_location_Leg_1": "Nullable(String)",
     "Delivery_Type": "Nullable(String)",
-    "_Report_Date": "Nullable(String)",
     "_Source_URL": "Nullable(String)",
-    "_RecordID": "String"
+    "_Record_ID": "String"
     # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
@@ -228,9 +227,8 @@ dtcc_source_schema2 = {
     "Unique_Product_Identifier": "Nullable(String)",
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
-    "_Report_Date": "Nullable(String)",
     "_Source_URL": "Nullable(String)",
-    "_RecordID": "String"
+    "_Record_ID": "String"
 }
 
 
@@ -347,9 +345,8 @@ dtcc_staging_schema = {
     "Package_transaction_spread_notation": "Nullable(String)",
     "Physical_delivery_location_Leg_1": "Nullable(String)",
     "Delivery_Type": "Nullable(String)",
-    "_Report_Date": "Nullable(Date)",
     "_Source_URL": "Nullable(String)",
-    "_RecordID": "String"
+    "_Record_ID": "String"
 }
 
 dtcc_staging_schema2 = {
@@ -463,9 +460,8 @@ dtcc_staging_schema2 = {
     "Unique_Product_Identifier": "Nullable(String)",
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
-    "_Report_Date": "Nullable(Date)",
     "_Source_URL": "Nullable(String)",
-    "_RecordID": "String"
+    "_Record_ID": "String"
 }
 
 
