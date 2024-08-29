@@ -62,9 +62,8 @@ ice_source_schema = {
     'Original_dissemination_identifier': 'Nullable(String)',
     'Dissemination_timestamp': 'Nullable(String)',
     'Unique_product_identifier': 'Nullable(String)',
-    '_Report_Date': 'Nullable(String)',
     '_Source_URL': 'Nullable(String)',
-    '_RecordID': 'String'
+    '_Record_ID': 'String'
     # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
@@ -132,9 +131,8 @@ ice_staging_schema = {
     'Original_dissemination_identifier': 'Nullable(String)',
     'Dissemination_timestamp': 'Nullable(Datetime64)',
     'Unique_product_identifier': 'Nullable(String)',
-    '_Report_Date': 'Nullable(String)',
     '_Source_URL': 'Nullable(String)',
-    '_RecordID': 'String'
+    '_Record_ID': 'String'
     # "Report_Retrieval_Timestamp": 'Datetime64'
 }
 
