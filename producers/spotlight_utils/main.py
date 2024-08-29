@@ -102,9 +102,10 @@ async def fetch_with_adaptive_concurrency(urls: List[str], token: Optional[str] 
             max_concurrency = max(1, max_concurrency // 2)
         return max_concurrency
 
-    async def limited_fetch(url: str):
-        max_concurrency = get_concurrency()
-        semaphore = asyncio.Semaphore(max_concurrency)
+    max_concurrency = get_concurrency()
+    semaphore = asyncio.Semaphore(max_concurrency)
+
+    async def limited_fetch(url: str):  
         async with semaphore:
             return await fetch_and_load_csv(url, token, ch_settings, table_name, chunk_size)
 
@@ -114,35 +115,33 @@ async def fetch_with_adaptive_concurrency(urls: List[str], token: Optional[str] 
 
 
 @backoff.on_exception(backoff.expo, httpx.RequestError, max_tries=3)
-async def fetch_and_load_csv(url: str, table_name: str, ch_settings: dict, token: Optional[str] = None, chunk_size: int = 100000):
+async def fetch_and_load_csv(url: str, token: Optional[str] = None, ch_settings: dict, table_name: str, chunk_size: int = 100000):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         async with client.stream("GET", url.strip(), headers=headers) as response:
             response.raise_for_status()
 
-            # Initialize a StringIO buffer to accumulate the chunks of data
             buffer = StringIO()
             chunk_counter = 0
 
             async for chunk in response.aiter_text():
                 buffer.write(chunk)
-                # Check if buffer is large enough to process a chunk
-                if buffer.tell() > 1_000_000:  # Adjust this threshold to suit your needs
+                if buffer.tell() > 1_000_000:  # Adjust this threshold as needed
                     buffer.seek(0)
                     df = pd.read_csv(buffer, sep=',', nrows=chunk_size)
-                    await load_chunk_to_clickhouse(df, table_name, ch_settings)
+                    await load_chunk_to_clickhouse(df, table_name, ch_settings, chunk_size)
                     chunk_counter += len(df)
                     buffer.seek(0)
                     buffer.truncate(0)
 
-            # Process any remaining data in the buffer
             buffer.seek(0)
             df = pd.read_csv(buffer, sep=',')
             if not df.empty:
-                await load_chunk_to_clickhouse(df, table_name, ch_settings)
+                await load_chunk_to_clickhouse(df, table_name, ch_settings, chunk_size)
                 chunk_counter += len(df)
-            
+
             print(f"\nTotal rows processed: {chunk_counter}")
+
 
 
 
