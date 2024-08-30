@@ -5,7 +5,6 @@
 Pulls zipped csv files for a range of dates from multiple Swap Data Repositories (SDRs). Traditionally, a single zip file containing a single csv must be downloaded each day. This package aims to automate that task and allow automated retreival of new data 
 
 
-
 ## SWAP DATA REPOSITORIES
 
 https://www.sec.gov/swaps-chart/swaps-chart.pdf
@@ -70,7 +69,7 @@ https://www.ice.com/swap-trade/regulation
 repository for CFTC-based OTC swap agreements
 
 https://www.cmegroup.com/market-data/repository/data.html#tab_QbsT5Qi=cmdty
-
+https://www.cmegroup.com/ftp/sdr/commodities/2023/08/
 
 
 ##### CFTC

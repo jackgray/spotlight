@@ -10,7 +10,8 @@ setup(
     install_requires=[
         'pandas', 
         'clickhouse_connect',
-        'backoff'
+        'backoff',
+        'psutil'
     ],
     classifiers=[
         'Programming Language :: Python :: 3', 

@@ -6,6 +6,15 @@ from config import ice_source_schema as schema_dict
 
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Fetch and process CSV data from ICE US SDR.")
+    parser.add_argument('--start_date', type=str, default='20240101', help='Start date in YYYYMMDD format')
+    parser.add_argument('--end_date', type=str, default='today', help='End date in YYYYMMDD format (or "today")')
+    parser.add_argument('--table_name', type=str, default='Swaps_ICE_source', help='Table name for ClickHouse')
+    parser.add_argument('--token', type=str, help='Authentication token for API requests')
+
+    return parser.parse_args()
+
 async def main(start_date='20240101', end_date='today', schema_dict=schema_dict, token=None, table_name='Swaps_ICE_source'):
     ''' Grab records from ICE US SDR in parallel for a given range of dates '''
     
@@ -47,13 +56,5 @@ def transform_df(df: pd.DataFrame, url: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="Fetch and process CSV data from ICE US SDR.")
-    parser.add_argument('--start_date', type=str, default='20240101', help='Start date in YYYYMMDD format')
-    parser.add_argument('--end_date', type=str, default='today', help='End date in YYYYMMDD format (or "today")')
-    parser.add_argument('--table_name', type=str, default='Swaps_ICE_source', help='Table name for ClickHouse')
-    parser.add_argument('--token', type=str, help='Authentication token for API requests')
-
-    args = parser.parse_args()
-
+    args = parse_args()
     asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))

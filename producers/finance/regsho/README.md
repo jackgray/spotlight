@@ -168,7 +168,6 @@ hint--GME or related tickers didn't show up in my FINRA table
 
 ### Queries
 
-
 To query the top n most occurring stocks on Reg SHO Daily Threshold list and display their rate of occurence
 
 ```
