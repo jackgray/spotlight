@@ -1,17 +1,9 @@
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import duckdb
-from api2 import regsho_by_range
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+from main import pull_all
 
 
-ch_settings = {
-    'host': '192.168.8.246',
-    'port': 8123,
-    'database': 'default',
-    'username': 'default',
-    'password': ''
-}
 # data_sources = ['nasdaq', 'finra', 'nyse', 'cboe']
 data_sources = ['nasdaq', 'nyse', 'cboe']
 
@@ -19,7 +11,7 @@ data_sources = ['nasdaq', 'nyse', 'cboe']
 # GATHER ZEE DATA
 ###################
 
-regsho_by_range(start_date='20080101', end_date='20100101', data_sources=data_sources, ch_settings=ch_settings)
+pull_all(start_date='20080101', end_date='20100101', data_sources=data_sources)
 
 # merge_tables()
 

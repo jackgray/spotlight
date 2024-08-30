@@ -1,14 +1,8 @@
 import pandas as pd
 from datetime import datetime, timedelta
-import json
-import duckdb
-from dotenv import load_dotenv
-from os import getenv
 from typing import Optional, Required, List, Union, Callable, Dict
 import time
-import re
 from io import StringIO, BytesIO
-import csv
 import requests
 import time
 import backoff
@@ -29,7 +23,7 @@ print(ch_settings)
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# For passing function as argument to these functions
+# For passing a downstream function as argument to these functions (like one to transform data while transferring it asychronously)
 TransformFunc = Callable[[pd.DataFrame, str], pd.DataFrame]  # function to transform df mid-stream
 
 
@@ -65,7 +59,8 @@ async def get_token(url: str) -> str:
 async def fetch_with_adaptive_concurrency(
         urls: List[str], 
         transform_func: Optional[TransformFunc],
-        table_name: Optional[str] = None, 
+        table_name: Optional[str] = None,
+        market: Optional[str] None,
         token: Optional[str] = None, 
         chunk_size: int = 100000,
         ch_settings: Optional[dict] = ch_settings,  # Optional parameters should come after non-optional
@@ -96,10 +91,11 @@ async def fetch_with_adaptive_concurrency(
                         transform_func=transform_func
                     )
                 elif url.lower().endswith('.pdf'):
-                    logger.info("processing pdf")
+                    logger.info("processing PDF")
                     await fetch_and_process_pdf(
                         url=url, 
                         transform_func=transform_func,
+                        market=market,
                         ch_settings=ch_settings
                     )    
                 else:
@@ -192,6 +188,7 @@ async def fetch_and_load_csv(
 async def fetch_and_process_pdf(
         url: str,
         transform_func: Optional[TransformFunc],
+        market: Optional[str],
         ch_settings: Optional[dict]
     ) -> None:
     
@@ -199,7 +196,6 @@ async def fetch_and_process_pdf(
         response = await client.get(url)
         # response.raise_for_status()
         pdf_bytes = BytesIO(response.content)
-
     
         data = []
         with pdfplumber.open(pdf_bytes) as pdf:
@@ -208,7 +204,7 @@ async def fetch_and_process_pdf(
                 if table is not None:
                     data.append(table)
         if transform_func:
-            await transform_func(data, url)   # Loads in the transform function
+            await transform_func(data, url, market)   # Loads in the transform function
             logger.info("Successfully loaded report to Clickhouse")
         else:
             logger.error(f"Missing required transform function. Exiting.")
@@ -365,3 +361,39 @@ async def create_table_from_df(df: pd.DataFrame, table_name: str, key_col: str, 
         SETTINGS storage_policy = 's3_main';
     """
     ch_conn.command(create_table_query)
+
+
+def get_finra_session(api_key: str, api_secret: str) -> Required[str]:
+    """
+    Retrieve a FINRA session token using the provided API key and secret.
+
+    Parameters:
+    api_key (str): The API key for FINRA you generated.
+    api_secret (str): The API secret you set when you confirmed the API key creationA.
+
+    Returns:
+    Required[str]: The FINRA session token if the request is successful, otherwise None.
+    """
+    from base64 import b64encode
+
+    # Encode the API key and secret
+    finra_token = f"{api_key}:{api_secret}"
+    encoded_token = b64encode(finra_token.encode()).decode()
+
+    # URL for requesting the session token
+    url = "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
+    headers = {
+        "Authorization": f"Basic {encoded_token}"
+    }
+
+    try:
+        # Make the request to get the session token
+        response = requests.post(url, headers=headers)
+    except Exception as e: print("Request for FINRA session token failed :( \n", e)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        return response.json().get('access_token')
+    else:
+        print(f"Failed to get session token: {response.status_code} {response.text}")
+        return None
