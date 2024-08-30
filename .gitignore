@@ -12,3 +12,7 @@ data/
 **.json
 ./app/cloudflare/*.json
 ./app/cloudflare/config.yaml
+
+**__pycache__
+
+**.egg-info

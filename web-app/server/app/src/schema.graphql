@@ -1,0 +1,120 @@
+# import * from '../graphql-schema/prisma.graphql'
+
+type Mutation {
+	createPolitician(
+		party: String
+		name: String!
+		state: String
+		district: Int
+		title: String
+		chamber: String
+		govUrl: String
+		nthCongress: String
+		gender: String
+		image: String
+		largeImage: String
+		phone: String
+		website: String
+		bills: [String]
+	): Politician!
+	updatePolitician(
+		id: ID
+		party: String
+		name: String
+		state: String
+		district: Int
+		title: String
+		chamber: String
+		govUrl: String
+		nthCongress: String
+		gender: String
+		image: String
+		largeImage: String
+		phone: String
+		website: String
+	): Politician!
+	deletePolitician(id: ID): Politician
+	followPolitician(id: ID): User
+	unfollowPolitician(id: ID): User
+	toggleFollowPolitician(id: ID): User
+	createBill(
+		code: String
+		title: String
+		summary: String
+		congress: String
+		billType: String
+		committees: String
+		link: String
+		sponsor: String
+	): Bill
+	updateBill(
+		code: String
+		title: String
+		summary: String
+		congress: String
+		billType: String
+		committees: String
+		link: String
+		comment: CommentWhereInput
+	): Bill
+	deleteBill(id: ID): Bill
+	followBill(id: ID): User
+	unfollowBill(id: ID): User
+	upvoteBill(id: ID): Bill!
+	downvoteBill(id: ID): Bill!
+	comment(id: ID): Comment
+	commentBill(content: String, id: ID): Bill
+	scrapeBill(code: String): Bill
+	signup(name: String!, email: String!, password: String!): User!
+	signin(email: String!, password: String!): User!
+	updatePermissions(permissions: [Permission], userId: ID!): User
+	pushNotification(label: String): Notification
+	createNotification(label: String): Notification
+}
+
+type Query {
+	politicians(
+		where: PoliticianWhereInput
+		filter: String
+		skip: Int
+		first: Int
+		orderBy: PoliticianOrderByInput
+	): [Politician]!
+	politician(where: PoliticianWhereUniqueInput!): Politician
+	politiciansConnection(where: PoliticianWhereInput): PoliticianConnection!
+	myPolitician: Politician
+	myPoliticians: [Politician]
+	bill(where: BillWhereUniqueInput): Bill
+	bills(where: BillWhereInput, orderBy: BillOrderByInput, skip: Int, first: Int): [Bill]
+	myBills: [Bill]
+	comment(where: CommentWhereUniqueInput): Comment
+	comments: [Comment]
+	billComment: Comment
+	billsScrape(url: String): Bill
+	me: User
+	users: [User]!
+	owner: User
+	scrapePoliticians(url: String): Politician
+	notifications: [Notification]
+}
+
+type Subscription {
+	# TODO subscribe to new politician-bill connections
+	#bills: BillSubscriptionPayload
+	bills: [Bill]
+	billDeleted: Bill
+	billCreated: Bill
+}
+
+type User {
+	id: ID!
+	name: String!
+	email: String!
+	permissions: [Permission!]!
+	listings: [Politician]
+	myPoliticians: [Politician]
+	myBills: [Bill]
+	upvotedBills: [Bill]
+	downvotedBills: [Bill]
+	billComments: [Comment]
+}
