@@ -12,6 +12,7 @@ setup(
         'clickhouse_connect',
         'backoff',
         'psutil'
+        # 'apache-airflow'
     ],
     classifiers=[
         'Programming Language :: Python :: 3', 

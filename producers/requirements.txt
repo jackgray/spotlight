@@ -1,0 +1,4 @@
+duckdb
+clickhouse_connect
+httpx
+apache-airflow
