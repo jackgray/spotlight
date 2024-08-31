@@ -10,60 +10,6 @@ from config import ice_source_schema as schema_dict
 
 
 
-
-# Default arguments for the DAG
-default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 8, 31),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-    'dagrun_timeout': timedelta(hours=2),
-    'pool': 'my_pool',
-    'priority_weight': 10,
-    'execution_timeout': timedelta(hours=1),
-    'queue': 'default',
-    'on_failure_callback': failure_callback,
-    'on_retry_callback': retry_callback,
-    'on_success_callback': success_callback,
-}
-
-
-
-
-
-
-# Define the DAG
-dag = DAG(
-    'fetch_swap_equities_from_ice',
-    default_args=default_args,
-    description='DAG to fetch CSV data from multiple URLs using asyncio',
-    schedule_interval=timedelta(days=1),  # Set the desired interval (daily, weekly, etc.)
-)
-
-
-
-
-
-run_task = PythonOperator(
-    task_id=f'fetch_ice_swaps_equity_{start_date}-{end_date}',
-    python_callable=fetch_data,
-    op_kwargs={
-        'start_date': 'yesterday',
-        'end_date': 'today',
-        'schema_dict'=schema_dict,
-        'table_name': 'Swaps_ICE_source_af',  # Replace with your actual table name
-    },
-    dag=dag,
-)
-
-
-
-
-
-
 async def main(start_date='yesterday', end_date='today', schema_dict=schema_dict, token=None, table_name='Swaps_ICE_source', spark = False, **kwargs):
     ''' Grab records from ICE US SDR in parallel for a given range of dates '''
     
@@ -186,5 +132,4 @@ if __name__ == "__main__":
         run (help)
 
     else:
-        run_task
-        # asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))
+        asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))
