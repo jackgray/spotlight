@@ -1,22 +1,24 @@
 # Spotlight 
+
+Generalized regulatory data aggregation and user tracking platform aiming to increase transparency. Uses Airflow, Spark, Kafka, NiFi, ClickHouse, MinIO/S3, Postgres, Debezium, Superset, Terraform, and Nomad to pull, normalize, and store public datasets in a highly scalable and distributed environment. Web UI built with Next.js & Prisma/GraphQL
+
+
 ## Aggregated data from hard to reach places
 
-Currently this project is focusing on aggregating financial data that is not currently offered by traditional platforms, and providing interactive environments to explore or download it, but its ultimate goal is to increase transparency over powerful entities such as major corporations or elected officials to shine a light on practices which may be negatively impacting society at as a whole.
+Currently this project is focusing on aggregating regulatory market and trade transaction data, and providing interactive environments to explore or download it.
 
 It's also a way for me to hone some skills I am interested in, which is why you might see some 'over-engineered' components here. 
 
 Demo: https://beta.spotlight-us.com
 
 
-Spotlight's web front end interfaces with Apache Superset to provide interactive, live-updating charts and tables of these datasets from one place. 
+Spotlight's Next.js front end interfaces with Apache Superset to provide interactive, live-updating charts and tables of these datasets from one place. It also allows users to subscribe to and track specific entities, and receive tailored recommendations and updates.
 
-The data is pulled daily and stored in an efficient distributed Clickhouse database using distributed S3 as its storage remote. 
+Public datasets are either batch requested or streamed and stored in an efficient distributed Clickhouse database using distributed S3 as its storage remote. 
 
 Data which are published to different repositories with proprietary schema, but are otherwise the same or similar enough to be analyzed together, are cleaned, normalized, and combined. 
 
-
-The data is typically published only for regulatory purposes, and therefore only meets the bare minimum requirements of access. It is released as either PDF, or zip files containing only one day or week's worth of data. 
-
+Most of the the sourced data is typically published only for regulatory purposes, and therefore only meets the bare minimum requirements of access. It is released as either PDF, or zip files containing only one day or week's worth of data. 
 
 
 ### Provided datasets 
@@ -39,8 +41,11 @@ Different exchanges are all required to report on securities that meet the crite
 #### Consolidated Audit Trail (CAT) Errors
 The Consolidated Audit Trail (CAT) is a regulatory initiative designed to improve market transparency and oversight by consolidating detailed trading data into a centralized repository. It enhances the ability of regulators to monitor market activity, detect potential abuses, and maintain market integrity. The CAT is a key tool for modernizing market surveillance and addressing the challenges highlighted by past market events.
 
-The problem is that access to the actual data respositories are restricted to the very organizations that it exists to regulate. It is maintained and reported by FINRA, which is bankrolled by the institutions involved in the transactions. It is only publicly disseminated in the form of monthly PDF reports. Provided here is a pipeline that downloads the pdfs automatically and converts them to tables which are loaded into a database and fed into Apache Superset
 
+#### Short Sale Circuit Breakers (Rule 201)
+
+
+#### Rule 605 Reporting
 
 
 See [./producers/finance] for more info on these datasets and their aggregation pipelines
