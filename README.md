@@ -53,6 +53,7 @@ See [./producers/finance] for more info on these datasets and their aggregation 
 
 
 ## Architecture
+
 ### Scheduling / Data retrieval
 Data extraction pipelines run as Kafka Producers
 
@@ -72,8 +73,6 @@ Data which needs more explicit transformation will be handled by custom python c
 ## Visualizaation
 ### Apache Superset
 Clickhouse feeds right in to superset which auto-refreshes on configured intervals
-
-![Diagram](./architecture.drawio.png)
 
 
 # Front end
