@@ -1,7 +1,5 @@
-# Short Interest Reporting and Data Aggregation
 
-
-### Understanding transmission mechanisms of trade transactions
+### Understanding transmission mechanisms of trade transactions and regulatory reporting
 
 #### FINRA Trade Reporting Facilities (TRFs)
 Platforms established by FINRA to facilitate the reporting of OTC trades in equities and related securities that may not be listed on national exchanges or are traded off-exchange. 
@@ -30,3 +28,5 @@ A short sale on a Nasdaq-listed security that takes place directly within Nasdaq
 
 https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/fixactspec.pdf
 
+###  Cross Market Regulatory Working Group (CMRWG)
+In 2020, the Cross Market Regulatory Working Group (“CMRWG”) was established as a voluntary working group of the ISG’s U.S. Subgroup to focus on ways to reduce unnecessary regulatory duplication. The CMRWG’s participants include certain U.S.-based self-regulatory organizations.1 The CMRWG serves as a non-exclusive forum for its participants’ regulatory employees to share information and collaborate in connection with their ongoing surveillance, investigation, and enforcement efforts.

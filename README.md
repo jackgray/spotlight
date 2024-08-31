@@ -11,6 +11,28 @@ It's also a way for me to hone some skills I am interested in, which is why you 
 
 Demo: https://beta.spotlight-us.com
 
+### Key Features:
+
+#### User Accounts
+Allow users to create accounts, track entities of interest, and receive customized updates.
+
+#### Data-Driven Reporting
+Provide detailed reports and insights to drive informed decision-making.
+
+#### Increased Transparency
+Make public filing records more accessible and comprehensible.
+
+#### Accountability Focus
+Highlight potential misuse of authority by individuals in positions of power, including the ultra-wealthy and elected officials.
+
+Spotlight aims to shine a light on key figures and organizations, fostering a more transparent and accountable environment.
+
+### Upcoming Features
+
+- Personalized recommendations based on user interests.
+- Advanced data visualization and reporting tools.
+- Enhanced search and filtering options for improved data accessibility.
+
 
 Spotlight's Next.js front end interfaces with Apache Superset to provide interactive, live-updating charts and tables of these datasets from one place. It also allows users to subscribe to and track specific entities, and receive tailored recommendations and updates.
 
