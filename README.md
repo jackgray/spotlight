@@ -2,7 +2,7 @@
 
 Generalized regulatory data aggregation and user tracking platform aiming to increase transparency. Uses Airflow, Spark, Kafka, NiFi, ClickHouse, MinIO/S3, Postgres, Debezium, Superset, Terraform, and Nomad to pull, normalize, and store public datasets in a highly scalable and distributed environment. Web UI built with Next.js & Prisma/GraphQL
 
-
+![Diagram](./architecture.drawio.png)
 ## Aggregated data from hard to reach places
 
 Currently this project is focusing on aggregating regulatory market and trade transaction data, and providing interactive environments to explore or download it.
