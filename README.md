@@ -68,7 +68,7 @@ Data which needs more explicit transformation will be handled by custom python c
 ### Apache Superset
 Clickhouse feeds right in to superset which auto-refreshes on configured intervals
 
-![Diagram](./architecture.png)
+![Diagram](./architecture.drawio.png)
 
 
 # Front end
