@@ -9,12 +9,11 @@ data/
 **/.env
 **node_modules
 
-**.json
-./app/cloudflare/*.json
-./app/cloudflare/config.yaml
 
 **__pycache__
 
 **.egg-info
 
 **.DS_Store
+
+!**package.json
