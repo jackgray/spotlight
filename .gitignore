@@ -4,8 +4,8 @@ data/
 **.csv
 
 **cert.pem
-**cloudflare/*.json
-**cloudflare/config.yaml
+**/cloudflare/*.json
+**/cloudflare/config.yaml
 **/.env
 **node_modules
 
@@ -16,4 +16,4 @@ data/
 
 **.DS_Store
 
-!**package.json
+!**/package.json
