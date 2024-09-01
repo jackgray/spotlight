@@ -92,9 +92,9 @@ const SupersetDashboard = ({
             mountPoint: mountPoint,
             fetchGuestToken: () => guestToken,
             dashboardUiConfig: {
-              hideTitle: true,
-              hideChartControls: true,
-              hideTab: true,
+              hideTitle: false,
+              hideChartControls: false,
+              hideTab: false,
               filters: {
                 expanded: false,
                 visible: false

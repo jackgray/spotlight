@@ -72,9 +72,9 @@ export const Navbar = () => {
       <DropdownTrigger>
         <Button variant="light">{dropdownItems[0].label}</Button>
       </DropdownTrigger>
-      <DropdownMenu aria-label="Dropdown Menu">
-        {dropdownItems[0].dropdown ? (
-          dropdownItems[0].dropdown.map((item) => (
+      {dropdownItems[0].dropdown && dropdownItems[0].dropdown.length > 0 ? (
+        <DropdownMenu aria-label="Dropdown Menu">
+          {dropdownItems[0].dropdown.map((item) => (
             <DropdownItem key={item.href}>
               {item.dropdown ? (
                 <Dropdown>
@@ -89,13 +89,15 @@ export const Navbar = () => {
                 </NextLink>
               )}
             </DropdownItem>
-          ))
-        ) : null}
-      </DropdownMenu>
-
+          ))}
+        </DropdownMenu>
+      ) : null}
     </Dropdown>
   );
   
+  const hasDropdown = (item: NavItem): item is NavItem & { dropdown: NavItem[] } => {
+    return Array.isArray(item.dropdown);
+  };
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
@@ -111,8 +113,8 @@ export const Navbar = () => {
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
-              {item.dropdown ? (
-                renderDropdown([item]) // Pass single item with dropdown
+              {hasDropdown(item) ? (
+                renderDropdown([item])
               ) : (
                 <NextLink
                   className={clsx(
@@ -145,7 +147,7 @@ export const Navbar = () => {
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig.navItems.map((item, index) => (
             <NavbarMenuItem key={`${item.href}-${index}`}>
-              {item.dropdown ? (
+              {hasDropdown(item) ? (
                 renderDropdown([item]) // Pass single item with dropdown
               ) : (
                 <Link

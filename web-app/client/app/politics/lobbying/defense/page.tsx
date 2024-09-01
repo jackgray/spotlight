@@ -6,12 +6,10 @@ import { supersetConfig } from "@/lib/envConfig";
 const PoliticsDefenseLobbyingDataPage: FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-      <h1 className={title()}>Financial Data</h1>
-      
       <SupersetDashboard
         dashboardTitle="Defense Contracting Companies and Lobbying Spending"
         supersetUrl={supersetConfig.supersetUrl}
-        dashboardId="7c324fec-ed90-4cb0-a764-a276282a575c"
+        dashboardId="4d6f1a76-e48e-4066-8279-d622a700a417"
         username={supersetConfig.username}
         password={supersetConfig.password}
         guestUsername={supersetConfig.guestUsername}

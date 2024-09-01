@@ -5,10 +5,7 @@ import { supersetConfig } from "@/lib/envConfig";
 
 const PoliticsCrowContributionsDataPage: FC = () => {
   return (
-    <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-      <h1 className={title()}>Political Data</h1>
-      <h1 className={subtitle()}>Campaign Finance Contributions by the Crow Family</h1>
-      
+    <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>      
       <SupersetDashboard
         dashboardTitle="Crow Family Donations"
         supersetUrl={supersetConfig.supersetUrl}

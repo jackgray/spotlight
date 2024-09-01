@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  server-dev:
-    build: ./server
-    volumes:
-      - ./server/config/dashboards:/app/dashboards
-    ports:
-      - '3068:3001'
-    depends_on:
-      - cloudflare
+  # server-dev:
+  #   build: ./server
+  #   volumes:
+  #     - ./server/config/dashboards:/app/dashboards
+  #   ports:
+  #     - '3068:3001'
+  #   depends_on:
+  #     - cloudflare
 
   client-dev:
     build: 
@@ -25,14 +25,14 @@ services:
 
     ports:
       - '3069:3000'
-    env_file: 
-      - .env
-    depends_on:
-      - server-dev
+    # env_file: 
+    #   - .env
+    # depends_on:
+    #   - server-dev
       
   # cloudflare-dev:
   #   image: cloudflare/cloudflared:latest
-  #   container_name: spotlight-cloudlfare
+  #   container_name: spotlight-cloudlfare-dev
   #   command: tunnel --config /etc/cloudflared/config.yaml run
   #   volumes:
   #     - ./cloudflare:/etc/cloudflared

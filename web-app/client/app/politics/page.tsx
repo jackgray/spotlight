@@ -3,10 +3,10 @@
 import { FC } from 'react';
 import { subtitle, title } from "@/components/primitives";
 
-const MarketDataPage: FC = () => {
+const PoliticsDataPage: FC = () => {
   return (
     <div className="flex flex-col h-full">
-      <h1 className={title()}>Financial Data</h1>
+      <h1 className={title()}>Political Data</h1>
       <br />
       <h1 className={subtitle()}>Drop down list to data categories goes here</h1>
       
@@ -14,4 +14,4 @@ const MarketDataPage: FC = () => {
   );
 };
 
-export default MarketDataPage;
+export default PoliticsDataPage;
