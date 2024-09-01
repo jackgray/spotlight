@@ -23,7 +23,9 @@ Use the provided docker-compose templates to run these services for development 
 
 ## S3 Data source: 
 
-MinIO hosts S3 buckets on bare metal, with pooling and tiering support with AWS S3 support for overflow cold storage. One bucket will hold raw source data to be processed, while another bucket will hold a Clickhouse database. Tiering is leveraged to create cold back ups as well as extended caching beyond memory allotments
+MinIO hosts S3 buckets on bare metal, with pooling and tiering support with AWS S3 support for overflow cold storage. One bucket will hold raw source data to be processed, while another bucket will hold a Clickhouse database. Tiering is leveraged to create cold back ups as well as extended caching beyond memory allotments.
+
+Clickhouse instances can run in distributed mode and be completely agnostic to where the data is mounted, decoupling db endpoints from storage. Some db servers could be on the same machine as S3 and this would be quite fast, but it's also not a requirement, and allows better configurability over data replication and availability efforts, including expansion to other S3 sources or autoscaling via Equinox bare metal instances.
 
 ## Data Retrieval
 
@@ -32,13 +34,30 @@ Airflow and Spark will make API calls and either explicitly transform the data, 
 For endpoints that support notifications, Kafka producers will listen and push updates to topics which will be consumed either by custom Spark transformers or Apache NiFi. 
 
 
+
+### Scheduling / Data retrieval
+
+Batch-heavy pipelines are scheduled and run by Airflow
+
+'Always running' streaming data pipelines run in containers managed and load balanced by Hashicorp's Nomad, a lighter, faster alternative to Kubernetes
+
+
+## Processing
+Apache NiFi will listen on Kafka topics the raw data is sent to and attempt to infer the proper type casts and insert the data into Clickhouse DB.
+
+
+
+
+
 ## Data Processor
 
-Apache NiFi will receive the data from Kafka Topics, or directly from batch processors, then parse and load the data into Clickhouse
+Apache NiFi will listen on Kafka Topics, or receive data directly from batch processors when appropriate, then parse and load the data into Clickhouse using the Clickhouse sink connector
 
-NiFi can also be used as a failover for dead letter queues or custom batch jobs where if a transformer fails to process and/or load some data, NiFi will attempt to parse and store it in either the intended db or a failure reporting db.
+Data which needs more explicit transformation will be handled by custom python consumer/producers
 
-When making batch requests, the data will be processed mid-stream during the retreival process using asynchronous and parallel requests. 
+NiFi can also be used as a failover for dead letter queues or custom batch jobs where if a transformer fails to process and/or load some data, NiFi will leniently parse and store the data into a failure reporting db.
+
+When making batch requests, the data is processed mid-stream during the retreival process using asynchronous and parallel requests, by route of either asyncio and parallelism in the python code, or via Kafka
 
 ## Database
 
@@ -61,14 +80,4 @@ ParadeDB offers extensions to Postgresql which offer advantages of DuckDB and El
 ## Dashboards
 
 Apache Superset connects with the Clickhouse database with caching and configurable data refresh.
-
-
-## Proxy tunneling
-
-Cloudflare Argo tunnels allow selective publication of local services to public DNS servers. 
-
-## Container host
-
-These services should run in any container environment by pulling the image and setting the required env variables in a docker compose or swarm template.
-
 
