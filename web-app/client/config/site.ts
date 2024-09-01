@@ -9,20 +9,21 @@ export const siteConfig = {
       href: "/",
     },
     {
-      label: "Data",
-      href: "/data",
-      dropdown: [
-        {
-          label: "Financial Data - CAT",
-          href: "/data/finance/cat",
-        },
-        {
-          label: "Financial Data - Reg SHO",
-          href: "/data/finance/regsho",
-        },
-      ]
+      label: "CAT",
+      href: "/market/cat",
     },
-
+    {
+      label: "Reg SHO",
+      href: "/market/regsho",
+    },
+    {
+      label: "Crow Fam",
+      href: "/politics/contributions/crow"
+    },
+    {
+      label: "Defense Industry Lobbying",
+      href: "/politics/lobbying/defense"
+    },
     {
       label: "About",
       href: "/about",
