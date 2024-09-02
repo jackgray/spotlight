@@ -8,12 +8,9 @@ import InfoPopover from '@/components/InfoPopover';
 import DescriptionBox from '@/components/DescriptionBox';
 
 const MarketCatDataPage: FC = () => {
-    console.log(process.env.NEXT_PUBLIC_SUPERSET_URL)
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-
-            <h1 className={title()}>Financial Data</h1>
-            <h1 className={subtitle()}>Consolidated Auditing Trail</h1>
+            <h1 className={title()}>Market Data</h1>
             <div>
                 <InfoPopover 
                     button_text="Dataset Info"

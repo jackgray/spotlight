@@ -1,11 +1,9 @@
-import React from 'react';
-
+import {FC} from 'react';
 import ReactCV from 'react-cv';
 import { CVData } from './data';
 
 
-
-const ResumePage = () => {
+const ResumePage: FC = () => {
     return (
         <div>
            <ReactCV {...CVData} />
