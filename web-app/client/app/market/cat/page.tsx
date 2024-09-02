@@ -4,6 +4,8 @@ import { FC } from 'react';
 import { subtitle, title } from "@/components/primitives";
 import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
 import { supersetConfig } from "@/lib/envConfig";
+import InfoPopover from '@/components/InfoPopover';
+import DescriptionBox from '@/components/DescriptionBox';
 
 const MarketCatDataPage: FC = () => {
     console.log(process.env.NEXT_PUBLIC_SUPERSET_URL)
@@ -12,7 +14,22 @@ const MarketCatDataPage: FC = () => {
 
             <h1 className={title()}>Financial Data</h1>
             <h1 className={subtitle()}>Consolidated Auditing Trail</h1>
-            
+            <div>
+                <InfoPopover 
+                    button_text="Dataset Info"
+                    popover_header="Header"
+                    popover_text="Info about this dataset here."
+                />                
+                <InfoPopover 
+                    button_text="Code"
+                    popover_header="Inspect the code that generated these datasets"
+                    popover_text="https://github.com/jackgray/spotlight/main/producers/finance/cat"
+                />
+            </div>
+            <DescriptionBox
+                label="More about the data"
+                text="More here later"
+            />
             <SupersetDashboard
                 dashboardTitle="Consolidated Auditing Trail"
                 supersetUrl={supersetConfig.supersetUrl}

@@ -9,6 +9,10 @@ export const siteConfig = {
       href: "/",
     },
     {
+      label: "Derivatives",
+      href: "/market/derivatives"
+    },
+    {
       label: "CAT",
       href: "/market/cat",
     },
