@@ -4,13 +4,12 @@ import { subtitle, title } from "@/components/primitives";
 import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
 import { supersetConfig } from "@/lib/envConfig";
 
-const FinanceSwapsDataPage: FC = () => {
+const DerivativesDataPage: FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-      <h1 className={title()}>Financial Data</h1>
       <h1 className={subtitle()}>Derivatives Trading Data</h1>
       <p>
-        Note: Derivatives data are incredibly complex and these charts may not present meaningful metrics without careful filtering. For example, a new record is made any time an existing swap contract is modified, so querying notational sums or other aggregated values must take this into effect. 
+        Note: Derivatives data are incredibly complex and these charts may not present meaningful metrics without careful filtering. The charts displayed at this stage are for demonstration purposes only.
       </p>
       <SupersetDashboard
         dashboardTitle="Equity Based Swap Data"
@@ -26,4 +25,4 @@ const FinanceSwapsDataPage: FC = () => {
   );
 };
 
-export default FinanceSwapsDataPage;
+export default DerivativesDataPage;
