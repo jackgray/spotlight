@@ -31,7 +31,7 @@ TransformFunc = Callable[[pd.DataFrame, str], pd.DataFrame]  # function to trans
 """ ***************************************** """
 """             GET TOKEN             """
 """ ***************************************** """
-@backoff.on_exception(backoff.expo, httpx.RequestError, max_tries=1)
+@backoff.on_exception(backoff.expo, httpx.RequestError, max_tries=2)
 async def get_token(url: str) -> str:
     headers = {
         "Accept": "application/json, text/plain, */*",
@@ -60,7 +60,7 @@ async def fetch_with_adaptive_concurrency(
         urls: List[str], 
         transform_func: Optional[TransformFunc],
         table_name: Optional[str] = None,
-        market: Optional[str] None,
+        market: Optional[str]= None,
         token: Optional[str] = None, 
         chunk_size: int = 100000,
         ch_settings: Optional[dict] = ch_settings,  # Optional parameters should come after non-optional
@@ -281,7 +281,7 @@ def generate_datestrings(start_date='20190101', end_date='today') -> Required[st
 """ ***************************************** """
 """           GET TABLE SCHEMA                """
 """ ***************************************** """
-def get_current_schema(table_name, ch_settings):
+def get_schema(table_name, ch_settings=ch_settings):
     ''' Returns dict of current schema '''
     
     ch_conn = ch(host=ch_settings['host'], port=ch_settings['port'], username=ch_settings['username'], database=ch_settings['database'])
@@ -294,6 +294,39 @@ def get_current_schema(table_name, ch_settings):
     return current_schema_dict
 
 
+
+def diff_schema(table1, table2, ch_settings):
+    ''' Shows columns in table 1 which are not in table 2, and vice-versa '''
+    ch_conn = ch(host=ch_settings['host'], port=ch_settings['port'], username=ch_settings['username'], database=ch_settings['database'])
+
+    table1_unique = ch_conn.command(f"""
+            SELECT name
+            FROM system.columns
+            WHERE (`table` = '{table1}') AND (name NOT IN (
+                SELECT name
+                FROM system.columns
+                WHERE `table` = '{table2}'
+            ));
+        """
+    )
+    
+    table2_unique = ch_conn.command(f"""
+            SELECT name
+            FROM system.columns
+            WHERE (`table` = '{table2}') AND (name NOT IN (
+                SELECT name
+                FROM system.columns
+                WHERE `table` = '{table1}'
+            ));
+        """
+    )
+
+    return table1_unique, table2_unique
+
+
+def col_txfm(col):
+    ''' Converts dashes slashes and spaces to underscores and all words capitalized '''
+    return '_'.join([part.capitalize() for part in col.replace(' ', '_').replace('_-_','_').replace('-','_').replace('/','_').split('_')])
 
 
 
@@ -311,8 +344,7 @@ def create_table_from_dict(
     
     ch_conn = ch(host=ch_settings['host'], port=ch_settings['port'], username=ch_settings['username'], database=ch_settings['database'])
     
-    columns_str = ", ".join([f"`{col.replace(' ', '_').replace('_-_','_').replace('-','_').replace('/','_')}` {coltype}" 
-    for col, coltype in schema_dict.items()])  # Flattens col names and their types to SQL query string
+    columns_str = ", ".join([f"`{col_txfm(col)}` {coltype}" for col, coltype in schema_dict.items()])  # Flattens col names and their types to SQL query string
     
     create_table_query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
@@ -362,6 +394,61 @@ async def create_table_from_df(df: pd.DataFrame, table_name: str, key_col: str, 
     """
     ch_conn.command(create_table_query)
 
+
+
+
+def ch_typecast(src_table: str, dst_table: str, schema: Dict[str, str], key_col: str, ch_settings: Dict[str, str]=ch_settings) -> None:
+    ''' 
+    Copies table with new schema and basic formatting transformations
+    Inputs: source table name, target table name, Clickhouse schema as a dict
+    '''
+    
+    print("Creating table using input schema")
+    create_table_from_dict(
+        schema_dict=schema,
+        table_name=dst_table,
+        key_col=key_col,
+        ch_settings=ch_settings
+    )
+    print("\nSuccessfully created table")
+
+    '''
+        Automatically build query that will transform any timestamp fields into castable format. 
+        Transform other columns' SELECT statement by name pattern matching to use clickhouse engine for typecasting on massive tables
+    '''
+    print("Getting schema of source table")
+    src_schema = get_schema(table_name=src_table, ch_settings=ch_settings)
+    
+
+    # Modify the copy data query to include the necessary transformation
+    select_columns = [] # List of columns to copy in INSERT FROM statement
+    for col_name, col_type in src_schema.items():
+        print(col_name)
+        # col_name = col_txfm(col_name)
+        if 'timestamp' in col_name:
+            print("\n\n\n\n\n",col_name)
+            select_columns.append(f"toDateTime64(replace(`{col_name}`, 'Z', ''), 3) AS `{col_name}`")
+        elif 'date' in col_name.lower():
+            select_columns.append(f"toDate(`{col_name}`) AS `{col_name}`")
+        else:
+            select_columns.append(f"`{col_name}`")
+
+    print("Checking if schemas match")
+    if len(select_columns) != len(schema.keys()):
+        print("\nSource cols: ", select_columns)
+        print("\nTarget schema: ", schema.keys)
+        exit()
+
+    print("Inserting source table values into new table")
+    copy_data_query = f"""
+        INSERT INTO {dst_table} ({", ".join([f"{col_txfm(col)}" for col in schema.keys()])})
+        SELECT {", ".join(select_columns)} FROM {src_table}
+    """
+    
+    ch_conn = ch(host=ch_settings['host'], port=ch_settings['port'], username=ch_settings['username'], database=ch_settings['database'])
+    print("\nRunning copy query: ", copy_data_query)
+    ch_conn.command(copy_data_query)
+    print("\nSuccess")
 
 def get_finra_session(api_key: str, api_secret: str) -> Required[str]:
     """
