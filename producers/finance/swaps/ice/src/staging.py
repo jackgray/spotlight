@@ -3,7 +3,7 @@
 from clickhouse_connect import get_client as ch
 # from ice_dtcc_staging insert
 
-from config import ch_settings, dtcc_staging_schema2, ice_staging_schema
+from config import ch_settings, ice_staging_schema
 
 
 
@@ -182,21 +182,22 @@ def diff_stats(table1, table2, ch_settings):
     return diff_wleg
 
 
-drop_tables(['Swaps_DTCC_staging','Swaps_ICE_staging','Swaps_ICE_staging2','Swaps_DTCC_staging2'], ch_settings)
+# drop_tables(['Swaps_DTCC_staging','Swaps_ICE_staging','Swaps_ICE_staging2','Swaps_DTCC_staging2'], ch_settings)
 
 print("\nStaging tables...")
-ch_typecast(og_table='Swaps_ICE_source', new_table='Swaps_ICE_staging', ch_settings=ch_settings, schema=ice_staging_schema)
-ch_typecast(og_table='Swaps_DTCC_source2', new_table='Swaps_DTCC_staging', ch_settings=ch_settings, schema=dtcc_staging_schema2)
+# ch_typecast(og_table='Swaps_ICE_source_sept1', new_table='Swaps_ICE_staging2', ch_settings=ch_settings, schema=ice_staging_schema)
+# ch_typecast(og_table='Swaps_DTCC_source3', new_table='Swaps_DTCC_staging2', ch_settings=ch_settings, schema=dtcc_staging_schema2)
 
-
-diff = diff_stats('Swaps_ICE_staging', 'Swaps_DTCC_staging', ch_settings)
-print("\nSchema differences based on Leg-n tags:\n",diff)
+print("\n\nDiff after first transformation:\n")
+# diff = diff_stats('Swaps_ICE_staging2', 'Swaps_DTCC_staging2', ch_settings)
+# print("\nSchema differences based on Leg-n tags:\n",diff)
 
 print("Normalizing tables..")
-add_leg('Swaps_ICE_staging', 'Swaps_ICE_staging2',diff, ch_settings)
-add_leg('Swaps_DTCC_staging', 'Swaps_DTCC_staging2',diff, ch_settings)
+add_leg(src_table='Swaps_ICE_staging2', dst_table='Swaps_ICE_staging3',diff=diff, ch_settings=ch_settings)
+# add_leg(src_table='Swaps_DTCC_staging2', dst_table='Swaps_DTCC_staging3',diff=diff, ch_settings=ch_settings)
 
-diff2 = diff_stats('Swaps_ICE_staging2', 'Swaps_DTCC_staging2', ch_settings)
+# print("\n\nDiff after last transformation:\n")
+# # diff2 = diff_stats('Swaps_ICE_staging3', 'Swaps_DTCC_staging3', ch_settings)
 
-print("\nSchema differences based on Leg-n tags after staging:\n",diff2)
+# print("\nSchema differences based on Leg-n tags after staging:\n",diff2)
 

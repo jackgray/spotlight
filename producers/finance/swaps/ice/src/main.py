@@ -1,8 +1,6 @@
 import pandas as pd
 import argparse
 import asyncio
-from airflow import DAG
-from airflow.operators.python import PythonOperator
 
 from spotlight_utils.main import get_token, create_table_from_dict, generate_datestrings, fetch_with_adaptive_concurrency
 from config import ice_source_schema as schema_dict
@@ -22,36 +20,34 @@ async def main(start_date='yesterday', end_date='today', schema_dict=schema_dict
 
     create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='_Record_ID')   # Create staging table
 
-    fetch_data():
-        if spark:
-            conf = SparkConf().setAppName("FetchAndLoadZippedCSV").setMaster("local[*]")
-            sc = SparkContext(conf=conf)
-            spark = SparkSession(sc)
+    if spark:
+        conf = SparkConf().setAppName("FetchAndLoadZippedCSV").setMaster("local[*]")
+        sc = SparkContext(conf=conf)
+        spark = SparkSession(sc)
 
-            # Convert the list of URLs into an RDD
-            urls_rdd = sc.parallelize(urls)
+        # Convert the list of URLs into an RDD
+        urls_rdd = sc.parallelize(urls)
 
-            results = urls_rdd.map(lambda url: fetch_and_load_csv(
-                url=url,    # Apply the fetch_and_load_zipped_csv function to each URL
-                token=token,
-                table_name=table_name, 
-                chunk_size=100000, 
-                ch_settings=None, 
-                transform_func=transform_df  # Or pass your custom transformation function
-            )).collect()
+        results = urls_rdd.map(lambda url: fetch_and_load_csv(
+            url=url,    # Apply the fetch_and_load_zipped_csv function to each URL
+            token=token,
+            table_name=table_name, 
+            chunk_size=100000, 
+            ch_settings=None, 
+            transform_func=transform_df  # Or pass your custom transformation function
+        )).collect()
 
-            # Sum up the total rows processed
-            total_rows = sum(results)
-            print(f"Total rows processed across all URLs: {total_rows}")
-        else:
-            await fetch_with_adaptive_concurrency(
-                urls=urls,
-                token=token,
-                table_name=table_name,
-                chunk_size=100000,
-                transform_func=transform_df
-            )
-
+        # Sum up the total rows processed
+        total_rows = sum(results)
+        print(f"Total rows processed across all URLs: {total_rows}")
+    else:
+        await fetch_with_adaptive_concurrency(
+            urls=urls,
+            token=token,
+            table_name=table_name,
+            chunk_size=100000,
+            transform_func=transform_df
+        )
 
 
 
@@ -121,6 +117,7 @@ def parse_args():
     parser.add_argument('--end_date', type=str, default='today', help='End date in YYYYMMDD format (or "today")')
     parser.add_argument('--table_name', type=str, default='Swaps_ICE_source', help='Table name for ClickHouse')
     parser.add_argument('--token', type=str, help='Authentication token for API requests')
+    parser.add_argument('--spark', type=bool, default=False, help='Whether to run this pipeline using Spark and rdds')
 
     return parser.parse_args()
 
@@ -133,3 +130,10 @@ if __name__ == "__main__":
 
     else:
         asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))
+
+''' 
+Usage:
+
+python3.11 main.py. --start_date '20200101' --end_date 'today' --table_name 'Swaps_ICE_source_sept1'
+
+'''

@@ -228,7 +228,7 @@ dtcc_source_schema2 = {
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
     "_Source_URL": "Nullable(String)",
-    "_Record_ID": "String"
+    "_Record_Id": "String"
 }
 
 
@@ -243,10 +243,10 @@ dtcc_staging_schema = {
     "Product_name": "Nullable(String)",
     "Cleared": "Nullable(String)",
     "Mandatory_clearing_indicator": "Nullable(String)",
-    "Execution_Timestamp": "Nullable(String)",
-    "Effective_Date": "Nullable(String)",
-    "Expiration_Date": "Nullable(String)",
-    "Maturity_date_of_the_underlier": "Nullable(String)",
+    "Execution_Timestamp": "Nullable(DateTime64)",
+    "Effective_Date": "Nullable(Date)",
+    "Expiration_Date": "Nullable(Date)",
+    "Maturity_date_of_the_underlier": "Nullable(Date)",
     "Non_standardized_term_indicator": "Nullable(String)",
     "Platform_identifier": "Nullable(String)",
     "Prime_brokerage_transaction_indicator": "Nullable(String)",
@@ -256,12 +256,12 @@ dtcc_staging_schema = {
     "Notional_amount_Leg_2": "Nullable(Float64)",
     "Notional_currency_Leg_1": "Nullable(String)",
     "Notional_currency_Leg_2": "Nullable(String)",
-    "Notional_quantity_Leg_1": "Nullable(String)",
-    "Notional_quantity_Leg_2": "Nullable(String)",
-    "Total_notional_quantity_Leg_1": "Nullable(String)",
-    "Total_notional_quantity_Leg_2": "Nullable(String)",
-    "Quantity_frequency_multiplier_Leg_1": "Nullable(String)",
-    "Quantity_frequency_multiplier_Leg_2": "Nullable(String)",
+    "Notional_quantity_Leg_1": "Nullable(Float64)",
+    "Notional_quantity_Leg_2": "Nullable(Float64)",
+    "Total_notional_quantity_Leg_1": "Nullable(Float64)",
+    "Total_notional_quantity_Leg_2": "Nullable(Float64)",
+    "Quantity_frequency_multiplier_Leg_1": "Nullable(Float64)",
+    "Quantity_frequency_multiplier_Leg_2": "Nullable(Float64)",
     "Quantity_unit_of_measure_Leg_1": "Nullable(String)",
     "Quantity_unit_of_measure_Leg_2": "Nullable(String)",
     "Quantity_frequency_Leg_1": "Nullable(String)",
@@ -280,11 +280,11 @@ dtcc_staging_schema = {
     "Put_amount_Leg_2": "Nullable(Float64)",
     "Put_currency_Leg_1": "Nullable(String)",
     "Put_currency_Leg_2": "Nullable(String)",
-    "Exchange_rate": "Nullable(String)",
+    "Exchange_rate": "Nullable(Float64)",
     "Exchange_rate_basis": "Nullable(String)",
-    "First_exercise_date": "Nullable(String)",
-    "Fixed_rate_Leg_1": "Nullable(String)",
-    "Fixed_rate_Leg_2": "Nullable(String)",
+    "First_exercise_date": "Nullable(Date)",
+    "Fixed_rate_Leg_1": "Nullable(Float64)",
+    "Fixed_rate_Leg_2": "Nullable(Float64)",
     "Option_Premium_Amount": "Nullable(Float64)",
     "Option_Premium_Currency": "Nullable(String)",
     "Price": "Nullable(Float64)",
@@ -303,8 +303,8 @@ dtcc_staging_schema = {
     "Strike_price_notation": "Nullable(String)",
     "Fixed_rate_day_count_convention_leg_1": "Nullable(String)",
     "Fixed_rate_day_count_convention_leg_2": "Nullable(String)",
-    "Floating_rate_day_count_convention_leg_1": "Nullable(String)",
-    "Floating_rate_day_count_convention_leg_2": "Nullable(String)",
+    "Floating_rate_day_count_convention_leg_1": "Nullable(Float64)",
+    "Floating_rate_day_count_convention_leg_2": "Nullable(Float64)",
     "Floating_rate_reset_frequency_period_leg_1": "Nullable(Int8)",
     "Floating_rate_reset_frequency_period_leg_2": "Nullable(Int8)",
     "Floating_rate_reset_frequency_period_multiplier_leg_1": "Nullable(Int8)",
@@ -337,7 +337,7 @@ dtcc_staging_schema = {
     "Option_Type": "Nullable(String)",
     "Option_Style": "Nullable(String)",
     "Package_indicator": "Nullable(String)",
-    "Package_transaction_price": "Nullable(String)",
+    "Package_transaction_price": "Nullable(Float64)",
     "Package_transaction_price_currency": "Nullable(String)",
     "Package_transaction_price_notation": "Nullable(String)",
     "Package_transaction_spread": "Nullable(String)",
@@ -346,7 +346,7 @@ dtcc_staging_schema = {
     "Physical_delivery_location_Leg_1": "Nullable(String)",
     "Delivery_Type": "Nullable(String)",
     "_Source_URL": "Nullable(String)",
-    "_Record_ID": "String"
+    "_Record_Id": "String"
 }
 
 dtcc_staging_schema2 = {
@@ -360,9 +360,9 @@ dtcc_staging_schema2 = {
     "Product_name": "Nullable(String)",
     "Cleared": "Nullable(String)",
     "Mandatory_clearing_indicator": "Nullable(String)",
-    "Execution_Timestamp": "Nullable(String)",
-    "Effective_Date": "Nullable(String)",
-    "Expiration_Date": "Nullable(String)",
+    "Execution_Timestamp": "Nullable(Datetime64)",
+    "Effective_Date": "Nullable(Date)",
+    "Expiration_Date": "Nullable(Date)",
     "Maturity_date_of_the_underlier": "Nullable(String)",
     "Non_standardized_term_indicator": "Nullable(String)",
     "Platform_identifier": "Nullable(String)",
@@ -373,8 +373,8 @@ dtcc_staging_schema2 = {
     "Notional_amount_Leg_2": "Nullable(Float64)",
     "Notional_currency_Leg_1": "Nullable(String)",
     "Notional_currency_Leg_2": "Nullable(String)",
-    "Notional_quantity_Leg_1": "Nullable(String)",
-    "Notional_quantity_Leg_2": "Nullable(String)",
+    "Notional_quantity_Leg_1": "Nullable(Float64)",
+    "Notional_quantity_Leg_2": "Nullable(Float64)",
     "Total_notional_quantity_Leg_1": "Nullable(String)",
     "Total_notional_quantity_Leg_2": "Nullable(String)",
     "Quantity_frequency_multiplier_Leg_1": "Nullable(String)",
@@ -395,9 +395,9 @@ dtcc_staging_schema2 = {
     "Put_currency": "Nullable(String)",
     "Exchange_rate": "Nullable(String)",
     "Exchange_rate_basis": "Nullable(String)",
-    "First_exercise_date": "Nullable(String)",
-    "Fixed_rate_Leg_1": "Nullable(String)",
-    "Fixed_rate_Leg_2": "Nullable(String)",
+    "First_exercise_date": "Nullable(Date)",
+    "Fixed_rate_Leg_1": "Nullable(Float64)",
+    "Fixed_rate_Leg_2": "Nullable(Float64)",
     "Option_Premium_Amount": "Nullable(Float64)",
     "Option_Premium_Currency": "Nullable(String)",
     "Price": "Nullable(Float64)",
@@ -461,7 +461,7 @@ dtcc_staging_schema2 = {
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
     "_Source_URL": "Nullable(String)",
-    "_Record_ID": "String"
+    "_Record_Id": "String"
 }
 
 

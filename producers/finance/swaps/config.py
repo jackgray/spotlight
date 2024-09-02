@@ -463,7 +463,6 @@ dtcc_staging_schema2 = {
     "Unique_Product_Identifier": "Nullable(String)",
     "UPI_FISN": "Nullable(String)",
     "UPI_Underlier_Name": "Nullable(String)",
-    "_Report_Date": "Nullable(Date)",
     "_Source_URL": "Nullable(String)",
     "_RecordID": "String"
 }
@@ -604,7 +603,6 @@ ice_staging_schema = {
     'Original_dissemination_identifier': 'Nullable(String)',
     'Dissemination_timestamp': 'Nullable(Datetime64)',
     'Unique_product_identifier': 'Nullable(String)',
-    '_Report_Date': 'Nullable(String)',
     '_Source_URL': 'Nullable(String)',
     '_RecordID': 'String'
     # "Report_Retrieval_Timestamp": 'Datetime64'
