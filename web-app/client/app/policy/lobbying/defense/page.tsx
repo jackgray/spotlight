@@ -3,7 +3,7 @@ import { subtitle, title } from "@/components/primitives";
 import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
 import { supersetConfig } from "@/lib/envConfig";
 
-const PoliticsDefenseLobbyingDataPage: FC = () => {
+const DefenseLobbyingPage: FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
       <SupersetDashboard
@@ -20,4 +20,4 @@ const PoliticsDefenseLobbyingDataPage: FC = () => {
   );
 };
 
-export default PoliticsDefenseLobbyingDataPage;
+export default DefenseLobbyingPage;

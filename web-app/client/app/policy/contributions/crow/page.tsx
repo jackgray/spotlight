@@ -3,7 +3,7 @@ import { subtitle, title } from "@/components/primitives";
 import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
 import { supersetConfig } from "@/lib/envConfig";
 
-const PoliticsCrowContributionsDataPage: FC = () => {
+const CrowContributionsPage: FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>      
       <SupersetDashboard
@@ -21,4 +21,4 @@ const PoliticsCrowContributionsDataPage: FC = () => {
 
 };
 
-export default PoliticsCrowContributionsDataPage;
+export default CrowContributionsPage;

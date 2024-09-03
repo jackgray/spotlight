@@ -1,4 +1,4 @@
-export default function PoliticsCrowContributionsDataPageLayout({
+export default function CrowContributionsLayout({
   children,
 }: {
   children: React.ReactNode;

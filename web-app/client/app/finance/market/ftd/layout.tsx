@@ -1,4 +1,4 @@
-export default function MarketRegShoDataLayout({
+export default function FtdLayout({
   children,
 }: {
   children: React.ReactNode;

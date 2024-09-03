@@ -7,52 +7,71 @@ export const siteConfig = {
     {
       label: "Home",
       href: "/",
+      dropdown: [
+        {
+          label: "Finance",
+          href: "/finance"
+        },
+        {
+          label: "Policy",
+          href: "/policy"
+        },
+      ]
     },
     {
-      label: "Market Data",
-      href: "/market"
+      label: "Finance",
+      href: "/finance",
+      dropdown: [
+        {
+          label: "Market Regulation",
+          href: "/finance/market",
+        },
+        {
+          label: "Campaign Finance",
+          href: "/finance/campaign"
+        }
+      ]
     },
     {
       label: "Political Data",
-      href: "/politics"
+      href: "/policy",
+      dropdown: [
+        {
+          label: "Crow Family Donations",
+          href: "/policy/contributions/crow"
+        },
+        {
+          label: "Defense Industry Lobbying",
+          href: "/policy/lobbying/defense",
+        },
+      ]
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Info",
+      href: "/info",
+      dropdown: [
+        {
+          label: "Hire Me",
+          href: "/info/hireme",
+          dropdown: [
+            {
+              label: "Resume",
+              href: "/info/hireme/resume"
+            }
+          ]
+        }
+      ]
     },
-    {
-      label: "Hire Me",
-      href: "/hireme/resume"
-    }
   ],
+  // Leaving this in to eventually support alternative navigation menu for logged in user
   // navMenuItems: [
-  //   {
-  //     label: "Profile",
-  //     href: "/profile",
-  //   },
   //   {
   //     label: "Dashboard",
   //     href: "/dashboard",
   //   },
   //   {
-  //     label: "Projects",
-  //     href: "/projects",
-  //   },
-  //   {
-  //     label: "Team",
-  //     href: "/team",
-  //   },
-  //   {
-  //     label: "Calendar",
-  //     href: "/calendar",
-  //   },
-  //   {
   //     label: "Settings",
   //     href: "/settings",
-  //   },
-  //   {
-  //     label: "Help & Feedback",
-  //     href: "/help-feedback",
   //   },
   //   {
   //     label: "Logout",
@@ -68,32 +87,39 @@ export const siteConfig = {
   },
 };
 
-export type MarketConfig = typeof marketConfig;
+// Support for dynamically changing nav meu
+export type FinanceConfig = typeof financeConfig;
 
-export const marketConfig = {
+export const financeConfig = {
   name: "Spotlight",
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
-      label: "Financial Market Data",
-      href: "/market"
+      label: "Market Regulatory Data",
+      href: "/finance/market",
+      dropdown: [
+        {
+          label: "Consolidated Audit Trail",
+          href: "/finance/market/cat",
+        },
+        {
+          label: "Derivatives Trading",
+          href: "/finance/market/derivatives",
+        },
+        {
+          label: "Regulation SHO",
+          href: "/finance/market/ftd"
+        }
+      ]
     },
     {
-      label: "Derivatives",
-      href: "/market/derivatives"
+      label: "Campaign Finance Data",
+      href: "/finance/campaign"
     },
     {
-      label: "CAT",
-      href: "/market/cat",
-    },
-    {
-      label: "Reg SHO",
-      href: "/market/regsho",
-    },
-    {
-      label: "Back",
-      href: "/",
-    },
+      label: "<",
+      href: "/"
+    }
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",
@@ -102,38 +128,8 @@ export const marketConfig = {
     // discord: "https://discord.gg/9b6yyZKmH4",
     // sponsor: "https://patreon.com/jrgarciadev",
   },
-};
-
+}
 
 export type PoliticsConfig = typeof politicsConfig;
 
-export const politicsConfig = {
-  name: "Spotlight",
-  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
-  navItems: [
-    {
-      label: "Policy Data",
-      href: "/politics"
-    },
-    {
-      label: "Crow Family Donations",
-      href: "/politics/contributions/crow"
-    },
-    {
-      label: "Defense Industry Lobbying",
-      href: "/politics/lobbying/defense",
-    },
-    {
-      label: "Back",
-      href: "/",
-    },
-  ],
-  links: {
-    github: "https://github.com/jackgray/spotlight",
-    // twitter: "https://twitter.com/getnextui",
-    // docs: "https://nextui.org",
-    // discord: "https://discord.gg/9b6yyZKmH4",
-    // sponsor: "https://patreon.com/jrgarciadev",
-  },
-};
-
+export const politicsConfig = siteConfig

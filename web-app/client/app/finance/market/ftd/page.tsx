@@ -5,11 +5,11 @@ import { subtitle, title } from "@/components/primitives";
 import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
 import { supersetConfig } from "@/lib/envConfig";
 
-const MarketRegShoDataPage: FC = () => {
+const FtdPage: FC = () => {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-      <h1 className={title()}>Financial Data</h1>
-      <h1 className={subtitle()}>Regulation SHO Daily Threshold List Data</h1>
+      <h1 className={title()}>Financial Market Data</h1>
+      <h1 className={subtitle()}>Fails To Deliver</h1>
       
       <SupersetDashboard
         dashboardTitle="Historical Regulation SHO Threshold Lists"
@@ -25,4 +25,4 @@ const MarketRegShoDataPage: FC = () => {
   );
 };
 
-export default MarketRegShoDataPage;
+export default FtdPage;

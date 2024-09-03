@@ -1,4 +1,4 @@
-export default function PoliticsDefenseLobbyingDataPageLayout({
+export default function DefenseLobbyingLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -16,7 +16,7 @@ const DescriptionBox: React.FC<DescriptionBoxProps> = ({ label, text }) => {
       labelPlacement="outside"
       placeholder="Enter your description"
       defaultValue={text}
-      className="max-w-xs"
+      className="max-w-m"
     />
   );
 }
