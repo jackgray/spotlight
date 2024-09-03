@@ -33,9 +33,9 @@ import {
 } from '@/components/icons';
 import { politicsConfig, financeConfig, siteConfig } from '@/config/site';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { SubNavbar } from '@/components/subNavbar';
 
-interface NavItem {
+export interface NavItem {
   label: string;
   href: string;
   dropdown?: NavItem[];
@@ -133,43 +133,46 @@ export const Navbar = () => {
   };
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink
-            className="flex justify-start items-center gap-1"
-            href="/"
-            passHref
-          >
-            <Link>
-              <Logo />
-              <p className="font-bold text-inherit">Spotlight</p>
-            </Link>
-          </NextLink>
-        </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {config.navItems.map(renderNavItem)}
-        </ul>
-      </NavbarContent>
+    <>
+      <NextUINavbar maxWidth="xl" position="sticky">
+        <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+          <NavbarBrand as="li" className="gap-3 max-w-fit">
+            <NextLink
+              className="flex justify-start items-center gap-1"
+              href="/"
+              passHref
+            >
+              <Link>
+                <Logo />
+                <p className="font-bold text-inherit">Spotlight</p>
+              </Link>
+            </NextLink>
+          </NavbarBrand>
+          <ul className="hidden lg:flex gap-4 justify-start ml-2">
+            {config.navItems.map(renderNavItem)}
+          </ul>
+        </NavbarContent>
 
-      <NavbarContent className="md:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={config.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
+        <NavbarContent className="md:hidden basis-1 pl-4" justify="end">
+          <Link isExternal aria-label="Github" href={config.links.github}>
+            <GithubIcon className="text-default-500" />
+          </Link>
+          <ThemeSwitch />
+          <NavbarMenuToggle />
+        </NavbarContent>
 
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {config.navItems.map((item) => (
-            <NavbarMenuItem key={item.href}>
-              {renderNavItem(item)}
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu>
-    </NextUINavbar>
+        <NavbarMenu>
+          {searchInput}
+          <div className="mx-4 mt-2 flex flex-col gap-2">
+            {config.navItems.map((item) => (
+              <NavbarMenuItem key={item.href}>
+                {renderNavItem(item)}
+              </NavbarMenuItem>
+            ))}
+          </div>
+        </NavbarMenu>
+      </NextUINavbar>
+      <SubNavbar navItems={config.navItems} />
+    </>
   );
 };

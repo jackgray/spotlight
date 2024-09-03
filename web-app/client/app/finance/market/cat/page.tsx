@@ -11,18 +11,7 @@ const MarketCatPage: FC = () => {
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
             <h1 className={title()}>Market Data</h1>
-            <div>
-                <InfoPopover 
-                    button_text="Dataset Info"
-                    popover_header="Header"
-                    popover_text="Info about this dataset here."
-                />                
-                <InfoPopover 
-                    button_text="Code"
-                    popover_header="Inspect the code that generated these datasets"
-                    popover_text="https://github.com/jackgray/spotlight/main/producers/finance/cat"
-                />
-            </div>
+
             <DescriptionBox
                 label="More about the data"
                 text="More here later"

@@ -5,20 +5,6 @@ export const siteConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
-      label: "Home",
-      href: "/",
-      dropdown: [
-        {
-          label: "Finance",
-          href: "/finance"
-        },
-        {
-          label: "Policy",
-          href: "/policy"
-        },
-      ]
-    },
-    {
       label: "Finance",
       href: "/finance",
       dropdown: [
@@ -33,7 +19,7 @@ export const siteConfig = {
       ]
     },
     {
-      label: "Political Data",
+      label: "Policy",
       href: "/policy",
       dropdown: [
         {
@@ -129,6 +115,49 @@ export const financeConfig = {
     // sponsor: "https://patreon.com/jrgarciadev",
   },
 }
+
+export type InfoConfig = typeof infoConfig;
+
+export const infoConfig = {
+  name: "Spotlight",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
+  navItems: [
+    {
+      label: "Creator",
+      href: "/info/creator",
+      dropdown: [
+        {
+          label: "Resume",
+          href: "/info/creator/resume",
+        },
+        {
+          label: "Derivatives Trading",
+          href: "/finance/market/derivatives",
+        },
+        {
+          label: "Regulation SHO",
+          href: "/finance/market/ftd"
+        }
+      ]
+    },
+    {
+      label: "Donate",
+      href: "/info/donate"
+    },
+    {
+      label: "<",
+      href: "/"
+    }
+  ],
+  links: {
+    github: "https://github.com/jackgray/spotlight",
+    // twitter: "https://twitter.com/getnextui",
+    // docs: "https://nextui.org",
+    // discord: "https://discord.gg/9b6yyZKmH4",
+    // sponsor: "https://patreon.com/jrgarciadev",
+  },
+}
+
 
 export type PoliticsConfig = typeof politicsConfig;
 
