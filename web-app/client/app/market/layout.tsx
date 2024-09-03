@@ -1,66 +1,42 @@
-import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@nextui-org/link";
-import clsx from "clsx";
+import { FC } from 'react';
+import { subtitle, title } from "@/components/primitives";
+import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
+import { supersetConfig } from "@/lib/envConfig";
+import InfoPopover from '@/components/InfoPopover';
+import DescriptionBox from '@/components/DescriptionBox';
 
-import { Providers } from "./providers";
-
-import { marketConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
-import { SubNavbar } from "@/components/subNavbar";
-
-export const metadata: Metadata = {
-  title: {
-    default: marketConfig.name,
-    template: `%s - ${marketConfig.name}`,
-  },
-  description: marketConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
+const MarketLayout: FC = () => {
+    return (
+        <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+            <h1 className={title()}>Market Data</h1>
+            <div>
+                <InfoPopover 
+                    button_text="Dataset Info"
+                    popover_header="Header"
+                    popover_text="Info about this dataset here."
+                />                
+                <InfoPopover 
+                    button_text="Code"
+                    popover_header="Inspect the code that generated these datasets"
+                    popover_text="https://github.com/jackgray/spotlight/main/producers/finance/cat"
+                />
+            </div>
+            <DescriptionBox
+                label="More about the data"
+                text="More here later"
+            />
+            <SupersetDashboard
+                dashboardTitle="Financial Market Data"
+                supersetUrl={supersetConfig.supersetUrl}
+                dashboardId="fcc3fd0a-64f5-4d13-a564-1d04939094a3"
+                username={supersetConfig.username}
+                password={supersetConfig.password}
+                guestUsername={supersetConfig.guestUsername}
+                guestFirstName={supersetConfig.guestFirstName}
+                guestLastName={supersetConfig.guestLastName}
+            />
+        </div>
+    );
 };
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-};
-
-export default function MarketLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html suppressHydrationWarning lang="en">
-      <head />
-      <body
-        className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            <SubNavbar />
-            <main className="container mx-auto max-w-full pt-6 px-6 flex-grow">
-              {children}
-            </main>
-            {/* <footer className="w-full flex items-center justify-center py-3">
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
-                title="nextui.org homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">NextUI</p>
-              </Link>
-            </footer> */}
-          </div>
-        </Providers>
-      </body>
-    </html>
-  );
-}
+export default MarketLayout;

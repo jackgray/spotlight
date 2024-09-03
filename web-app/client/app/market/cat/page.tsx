@@ -7,7 +7,7 @@ import { supersetConfig } from "@/lib/envConfig";
 import InfoPopover from '@/components/InfoPopover';
 import DescriptionBox from '@/components/DescriptionBox';
 
-const MarketCatDataPage: FC = () => {
+const MarketCatPage: FC = () => {
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
             <h1 className={title()}>Market Data</h1>
@@ -41,4 +41,4 @@ const MarketCatDataPage: FC = () => {
     );
 };
 
-export default MarketCatDataPage;
+export default MarketCatPage;

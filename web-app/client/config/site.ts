@@ -75,6 +75,10 @@ export const marketConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
+      label: "Financial Market Data",
+      href: "/market"
+    },
+    {
       label: "Derivatives",
       href: "/market/derivatives"
     },
@@ -87,8 +91,8 @@ export const marketConfig = {
       href: "/market/regsho",
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Back",
+      href: "/",
     },
   ],
   links: {
@@ -108,6 +112,10 @@ export const politicsConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
+      label: "Policy Data",
+      href: "/politics"
+    },
+    {
       label: "Crow Family Donations",
       href: "/politics/contributions/crow"
     },
@@ -116,8 +124,8 @@ export const politicsConfig = {
       href: "/politics/lobbying/defense",
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Back",
+      href: "/",
     },
   ],
   links: {

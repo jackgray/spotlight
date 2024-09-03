@@ -1,14 +1,6 @@
-"use client";
+'use client'
 
-import {
-  Navbar as NextUINavbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-  NavbarBrand,
-  NavbarItem,
-  NavbarMenuItem,
-} from "@nextui-org/navbar";
+import { Navbar as NextUINavbar, NavbarContent, NavbarMenu, NavbarMenuToggle, NavbarBrand, NavbarItem, NavbarMenuItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
@@ -17,35 +9,35 @@ import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/dropdown";
-import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
+import { TwitterIcon, GithubIcon, DiscordIcon, HeartFilledIcon, SearchIcon, Logo } from "@/components/icons";
+import { politicsConfig, marketConfig, siteConfig } from "@/config/site"; // Ensure SiteConfig is imported
+import { usePathname } from 'next/navigation';
 
 
-// Define the type for a single dropdown item
+
 interface NavItem {
   label: string;
   href: string;
   dropdown?: NavItem[]; // Optional dropdown property
 }
 
-// Define the type for site configuration
-interface SiteConfig {
-  navItems: NavItem[];
-  links: {
-    github: string;
-  };
-}
-
 
 export const Navbar = () => {
+  const pathname = usePathname();
+
+  const getConfig = () => {
+    if (pathname.startsWith('/market')) {
+      return marketConfig;
+    } else if (pathname.startsWith('/politics')) {
+      return politicsConfig;
+    } else {
+      return siteConfig;
+    }
+  }
+
+  const config = getConfig();
+  
   const searchInput = (
     <Input
       aria-label="Search"
@@ -94,7 +86,7 @@ export const Navbar = () => {
       ) : null}
     </Dropdown>
   );
-  
+
   const hasDropdown = (item: NavItem): item is NavItem & { dropdown: NavItem[] } => {
     return Array.isArray(item.dropdown);
   };
@@ -106,12 +98,12 @@ export const Navbar = () => {
           <NextLink className="flex justify-start items-center gap-1" href="/" passHref>
             <Link>
               <Logo />
-              <p className="font-bold text-inherit">Spotlight</p>
+              <p className="font-bold text-inherit"> Spotlight</p>
             </Link>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
+          {config.navItems.map((item) => (
             <NavbarItem key={item.href}>
               {hasDropdown(item) ? (
                 renderDropdown([item])
@@ -131,11 +123,10 @@ export const Navbar = () => {
             </NavbarItem>
           ))}
         </ul>
-
       </NavbarContent>
 
       <NavbarContent className="md:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
+        <Link isExternal aria-label="Github" href={config.links.github}>
           <GithubIcon className="text-default-500" />
         </Link>
         <ThemeSwitch />
@@ -145,7 +136,7 @@ export const Navbar = () => {
       <NavbarMenu>
         {searchInput}
         <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navItems.map((item, index) => (
+          {config.navItems.map((item, index) => (
             <NavbarMenuItem key={`${item.href}-${index}`}>
               {hasDropdown(item) ? (
                 renderDropdown([item]) // Pass single item with dropdown
@@ -154,7 +145,7 @@ export const Navbar = () => {
                   color={
                     index === 2
                       ? "primary"
-                      : index === siteConfig.navItems.length - 1
+                      : index === config.navItems.length - 1
                         ? "danger"
                         : "foreground"
                   }
