@@ -37,14 +37,8 @@ export const siteConfig = {
       href: "/info",
       dropdown: [
         {
-          label: "Hire Me",
-          href: "/info/hireme",
-          dropdown: [
-            {
-              label: "Resume",
-              href: "/info/hireme/resume"
-            }
-          ]
+          label: "Creator",
+          href: "/info/creator",
         }
       ]
     },
@@ -85,15 +79,15 @@ export const financeConfig = {
       href: "/finance/market",
       dropdown: [
         {
-          label: "Consolidated Audit Trail",
+          label: "CAT",
           href: "/finance/market/cat",
         },
         {
-          label: "Derivatives Trading",
+          label: "Derivatives",
           href: "/finance/market/derivatives",
         },
         {
-          label: "Regulation SHO",
+          label: "FTD",
           href: "/finance/market/ftd"
         }
       ]
@@ -102,10 +96,6 @@ export const financeConfig = {
       label: "Campaign Finance Data",
       href: "/finance/campaign"
     },
-    {
-      label: "<",
-      href: "/"
-    }
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",
@@ -129,14 +119,6 @@ export const infoConfig = {
         {
           label: "Resume",
           href: "/info/creator/resume",
-        },
-        {
-          label: "Derivatives Trading",
-          href: "/finance/market/derivatives",
-        },
-        {
-          label: "Regulation SHO",
-          href: "/finance/market/ftd"
         }
       ]
     },
@@ -144,10 +126,6 @@ export const infoConfig = {
       label: "Donate",
       href: "/info/donate"
     },
-    {
-      label: "<",
-      href: "/"
-    }
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",

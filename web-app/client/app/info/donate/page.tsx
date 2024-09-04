@@ -1,7 +1,7 @@
 import {FC} from 'react';
 
 
-const HirePage: FC = () => {
+const DonatePage: FC = () => {
     return (
         <div>
            Coming soon
@@ -9,4 +9,4 @@ const HirePage: FC = () => {
     );
 };
 
-export default HirePage;
+export default DonatePage;

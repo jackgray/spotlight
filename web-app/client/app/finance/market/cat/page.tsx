@@ -1,23 +1,17 @@
-// app/financial-data/page.tsx
-
 import { FC } from 'react';
-import { subtitle, title } from "@/components/primitives";
-import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
+import { subtitle } from "@/components/primitives";
+import SupersetDashboard from "@/components/superset-dashboard";
 import { supersetConfig } from "@/lib/envConfig";
-import InfoPopover from '@/components/InfoPopover';
-import DescriptionBox from '@/components/DescriptionBox';
+import ScrollingTabBar from '@/components/scrollingTabBar';
+import { tabs } from './tabs';
 
 const MarketCatPage: FC = () => {
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-            <h1 className={title()}>Market Data</h1>
-
-            <DescriptionBox
-                label="More about the data"
-                text="More here later"
-            />
+            <h1 className={subtitle()}>Consolidated Audit Trail</h1>
+            <ScrollingTabBar tabs={tabs} />
             <SupersetDashboard
-                dashboardTitle="Consolidated Auditing Trail"
+                dashboardTitle="Historical Consolidated Audit Trail Reports"
                 supersetUrl={supersetConfig.supersetUrl}
                 dashboardId="9d4bd71d-6c04-4c1d-a49a-f9d811b2ab88"
                 username={supersetConfig.username}

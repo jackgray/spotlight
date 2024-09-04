@@ -1,4 +1,4 @@
-export default function HireLayout({
+export default function DonateLayout({
   children,
 }: {
   children: React.ReactNode;

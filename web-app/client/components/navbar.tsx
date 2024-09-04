@@ -31,9 +31,10 @@ import {
   SearchIcon,
   Logo,
 } from '@/components/icons';
-import { politicsConfig, financeConfig, siteConfig } from '@/config/site';
+import { politicsConfig, financeConfig, infoConfig, siteConfig } from '@/config/site';
 import { usePathname } from 'next/navigation';
 import { SubNavbar } from '@/components/subNavbar';
+import {title} from '@/components/primitives'
 
 export interface NavItem {
   label: string;
@@ -49,6 +50,8 @@ export const Navbar = () => {
       return financeConfig;
     } else if (pathname.startsWith('/policy')) {
       return politicsConfig;
+    } else if (pathname.startsWith('/info')) {
+      return infoConfig;
     } else {
       return siteConfig;
     }
@@ -135,7 +138,7 @@ export const Navbar = () => {
   return (
     <>
       <NextUINavbar maxWidth="xl" position="sticky">
-        <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+        <NavbarContent className="basis-1/5 sm:basis-full flex justify-start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink
               className="flex justify-start items-center gap-1"
@@ -143,8 +146,16 @@ export const Navbar = () => {
               passHref
             >
               <Link>
+                <h1 className={title()} style={{ margin: 0, padding: 0 }}>
+                  Sp
+                </h1>
                 <Logo />
-                <p className="font-bold text-inherit">Spotlight</p>
+                <h1 className={title()} style={{ margin: 0, padding: 0 }}>
+                  t
+                </h1>
+                <h1 className={title({color: 'violet'})}>
+                  Light
+                </h1>
               </Link>
             </NextLink>
           </NavbarBrand>
@@ -153,12 +164,12 @@ export const Navbar = () => {
           </ul>
         </NavbarContent>
 
-        <NavbarContent className="md:hidden basis-1 pl-4" justify="end">
+        <NavbarContent className="basis-1 pl-4" justify="end">
           <Link isExternal aria-label="Github" href={config.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>
           <ThemeSwitch />
-          <NavbarMenuToggle />
+          <NavbarMenuToggle className="block" />
         </NavbarContent>
 
         <NavbarMenu>
@@ -172,7 +183,7 @@ export const Navbar = () => {
           </div>
         </NavbarMenu>
       </NextUINavbar>
-      <SubNavbar navItems={config.navItems} />
+      <SubNavbar navItems={config.navItems}/>
     </>
   );
 };
