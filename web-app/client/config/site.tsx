@@ -1,82 +1,73 @@
-import {
-  ChevronDown, 
-  Lock, 
-  Activity, 
-  Flash, 
-  Server, 
-  TagUser, 
-  Scale
-} from '@/components/navIcons';
+export type SiteConfig = typeof siteConfig;
 
-const icons: { [key: string]: () => JSX.Element } = {
-  chevron: () => <ChevronDown fill="currentColor" size={16} height={16} width={16} />,
-  scale: () => <Scale className="text-warning" fill="currentColor" size={30} height={30} width={30} />,
-  lock: () => <Lock className="text-success" fill="currentColor" size={30} height={30} width={30} />,
-  activity: () => <Activity className="text-secondary" fill="currentColor" size={30} height={30} width={30} />,
-  flash: () => <Flash className="text-primary" fill="currentColor" size={30} height={30} width={30} />,
-  server: () => <Server className="text-success" fill="currentColor" size={30} height={30} width={30} />,
-  user: () => <TagUser className="text-danger" fill="currentColor" size={30} height={30} width={30} />,
-};
 
-type NavItem = {
+export type NavItem = {
   label: string;
   href: string;
-  icon?: () => JSX.Element;
+  icon?: string;
+  dropdown?: NavItem[];
 };
-type DropdownNavItem = NavItem & {
+
+export type DropdownNavItem = NavItem & {
   dropdown?: DropdownNavItem[];
 };
 
+export type Config = {
+  name: string;
+  description: string;
+  navItems: DropdownNavItem[];
+  links: {
+    github: string;
+  };
+};
 
-export type SiteConfig = typeof siteConfig;
-
-export const siteConfig: { name: string; description: string; navItems: DropdownNavItem[]; links: { github: string } } = {
+export const siteConfig: Config = {
   name: "Spotlight",
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
       label: "Finance",
       href: "/finance",
-      icon: icons.chevron,
+      icon: "chevron",
       dropdown: [
         {
           label: "Wall St.",
           href: "/finance/market",
-          icon: icons.activity
+          icon: "activity"
         },
         {
           label: "Campaign Finance",
           href: "/finance/campaign",
-          icon: icons.scale
+          icon: "scale"
         }
       ]
     },
     {
       label: "Policy",
       href: "/policy",
-      icon: icons.chevron,
+      icon: "chevron",
       dropdown: [
         {
           label: "Crow Family Donations",
           href: "/policy/contributions/crow",
-          icon: icons.scale
+          icon: "scale"
         },
         {
           label: "Defense Industry Lobbying",
           href: "/policy/lobbying/defense",
-          icon: icons.flash
+          icon: "flash"
         },
       ]
     },
     {
       label: "Info",
       href: "/info",
-      icon: icons.chevron,
+      icon: "chevron",
       dropdown: [
         {
           label: "Creator",
           href: "/info/creator",
-          icon: icons.scale 
+          icon: "scale" 
         }
       ]
     },
@@ -95,29 +86,29 @@ export const financeConfig = {
     {
       label: "Wall St.",
       href: "/finance/market",
-      icon: icons.chevron,
+      icon: "chevron",
       dropdown: [
         {
           label: "CAT",
           href: "/finance/market/cat",
-          icon: icons.activity
+          icon: "activity"
         },
         {
           label: "Derivatives",
           href: "/finance/market/derivatives",
-          icon: icons.scale,
+          icon: "scale",
         },
         {
           label: "FTD",
           href: "/finance/market/ftd",
-          icon: icons.activity,
+          icon: "activity",
         }
       ]
     },
     {
       label: "Campaign Finance",
       href: "/finance/campaign",
-      icon: icons.server
+      icon: "server"
     },
   ],
   links: {
@@ -134,19 +125,19 @@ export const infoConfig = {
     {
       label: "Creator",
       href: "/info/creator",
-      icon: icons.chevron,
+      icon: "chevron",
       dropdown: [
         {
           label: "Resume",
           href: "/info/creator/resume",
-          icon: icons.activity
+          icon: "activity"
         }
       ]
     },
     {
       label: "Donate",
       href: "/info/donate",
-      icon: icons.activity
+      icon: "activity"
     },
   ],
   links: {

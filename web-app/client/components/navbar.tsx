@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -36,11 +36,12 @@ import { politicsConfig, financeConfig, infoConfig, siteConfig } from '@/config/
 import { usePathname } from 'next/navigation';
 import { SubNavbar } from '@/components/subNavbar';
 import { title } from '@/components/primitives';
+import { RenderIcon } from '@/components/renderIcon';
 
 export type NavItem = {
   label: string;
   href: string;
-  icon?: () => JSX.Element;
+  icon?: string;
   dropdown?: DropdownNavItem[];
 };
 
@@ -48,13 +49,13 @@ type DropdownNavItem = NavItem & {
   dropdown?: DropdownNavItem[];
 };
 
-// Type guard to check if an item is a DropdownNavItem
 const isDropdownNavItem = (item: NavItem): item is DropdownNavItem => {
   return (item as DropdownNavItem).dropdown !== undefined;
 };
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const [activeNavItem, setActiveNavItem] = useState<NavItem | undefined>(undefined);
 
   const getConfig = () => {
     if (pathname.startsWith('/finance')) {
@@ -70,6 +71,11 @@ export const Navbar = () => {
 
   const config = getConfig();
 
+  useEffect(() => {
+    const active = (config.navItems as DropdownNavItem[]).find(item => pathname.startsWith(item.href));
+    setActiveNavItem(active);
+  }, [pathname, config.navItems]);
+  
   const searchInput = (
     <Input
       aria-label="Search"
@@ -100,7 +106,7 @@ export const Navbar = () => {
       {items.map((item) => (
         <DropdownItem
           key={item.href}
-          startContent={item.icon ? item.icon() : null}
+          startContent={item.icon ? <RenderIcon name={item.icon} /> : null}
         >
           {item.dropdown ? (
             <Dropdown>
@@ -109,7 +115,7 @@ export const Navbar = () => {
                   variant="light"
                   disableRipple
                   className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                  endContent={item.icon ? item.icon() : null}
+                  endContent={item.icon ? <RenderIcon name={item.icon} /> : null}
                   radius="sm"
                 >
                   {item.label}
@@ -123,7 +129,7 @@ export const Navbar = () => {
                 {item.dropdown?.map(subItem => (
                   <DropdownItem
                     key={subItem.href}
-                    startContent={subItem.icon ? subItem.icon() : null}
+                    startContent={subItem.icon ? <RenderIcon name={subItem.icon} /> : null}
                   >
                     {subItem.dropdown ? (
                       <Dropdown>
@@ -152,12 +158,13 @@ export const Navbar = () => {
       ))}
     </DropdownMenu>
   );
-  
+
   const renderNavItem = (item: DropdownNavItem) => {
     return (
       <Dropdown key={item.href}>
         <DropdownTrigger>
           <Button variant="light">
+            {item.icon && <RenderIcon name={item.icon} />}
             {item.label}
           </Button>
         </DropdownTrigger>
@@ -165,15 +172,12 @@ export const Navbar = () => {
       </Dropdown>
     );
   };
-  
-  
 
   return (
     <>
       <NextUINavbar 
         isBordered
-        classNames={
-        {
+        classNames={{
           item: [
             "flex",
             "relative",
@@ -217,7 +221,6 @@ export const Navbar = () => {
             {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
           </ul>
         </NavbarContent>
-
         <NavbarContent className="basis-1 pl-4" justify="end">
           <Link isExternal aria-label="Github" href={config.links.github}>
             <GithubIcon className="text-default-500" />
@@ -225,7 +228,6 @@ export const Navbar = () => {
           <ThemeSwitch />
           <NavbarMenuToggle className="block" />
         </NavbarContent>
-
         <NavbarMenu>
           {searchInput}
           <div className="mx-4 mt-2 flex flex-col gap-2">
@@ -237,7 +239,7 @@ export const Navbar = () => {
           </div>
         </NavbarMenu>
       </NextUINavbar>
-      <SubNavbar navItems={config.navItems}/>
+      <SubNavbar activeNavItem={activeNavItem} />
     </>
   );
 };
