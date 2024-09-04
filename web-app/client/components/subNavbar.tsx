@@ -1,16 +1,9 @@
-// components/SubNavbar.tsx
+import React from 'react';
 import { usePathname } from 'next/navigation';
-import {
-  Navbar as NextUINavbar,
-  NavbarContent
-} from '@nextui-org/navbar';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
-import { Spacer } from '@nextui-org/spacer'; // Updated import to ensure usage of Button and Spacer
-import { Link } from '@nextui-org/link';
-import NextLink from 'next/link';
+import { Tabs, Tab } from '@nextui-org/tabs';
+import { Card, CardBody } from '@nextui-org/card';
 import { NavItem } from './navbar';
-import { Button } from '@nextui-org/button';
-
+import NextLink from 'next/link';
 
 interface SubNavbarProps {
   navItems: NavItem[];
@@ -18,42 +11,53 @@ interface SubNavbarProps {
 
 export const SubNavbar = ({ navItems }: SubNavbarProps) => {
   const pathname = usePathname();
-
   const activeNavItem = navItems.find(item => pathname.startsWith(item.href));
 
+  if (!activeNavItem || !activeNavItem.dropdown) {
+    return null;
+  }
+
   return (
-    <div className="container flex justify-center">
-      <NextUINavbar maxWidth="xl" position="sticky">
-        <NavbarContent className="flex justify-center basis-1/5 sm:basis-full pl-40">
-          {activeNavItem?.dropdown && (
-            activeNavItem.dropdown.map(subItem => (
-              <div key={subItem.href} className="flex items-center">
-                <Spacer x={2} />
+    <div className="container flex justify-center mt-4">
+      <Tabs aria-label="Navigation tabs" selectedKey={pathname}>
+        {activeNavItem.dropdown.map((subItem) => (
+          <Tab
+            key={subItem.href}
+            title={
+              <NextLink href={subItem.href} passHref>
+                {subItem.label}
+              </NextLink>
+            }
+          >
+            <Card>
+              <CardBody>
                 {subItem.dropdown ? (
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button variant="light">{subItem.label}</Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label={`${subItem.label} Menu`}>
-                      {subItem.dropdown.map(subSubItem => (
-                        <DropdownItem key={subSubItem.href}>
+                  <Tabs aria-label={`${subItem.label} subtabs`}>
+                    {subItem.dropdown.map((subSubItem) => (
+                      <Tab
+                        key={subSubItem.href}
+                        title={
                           <NextLink href={subSubItem.href} passHref>
-                            <Link>{subSubItem.label}</Link>
+                            {subSubItem.label}
                           </NextLink>
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
+                        }
+                      >
+                        <Card>
+                          <CardBody>
+                            Content for {subSubItem.label}
+                          </CardBody>
+                        </Card>
+                      </Tab>
+                    ))}
+                  </Tabs>
                 ) : (
-                  <NextLink href={subItem.href} passHref>
-                    <Link>{subItem.label}</Link>
-                  </NextLink>
+                  <p>Content for {subItem.label}</p>
                 )}
-              </div>
-            ))
-          )}
-        </NavbarContent>
-      </NextUINavbar>
+              </CardBody>
+            </Card>
+          </Tab>
+        ))}
+      </Tabs>
     </div>
   );
 };

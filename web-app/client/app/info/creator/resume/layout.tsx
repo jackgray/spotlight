@@ -4,7 +4,7 @@ export default function ResumeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+    <main className="container mx-auto max-w-full pt-1 px-1 flex-grow">
       {children}
     </main>
   );

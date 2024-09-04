@@ -19,12 +19,9 @@ export const CVData = {
         type: 'text',
         title: 'Career Profile',
         content: `
-While my formal degrees are in computers and electrical hardware, I have always maintained web development and data automation as a hobby. In 2016 that received a boost, as I sought expressive outlets I could use to confront the issues that impassion me. 
-For 4 years, I religiously focused on full-stack React development and graph based relational models. 
-During this time, I was able to apply previous analytical skills in Python and Linux along with some I was acquiring such as containerization, cloud technologies, distributed system designs, and network security to develop tools and optimize data pipelines for researchers. 
-To gain more ownership and responsibility, I undertook the task of managing technical operations for a brain research lab at Mount Sinai, where my appreciation for the ability of data to shape policy, medical advancements and culture proliferated.
-Recently, my passions have expanded towards financial market transparency, and I have leveraged my abilities in data extraction, infrastructure design, and application development to build a bespoke platform to collect and distribute regulatory and other oversight-focused datasets.
-Between my personal and professional projects, out of necessity, my experience spans the full spectrum of container-based data infrastructure and application design, allowing me to tackle a diverse array of challenges. 
+Designing and building tools has always been a key expressive outlet. It\'s a way for me to constructively direct the energy that acrues after seeing gaps in issues I am passionate about. 
+Recently I have become interested in financial market mechanisms and institutional malfeasance. In the past month, I have leveraged my abilities in data extraction, infrastructure design, and application development to build a bespoke platform to collect and distribute regulatory and other oversight-focused datasets.
+Between my personal and professional projects, out of necessity, I've engaged in the full spectrum of container-based data infrastructure and application design, allowing me to tackle a diverse array of challenges. 
 I thrive in environments where understanding the inter-play of disparate component in complex systems is essential and a creative and philosophical approach to designing solutions and solving problems are more important than speed of implementation. 
         `,
         icon: 'usertie'

@@ -7,25 +7,30 @@ export const Logo: React.FC<IconSvgProps> = ({
   width,
   height,
   ...props
-}) => (
-  <svg
-    fill="none"
-    height={size || height}
-    viewBox="0 0 24 24"
-    width={size || width}
-    {...props}
-  >
-    <circle
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="#6a0dad"      // Purple color for the ring
-      strokeWidth="4"       // Line width of 4 pixels
-      fill="none"           // No fill in the middle
-    />
-  </svg>
-);
+}) => {
+  const outerRadius = 10; // Radius of the outer purple circle
+  // const innerRadius = outerRadius * 0.40; // 3/4 smaller
 
+  return (
+    <svg
+      fill="none"
+      height={size || height}
+      viewBox="0 0 24 24"
+      width={size || width}
+      {...props}
+    >
+      {/* Outer Circle */}
+      <circle
+        cx="12"
+        cy="12"
+        r={outerRadius}
+        stroke="#6a0dad" // Purple color for the ring
+        strokeWidth="4" // Line width of 4 pixels
+        fill="none" // No fill in the middle
+      />
+    </svg>
+  );
+};
 
 export const DiscordIcon: React.FC<IconSvgProps> = ({
   size = 24,

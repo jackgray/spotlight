@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Navbar as NextUINavbar,
   NavbarContent,
@@ -34,13 +35,23 @@ import {
 import { politicsConfig, financeConfig, infoConfig, siteConfig } from '@/config/site';
 import { usePathname } from 'next/navigation';
 import { SubNavbar } from '@/components/subNavbar';
-import {title} from '@/components/primitives'
+import { title } from '@/components/primitives';
 
-export interface NavItem {
+export type NavItem = {
   label: string;
   href: string;
-  dropdown?: NavItem[];
-}
+  icon?: () => JSX.Element;
+  dropdown?: DropdownNavItem[];
+};
+
+type DropdownNavItem = NavItem & {
+  dropdown?: DropdownNavItem[];
+};
+
+// Type guard to check if an item is a DropdownNavItem
+const isDropdownNavItem = (item: NavItem): item is DropdownNavItem => {
+  return (item as DropdownNavItem).dropdown !== undefined;
+};
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -80,33 +91,53 @@ export const Navbar = () => {
     />
   );
 
-  const renderDropdownMenu = (items: NavItem[], ariaLabel: string) => (
-    <DropdownMenu aria-label={ariaLabel}>
+  const renderDropdownMenu = (items: DropdownNavItem[], ariaLabel: string) => (
+    <DropdownMenu
+      aria-label={ariaLabel}
+      className="w-[340px]"
+      itemClasses={{ base: "gap-4" }}
+    >
       {items.map((item) => (
-        <DropdownItem key={item.href}>
+        <DropdownItem
+          key={item.href}
+          startContent={item.icon ? item.icon() : null}
+        >
           {item.dropdown ? (
             <Dropdown>
               <DropdownTrigger>
-                <Button variant="light">
+                <Button
+                  variant="light"
+                  disableRipple
+                  className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                  endContent={item.icon ? item.icon() : null}
+                  radius="sm"
+                >
                   {item.label}
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu aria-label={`${item.label} Submenu`}>
-                {item.dropdown.map(subItem => (
-                  <DropdownItem key={subItem.href}>
+              <DropdownMenu
+                aria-label={`${item.label} Submenu`}
+                className="w-[340px]"
+                itemClasses={{ base: "gap-4" }}
+              >
+                {item.dropdown?.map(subItem => (
+                  <DropdownItem
+                    key={subItem.href}
+                    startContent={subItem.icon ? subItem.icon() : null}
+                  >
                     {subItem.dropdown ? (
                       <Dropdown>
                         <DropdownTrigger>
-                          <Button variant="light">
+                          <Button>
                             {subItem.label}
                           </Button>
                         </DropdownTrigger>
-                        {renderDropdownMenu(subItem.dropdown, `${subItem.label} Submenu`)}
+                        <DropdownMenu>
+                          {renderDropdownMenu(subItem.dropdown, `${subItem.label} Submenu`)}
+                        </DropdownMenu>
                       </Dropdown>
                     ) : (
-                      <NextLink href={subItem.href} passHref>
-                        <Link>{subItem.label}</Link>
-                      </NextLink>
+                      <span>{subItem.label}</span>
                     )}
                   </DropdownItem>
                 ))}
@@ -121,8 +152,8 @@ export const Navbar = () => {
       ))}
     </DropdownMenu>
   );
-
-  const renderNavItem = (item: NavItem) => {
+  
+  const renderNavItem = (item: DropdownNavItem) => {
     return (
       <Dropdown key={item.href}>
         <DropdownTrigger>
@@ -134,10 +165,33 @@ export const Navbar = () => {
       </Dropdown>
     );
   };
+  
+  
 
   return (
     <>
-      <NextUINavbar maxWidth="xl" position="sticky">
+      <NextUINavbar 
+        isBordered
+        classNames={
+        {
+          item: [
+            "flex",
+            "relative",
+            "h-full",
+            "items-center",
+            "data-[active=true]:after:content-['']",
+            "data-[active=true]:after:absolute",
+            "data-[active=true]:after:bottom-0",
+            "data-[active=true]:after:left-0",
+            "data-[active=true]:after:right-0",
+            "data-[active=true]:after:h-[2px]",
+            "data-[active=true]:after:rounded-[2px]",
+            "data-[active=true]:after:bg-primary",
+            "maxWidth:xl",
+            "position:sticky"
+          ],
+        }}
+      >
         <NavbarContent className="basis-1/5 sm:basis-full flex justify-start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink
@@ -146,21 +200,21 @@ export const Navbar = () => {
               passHref
             >
               <Link>
-                <h1 className={title()} style={{ margin: 0, padding: 0 }}>
-                  Sp
+                <h1 className={title({color: 'pastelOrangeYellow'})} style={{ margin: 0, padding: 0 }}>
+                  Sp&nbsp;
                 </h1>
                 <Logo />
-                <h1 className={title()} style={{ margin: 0, padding: 0 }}>
-                  t
+                <h1 className={title({color: 'pastelOrangeYellow'})} style={{ margin: 0, padding: 0 }}>
+                  &nbsp;t
                 </h1>
-                <h1 className={title({color: 'violet'})}>
-                  Light
+                <h1 className={title({color: 'pastelOrangeYellow'})}>
+                  &nbsp;Light
                 </h1>
               </Link>
             </NextLink>
           </NavbarBrand>
-          <ul className="hidden lg:flex gap-4 justify-start ml-2">
-            {config.navItems.map(renderNavItem)}
+          <ul className="lg:flex gap-4 justify-start ml-2">
+            {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
           </ul>
         </NavbarContent>
 
