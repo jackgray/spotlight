@@ -3,14 +3,12 @@ export const CVData = {
     personalData: {
       name: 'Jack Gray',
       title: 'Full Stack Data Platform Engineer',
-      // image: '',
       contacts: [
         { type: 'email', value: 'contact@jackgray.nyc' },
         { type: 'phone', value: '929-409-5452' },
         { type: 'location', value: 'Brooklyn, New York' },
         { type: 'website', value: 'beta.spotlight-us.com' },
         { type: 'linkedin', value: 'linkedin.com/in/johnhgrayiii' },
-        // { type: 'twitter', value: 'twitter.com/sbayd' },
         { type: 'github', value: 'github.com/jackgray' }
       ]
     },
@@ -19,10 +17,16 @@ export const CVData = {
         type: 'text',
         title: 'Career Profile',
         content: `
-Designing and building tools has always been a key expressive outlet. It\'s a way for me to constructively direct the energy that acrues after seeing gaps in issues I am passionate about. 
-Recently I have become interested in financial market mechanisms and institutional malfeasance. In the past month, I have leveraged my abilities in data extraction, infrastructure design, and application development to build a bespoke platform to collect and distribute regulatory and other oversight-focused datasets.
-Between my personal and professional projects, out of necessity, I've engaged in the full spectrum of container-based data infrastructure and application design, allowing me to tackle a diverse array of challenges. 
-I thrive in environments where understanding the inter-play of disparate component in complex systems is essential and a creative and philosophical approach to designing solutions and solving problems are more important than speed of implementation. 
+I use technology as an expressive device to confront the issues that I care about. It allows me to channel my frustrations towards societal ailments, which I manifests through both personal projects and my work. 
+While my professional focus for the past 10 years has been in clinical psych research, I've maintained a growing personal interest in policy, the mechanisms that drive it, and the extent to which they are disengenuously shaped by personal interests and abuse of power. 
+This was the essence behind my motivation to become proficient in progressive web app design--I decided I wanted the ability to self-actualize the solutions I imagined for the world's problems. 
+Data drives policy and culture. And technology affects how people interact with it and each other, whether that's proving efficacy of some treatment or street traffic data that leads to a stop sign being put up on your block, the ability to collect, analyze, and distribute data is such a powerful thing to have. 
+Lately, I've taken an interest in financial market mechanics and institutional malfeasance. Over the past month, I’ve leveraged skills in data extraction, 
+infrastructure design, and application development to create a bespoke platform for aggregating and distributing regulatory and oversight-focused datasets.
+
+I excel at bridging the gap between academic research science and modern strategies in a clinical research context. 
+My experience spans a wide range of container-based data infrastructure and application designs, enabling me to address diverse challenges. 
+I thrive in environments where understanding the interplay of complex systems is crucial, and where a creative and thoughtful approach to solution design is valued over rapid implementation.
         `,
         icon: 'usertie'
       },
@@ -73,12 +77,12 @@ I thrive in environments where understanding the inter-play of disparate compone
 -  Create visual dashboards of data and system metrics in Kibana and Apache Superset
             `,
             companyWebSite: 'https://icahn.mssm.edu/research/narc',
-            companyMeta: '',
+            companyMeta: 'Neuropsychoimaging of Addiction and Related Conditions (NARC)',
             datesBetween: '2022 - Present',
             descriptionTags: ['DB/Large file hosting', 'ETL/ELT', 'Service hosting/security', 'Data alignment', 'Grant writing']
           },
           {
-            title: 'Data Engineer',
+            title: 'Data Engineer & MRI Technical Specialist',
             company: 'Columbia Psychiatry / New York State Psychiatric Institute',
             description: 'Developed tools to quality-check, transform, and load data between research MRI console and analysis cluster. Built automation pipelines to pre-process neuro-imaging data.',
             companyWebSite: 'http://nyspi.org',
@@ -86,9 +90,9 @@ I thrive in environments where understanding the inter-play of disparate compone
             datesBetween: '2021 - 2022'
           },
           {
-            title: 'Research Engineer',
+            title: 'Research Imaging Engineer',
             company: 'Columbia Psychiatry / New York State Psychiatric Institute',
-            description: 'I was warming up.',
+            description: 'Worked alongside clinical researchers and engineers to maintain and improve technical components and processes of the MRI research center, ranging from data transformations, MRI hardware and software, physiologic recording methods, and patient interaction.',
             companyWebSite: 'http://someexamplecompany.com',
             companyMeta: 'MRI Brain Imaging Center',
             datesBetween: '2016 - 2021'
@@ -117,29 +121,40 @@ I thrive in environments where understanding the inter-play of disparate compone
         icon: 'comments',
         items: [
           {
-            title: 'Something',
-            authority: 'Nature Neuroscience',
-            authorityWebSite: 'https://www.linkedin.com/in/johnhgrayiii'
+            title: 'Recovery of anterior prefrontal cortex inhibitory control after 15 weeks of inpatient treatment in heroin use disorder',
+            authority: 'Nature Mental Health',
+            authorityWebSite: 'https://www.nature.com/articles/s44220-024-00230-4'
           },
           {
-            title: 'Another',
-            authority: 'JAMA Psychiatry',
-            authorityWebSite: 'https://www.linkedin.com/in/johnhgrayiii',
-            rightSide: '2024'
-          }
+            title: 'Neuromelanin-sensitive MRI as a noninvasive proxy measure of dopamine function in the human brain',
+            authority: 'PNAS - Proceedings of the National Academy of Sciences',
+            authorityWebSite: 'https://www.pnas.org/doi/full/10.1073/pnas.1807983116',
+            rightSide: '*Unaccredited contributor'
+          },
+          {
+            title: 'Breakdown and optical emission characteristics of point-to-point electrodes subject to pulsed 20kHz applied field in sub-atmospheric pressure N2-He gas mixtures',
+            authority: 'IEEE',
+            authorityWebSite: 'https://ieeexplore.ieee.org/document/7287307/',
+          },
+          {
+            title: '20 kHz unipolar pulsed field surface flashover characteristics of polymer nanocomposites in subatmospheric pressure helium',
+            authority: 'IEEE',
+            authorityWebSite: 'https://ieeexplore.ieee.org/document/7287308',
+            rightSide: '*Unaccredited contributor'
+          },
         ]
       },
       {
         type: 'tag-list',
         title: 'Skills Proficiency',
         icon: 'rocket',
-        items: ['Python', 'Linux/Bash', 'ETL/ELT', 'Docker', 'Terraform', 'Apache Superset', 'Airflow', 'S3', 'Clickhouse', 'Data lakehouse design', 'React', 'Javascript', 'Next.js', 'GraphQL', 'SQL']
+        items: ['Python','SQL', 'OLAP/OLTP', 'Linux/Bash', 'ETL/ELT', 'Docker', 'AWS', 'Azure', 'Terraform', 'Apache Superset', 'DAG Scheduling', 'Elastic Stack', 'S3', 'Clickhouse', 'Distributed System Design', 'React', 'Javascript', 'Next.js', 'GraphQL', 'REST', 'Experimental Design', 'Neuroanalysis', 'fMRIPrep', 'DICOM/nifti formats', 'BIDS', 'ePrime/jsPsych']
       },
       {
         type: 'tag-list',
         title: 'Hobbies & Interests',
         icon: 'cubes',
-        items: ['Music', 'Home Lab/Home Automation', 'Cycling/Skating', 'Animal Rescue', 'Financial Market Transparency', 'Mental Health Research/Tech', 'Tennis/Volleyball']
+        items: ['Music', 'Home Lab/Home Automation', 'Animal Rescue', 'Financial Market Transparency', 'Mental Health Research/Tech']
       }
     ]
   }

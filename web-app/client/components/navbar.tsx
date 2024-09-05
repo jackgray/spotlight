@@ -75,7 +75,7 @@ export const Navbar = () => {
     const active = (config.navItems as DropdownNavItem[]).find(item => pathname.startsWith(item.href));
     setActiveNavItem(active);
   }, [pathname, config.navItems]);
-  
+
   const searchInput = (
     <Input
       aria-label="Search"
@@ -97,6 +97,7 @@ export const Navbar = () => {
     />
   );
 
+  // Render the dropdown menu for items
   const renderDropdownMenu = (items: DropdownNavItem[], ariaLabel: string) => (
     <DropdownMenu
       aria-label={ariaLabel}
@@ -159,13 +160,14 @@ export const Navbar = () => {
     </DropdownMenu>
   );
 
+  // Render each navigation item
   const renderNavItem = (item: DropdownNavItem) => {
     return (
       <Dropdown key={item.href}>
         <DropdownTrigger>
-          <Button variant="light">
-            {item.icon && <RenderIcon name={item.icon} />}
-            {item.label}
+          <Button variant="light" className="flex items-center">
+            {item.icon && <RenderIcon name={item.icon} className="mr-2" />}
+            <span className="hidden dm:inline">{item.label}</span>
           </Button>
         </DropdownTrigger>
         {item.dropdown && renderDropdownMenu(item.dropdown, `${item.label} Menu`)}
@@ -177,6 +179,7 @@ export const Navbar = () => {
     <>
       <NextUINavbar 
         isBordered
+        className="flex-nowrap"
         classNames={{
           item: [
             "flex",
@@ -196,7 +199,7 @@ export const Navbar = () => {
           ],
         }}
       >
-        <NavbarContent className="basis-1/5 sm:basis-full flex justify-start">
+        <NavbarContent className="basis-1/5 sm:basis-full flex justify-start flex-shrink-0">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink
               className="flex justify-start items-center gap-1"
@@ -217,11 +220,11 @@ export const Navbar = () => {
               </Link>
             </NextLink>
           </NavbarBrand>
-          <ul className="lg:flex gap-4 justify-start ml-2">
+          <ul className="flex gap-4 justify-start ml-2 whitespace-nowrap overflow-x-auto flex-nowrap">
             {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
           </ul>
         </NavbarContent>
-        <NavbarContent className="basis-1 pl-4" justify="end">
+        <NavbarContent className="basis-1 pl-1" justify="end">
           <Link isExternal aria-label="Github" href={config.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>

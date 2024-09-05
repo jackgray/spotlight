@@ -9,6 +9,16 @@ import {
   Scale
 } from '@/components/navIcons';
 
+import {
+  Bank,
+  Piggy,
+  Info,
+  Cat,
+  Back,
+  Policy,
+  MoneyReport
+} from '@/components/icons';
+
 interface IconProps {
   name: string;
   className?: string;
@@ -38,6 +48,20 @@ export const RenderIcon: React.FC<IconProps> = ({ name, className = '' }) => {
       return <Server {...iconProps} className={`text-success ${className}`} />;
     case 'user':
       return <TagUser {...iconProps} className={`text-danger ${className}`} />;
+    case 'bank':
+      return <Bank {...iconProps} className={`text-danger ${className}`} />;
+    case 'piggy':
+      return <Piggy {...iconProps} className={`text-danger ${className}`} />;
+    case 'info':
+      return <Info {...iconProps} className={`text-danger ${className}`} />;
+    case 'cat':
+      return <Cat {...iconProps} className={`text-danger ${className}`} />;
+    case 'back':
+      return <Back {...iconProps} className={`text-danger ${className}`} />;
+    case 'policy':
+      return <Policy {...iconProps} className={`text-danger ${className}`} />;
+    case 'moneyreport':
+      return <MoneyReport {...iconProps} className={`text-danger ${className}`} />;
     default:
       return null;
   }

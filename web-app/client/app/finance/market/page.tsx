@@ -16,16 +16,6 @@ const MarketPage: FC = () => {
                 label="More about the data"
                 text="More here later"
             />
-            <SupersetDashboard
-                dashboardTitle="Consolidated Auditing Trail"
-                supersetUrl={supersetConfig.supersetUrl}
-                dashboardId="fcc3fd0a-64f5-4d13-a564-1d04939094a3"
-                username={supersetConfig.username}
-                password={supersetConfig.password}
-                guestUsername={supersetConfig.guestUsername}
-                guestFirstName={supersetConfig.guestFirstName}
-                guestLastName={supersetConfig.guestLastName}
-            />
         </div>
     );
 };

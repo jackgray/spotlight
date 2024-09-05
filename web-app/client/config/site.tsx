@@ -28,15 +28,15 @@ export const siteConfig: Config = {
     {
       label: "Finance",
       href: "/finance",
-      icon: "chevron",
+      icon: "bank",
       dropdown: [
         {
           label: "Wall St.",
           href: "/finance/market",
-          icon: "activity"
+          icon: "piggy"
         },
         {
-          label: "Campaign Finance",
+          label: "Elections",
           href: "/finance/campaign",
           icon: "scale"
         }
@@ -45,16 +45,16 @@ export const siteConfig: Config = {
     {
       label: "Policy",
       href: "/policy",
-      icon: "chevron",
+      icon: "policy",
       dropdown: [
         {
-          label: "Crow Family Donations",
-          href: "/policy/contributions/crow",
+          label: "Donations",
+          href: "/policy/donations",
           icon: "scale"
         },
         {
-          label: "Defense Industry Lobbying",
-          href: "/policy/lobbying/defense",
+          label: "Lobbying",
+          href: "/policy/lobbying",
           icon: "flash"
         },
       ]
@@ -62,10 +62,10 @@ export const siteConfig: Config = {
     {
       label: "Info",
       href: "/info",
-      icon: "chevron",
+      icon: "info",
       dropdown: [
         {
-          label: "Creator",
+          label: "Created By",
           href: "/info/creator",
           icon: "scale" 
         }
@@ -86,12 +86,12 @@ export const financeConfig = {
     {
       label: "Wall St.",
       href: "/finance/market",
-      icon: "chevron",
+      icon: "piggy",
       dropdown: [
         {
           label: "CAT",
           href: "/finance/market/cat",
-          icon: "activity"
+          icon: "cat"
         },
         {
           label: "Derivatives",
@@ -106,9 +106,36 @@ export const financeConfig = {
       ]
     },
     {
-      label: "Campaign Finance",
+      label: "Gov Spending",
+      href: "/finance/gov",
+      icon: "moneyreport"
+    },
+    {
+      label: "Campagin",
       href: "/finance/campaign",
       icon: "server"
+    },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy",
+          icon: "policy"
+        },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
     },
   ],
   links: {
@@ -123,7 +150,11 @@ export const infoConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
-      label: "Creator",
+      label: "Roadmap",
+      href: "/info/roadmap"
+    },
+    {
+      label: "Created By",
       href: "/info/creator",
       icon: "chevron",
       dropdown: [
@@ -139,6 +170,28 @@ export const infoConfig = {
       href: "/info/donate",
       icon: "activity"
     },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy",
+          icon: "policy"
+        },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
+    },
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",
@@ -147,4 +200,56 @@ export const infoConfig = {
 
 export type PoliticsConfig = typeof politicsConfig;
 
-export const politicsConfig = siteConfig;
+export const politicsConfig = {
+  name: "Spotlight",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
+  navItems: [
+    {
+      label: "Donations",
+      href: "/policy/donations",
+      icon: "moneyreport",
+      dropdown: [
+        {
+          label: "Crow Family",
+          href: "/policy/donations/crow"
+        }
+      ]
+    },
+    {
+      label: "Lobbying",
+      href: "/policy/lobbying",
+      icon: "moneyreport",
+      dropdown: [
+        {
+          label: "Defense Industry",
+          href: "/policy/lobbying/defense"
+        }
+      ]
+    },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy",
+          icon: "policy"
+        },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
+    },
+  ],
+  links: {
+    github: "https://github.com/jackgray/spotlight",
+  },
+};
