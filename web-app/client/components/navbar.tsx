@@ -165,9 +165,9 @@ export const Navbar = () => {
     return (
       <Dropdown key={item.href}>
         <DropdownTrigger>
-          <Button variant="light" className="flex items-center">
+          <Button variant="light" className="flex items-center flex-shrink-0">
             {item.icon && <RenderIcon name={item.icon} className="mr-2" />}
-            <span className="hidden dm:inline">{item.label}</span>
+            <span className="hidden sm:inline truncate">{item.label}</span>
           </Button>
         </DropdownTrigger>
         {item.dropdown && renderDropdownMenu(item.dropdown, `${item.label} Menu`)}
@@ -207,11 +207,11 @@ export const Navbar = () => {
               passHref
             >
               <Link>
-                <h1 className={title({color: 'pastelOrangeYellow'})} style={{ margin: 0, padding: 0 }}>
+                <h1 className={title({color: 'goldToPurple'})} style={{ margin: 0, padding: 0 }}>
                   Sp&nbsp;
                 </h1>
                 <Logo />
-                <h1 className={title({color: 'pastelOrangeYellow'})} style={{ margin: 0, padding: 0 }}>
+                <h1 className={title({color: 'purpleToGold'})} style={{ margin: 0, padding: 0 }}>
                   &nbsp;t
                 </h1>
                 <h1 className={title({color: 'pastelOrangeYellow'})}>

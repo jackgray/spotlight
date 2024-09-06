@@ -33,13 +33,13 @@ export const siteConfig: Config = {
         {
           label: "Wall St.",
           href: "/finance/market",
-          icon: "piggy"
+          icon: "stocks"
         },
         {
-          label: "Elections",
-          href: "/finance/campaign",
-          icon: "scale"
-        }
+          label: "Major Donations",
+          href: "/finance/donations",
+          icon: "donation"
+        },
       ]
     },
     {
@@ -48,14 +48,19 @@ export const siteConfig: Config = {
       icon: "policy",
       dropdown: [
         {
-          label: "Donations",
-          href: "/policy/donations",
-          icon: "scale"
+          label: "Elections",
+          href: "/policy/campaign",
+          icon: "ballot"
         },
         {
           label: "Lobbying",
           href: "/policy/lobbying",
-          icon: "flash"
+          icon: "wscale"
+        },
+        {
+          label: "Appropriations",
+          href: "/policy/spending",
+          icon: "moneyreport"
         },
       ]
     },
@@ -65,9 +70,9 @@ export const siteConfig: Config = {
       icon: "info",
       dropdown: [
         {
-          label: "Created By",
+          label: "Who Made This",
           href: "/info/creator",
-          icon: "scale" 
+          icon: "lightbulb" 
         }
       ]
     },
@@ -86,7 +91,7 @@ export const financeConfig = {
     {
       label: "Wall St.",
       href: "/finance/market",
-      icon: "piggy",
+      icon: "stocks",
       dropdown: [
         {
           label: "CAT",
@@ -94,26 +99,42 @@ export const financeConfig = {
           icon: "cat"
         },
         {
-          label: "Derivatives",
+          label: "Swaps",
           href: "/finance/market/derivatives",
-          icon: "scale",
+          icon: "swap",
         },
         {
           label: "FTD",
           href: "/finance/market/ftd",
-          icon: "activity",
+          icon: "late",
         }
       ]
     },
     {
-      label: "Gov Spending",
+      label: "Appropriations",
       href: "/finance/gov",
       icon: "moneyreport"
     },
     {
-      label: "Campagin",
+      label: "Campaigns",
       href: "/finance/campaign",
-      icon: "server"
+      icon: "ballot"
+    },
+    {
+      label: "Contributions",
+      href: "/finance/donations",
+      icon: "shadow",
+      dropdown: [
+        {
+          label: "Crow Family",
+          href: "/policy/donations/crow",
+          icon: "donation"
+        },
+        {
+          label: "Elon Musk",
+          href: "/finance/donations/elon",
+        }
+      ]
     },
     {
       label: "Back",
@@ -129,6 +150,11 @@ export const financeConfig = {
           label: "Policy",
           href: "/policy",
           icon: "policy"
+        },
+        {
+          label: "Info",
+          href: "/info",
+          icon: "info"
         },
         {
           label: "Home",
@@ -151,24 +177,25 @@ export const infoConfig = {
   navItems: [
     {
       label: "Roadmap",
-      href: "/info/roadmap"
+      href: "/info/roadmap",
+      icon: "map"
     },
     {
       label: "Created By",
       href: "/info/creator",
-      icon: "chevron",
+      icon: "lightbulb",
       dropdown: [
         {
           label: "Resume",
           href: "/info/creator/resume",
-          icon: "activity"
+          icon: "resume"
         }
       ]
     },
     {
       label: "Donate",
       href: "/info/donate",
-      icon: "activity"
+      icon: "donation"
     },
     {
       label: "Back",
@@ -184,6 +211,11 @@ export const infoConfig = {
           label: "Policy",
           href: "/policy",
           icon: "policy"
+        },
+        {
+          label: "Info",
+          href: "/info",
+          icon: "info"
         },
         {
           label: "Home",
@@ -205,24 +237,13 @@ export const politicsConfig = {
   description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
   navItems: [
     {
-      label: "Donations",
-      href: "/policy/donations",
-      icon: "moneyreport",
+      label: "Elections",
+      href: "/policy/elections",
+      icon: "wscale",
       dropdown: [
         {
-          label: "Crow Family",
-          href: "/policy/donations/crow"
-        }
-      ]
-    },
-    {
-      label: "Lobbying",
-      href: "/policy/lobbying",
-      icon: "moneyreport",
-      dropdown: [
-        {
-          label: "Defense Industry",
-          href: "/policy/lobbying/defense"
+          label: "Local",
+          href: "/policy/elections/local"
         }
       ]
     },
@@ -240,6 +261,11 @@ export const politicsConfig = {
           label: "Policy",
           href: "/policy",
           icon: "policy"
+        },
+        {
+          label: "Information",
+          href: "/info",
+          icon: "info"
         },
         {
           label: "Home",

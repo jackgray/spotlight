@@ -1,0 +1,17 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="none"
+  height="16"
+  viewBox="0 0 24 24"
+  width="16"
+>
+  <!-- Outer Circle -->
+  <circle
+    cx="12"
+    cy="12"
+    r="10" <!-- Set a fixed radius -->
+    stroke="#6a0dad" <!-- Purple color for the ring -->
+    strokeWidth="4" <!-- Line width of 4 pixels -->
+    fill="none" <!-- No fill in the middle -->
+  />
+</svg>

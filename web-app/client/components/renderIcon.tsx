@@ -16,7 +16,19 @@ import {
   Cat,
   Back,
   Policy,
-  MoneyReport
+  MoneyReport,
+  Swap,
+  Late,
+  Campaign,
+  Stocks,
+  StockGuy,
+  Donation,
+  Scale as WeightScale,
+  Lightbulb,
+  Ballot,
+  Resume,
+  Map,
+  ShadowMan
 } from '@/components/icons';
 
 interface IconProps {
@@ -62,6 +74,30 @@ export const RenderIcon: React.FC<IconProps> = ({ name, className = '' }) => {
       return <Policy {...iconProps} className={`text-danger ${className}`} />;
     case 'moneyreport':
       return <MoneyReport {...iconProps} className={`text-danger ${className}`} />;
+    case 'swap':
+      return <Swap {...iconProps} className={`text-danger ${className}`} />;
+    case 'late':
+      return <Late {...iconProps} className={`text-danger ${className}`} />;
+    case 'campaign':
+      return <Campaign {...iconProps} className={`text-danger ${className}`} />;
+    case 'donation':
+      return <Donation {...iconProps} className={`text-danger ${className}`} />;
+    case 'stocks':
+      return <Stocks {...iconProps} className={`text-danger ${className}`} />;
+    case 'stockguy':
+      return <StockGuy {...iconProps} className={`text-danger ${className}`} />;
+    case 'wscale':
+      return <WeightScale {...iconProps} className={`text-danger ${className}`} />;
+    case 'lightbulb':
+      return <Lightbulb {...iconProps} className={`text-danger ${className}`} />;
+    case 'ballot':
+      return <Ballot {...iconProps} className={`text-danger ${className}`} />;
+    case 'resume':
+      return <Resume {...iconProps} className={`text-danger ${className}`} />;
+    case 'map':
+      return <Map {...iconProps} className={`text-danger ${className}`} />;
+    case 'shadow':
+      return <ShadowMan {...iconProps} className={`text-danger ${className}`} />;
     default:
       return null;
   }
