@@ -1,4 +1,6 @@
 import { title, subtitle } from "@/components/primitives";
+import DescriptionBox from '@/components/DescriptionBox';
+
 
 export default function Home() {
 
@@ -15,6 +17,14 @@ export default function Home() {
           With data driven reporting.
         </h2> */}
         <h1 className={title()}>Aggregated data from hard to reach places</h1>
+  
+        <h2 className={`${subtitle()} mt-4`}>
+          Spotlight is a regulatory oversight data aggregator and distribution platform. Start by exploring the Finance &gt Wall St. page -- this is where Spotlight&apos;s efforts are currently directed. Interact with the charts, or export the data to Excel or CSV by clicking the context menu of a chart.
+        </h2>
+        
+        <div className='mt-4'>
+          <DescriptionBox label='Construction notice' text="Note that many of the links on this site are inactive or may not behave properly. I am making them publicly visible to show what I hope this site will become. If you would like to contribute a dataset or pipeline, drop me a line, and I will consider adding it to this site." />
+        </div>
       </div>
 
       {/* <div className="flex gap-3">

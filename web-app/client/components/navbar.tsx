@@ -160,6 +160,23 @@ export const Navbar = () => {
     </DropdownMenu>
   );
 
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Function to handle mouse move and update position
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    setMousePosition({ x: clientX, y: clientY });
+  };
+  
+
+  // Custom styles for the circular mask that moves with the cursor
+  const maskStyle: React.CSSProperties = {
+    clipPath: `circle(100px at ${mousePosition.x}px ${mousePosition.y}px)`,
+    transition: 'clip-path 0.3s ease-in-out',
+    position: 'absolute', // Use 'absolute', 'relative', etc. instead of a generic string
+    zIndex: 1,
+  };
+  
   // Render each navigation item
   const renderNavItem = (item: DropdownNavItem) => {
     return (
@@ -200,27 +217,29 @@ export const Navbar = () => {
         }}
       >
         <NavbarContent className="basis-1/5 sm:basis-full flex justify-start flex-shrink-0">
-          <NavbarBrand as="li" className="gap-3 max-w-fit">
-            <NextLink
-              className="flex justify-start items-center gap-1"
-              href="/"
-              passHref
-            >
-              <Link>
-                <h1 className={title({color: 'goldToPurple'})} style={{ margin: 0, padding: 0 }}>
-                  Sp&nbsp;
-                </h1>
-                <Logo />
-                <h1 className={title({color: 'purpleToGold'})} style={{ margin: 0, padding: 0 }}>
-                  &nbsp;t
-                </h1>
-                <h1 className={title({color: 'pastelOrangeYellow'})}>
-                  &nbsp;Light
-                </h1>
-              </Link>
-            </NextLink>
-          </NavbarBrand>
-          <ul className="flex gap-4 justify-start ml-2 whitespace-nowrap overflow-x-auto flex-nowrap">
+          {/* <div onMouseMove={handleMouseMove} style={{ overflow: 'hidden' }}> */}
+            {/* <div style={maskStyle}> */}
+              <NextLink
+                className="flex justify-start items-center gap-1"
+                href="/"
+                passHref
+              >
+                <Link>
+                  <h1 className={title({ color: 'goldToPurple' })} style={{ margin: 0, padding: 0 }}>
+                    Sp&nbsp;
+                  </h1>
+                  <Logo />
+                  <h1 className={title({ color: 'purpleToGold' })} style={{ margin: 0, padding: 0 }}>
+                    &nbsp;t
+                  </h1>
+                  <h1 className={title({ color: 'pastelOrangeYellow' })}>
+                    &nbsp;Light
+                  </h1>
+                </Link>
+              </NextLink>
+            {/* </div> */}
+          {/* </div> */}
+          <ul className="flex gap-4 justify-start ml-2 whitespace-nowrap overflow-x-auto max-w-[430px] sm:max-w-none">
             {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
           </ul>
         </NavbarContent>

@@ -27,8 +27,10 @@ import {
   Lightbulb,
   Ballot,
   Resume,
+  Todo,
   Map,
-  ShadowMan
+  ShadowMan,
+  Pistol
 } from '@/components/icons';
 
 interface IconProps {
@@ -94,10 +96,14 @@ export const RenderIcon: React.FC<IconProps> = ({ name, className = '' }) => {
       return <Ballot {...iconProps} className={`text-danger ${className}`} />;
     case 'resume':
       return <Resume {...iconProps} className={`text-danger ${className}`} />;
-    case 'map':
-      return <Map {...iconProps} className={`text-danger ${className}`} />;
+    case 'todo':
+      return <Todo {...iconProps} className={`text-danger ${className}`} />;
     case 'shadow':
       return <ShadowMan {...iconProps} className={`text-danger ${className}`} />;
+    case 'pistol':
+      return <Pistol {...iconProps} className={`text-danger ${className}`} />;
+    case 'map':
+      return <Map {...iconProps} className={`text-danger ${className}`} />;
     default:
       return null;
   }

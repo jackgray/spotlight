@@ -36,7 +36,7 @@ export const siteConfig: Config = {
           icon: "stocks"
         },
         {
-          label: "Major Donations",
+          label: "Major Donors",
           href: "/finance/donations",
           icon: "donation"
         },
@@ -49,7 +49,7 @@ export const siteConfig: Config = {
       dropdown: [
         {
           label: "Elections",
-          href: "/policy/campaign",
+          href: "/policy/elections",
           icon: "ballot"
         },
         {
@@ -62,6 +62,21 @@ export const siteConfig: Config = {
           href: "/policy/spending",
           icon: "moneyreport"
         },
+        {
+          label: "Guns",
+          href: "/policy/guns",
+          icon: "pistol"
+        },
+        {
+          label: "People",
+          href: "/policy/people",
+          icon: "activity"
+        },
+        {
+          label: "Bills",
+          href: "/policy/bills",
+          icon: "activity"
+        }
       ]
     },
     {
@@ -70,10 +85,20 @@ export const siteConfig: Config = {
       icon: "info",
       dropdown: [
         {
+          label: "Road Map",
+          href: "/info/roadmap",
+          icon: "todo"
+        },
+        {
           label: "Who Made This",
           href: "/info/creator",
           icon: "lightbulb" 
-        }
+        },
+        {
+          label: "Donate",
+          href: "/info/donate",
+          icon: "donation"
+        },
       ]
     },
   ],
@@ -116,18 +141,18 @@ export const financeConfig = {
       icon: "moneyreport"
     },
     {
-      label: "Campaigns",
+      label: "Campaign Finance",
       href: "/finance/campaign",
       icon: "ballot"
     },
     {
-      label: "Contributions",
+      label: "Major Donors",
       href: "/finance/donations",
       icon: "shadow",
       dropdown: [
         {
           label: "Crow Family",
-          href: "/policy/donations/crow",
+          href: "/finance/donations/crow",
           icon: "donation"
         },
         {
@@ -178,7 +203,7 @@ export const infoConfig = {
     {
       label: "Roadmap",
       href: "/info/roadmap",
-      icon: "map"
+      icon: "todo"
     },
     {
       label: "Created By",
@@ -239,13 +264,45 @@ export const politicsConfig = {
     {
       label: "Elections",
       href: "/policy/elections",
-      icon: "wscale",
+      icon: "ballot",
       dropdown: [
         {
           label: "Local",
           href: "/policy/elections/local"
         }
       ]
+    },
+    {
+      label: "Lobbying",
+      href: "/policy/lobbying",
+      icon: "wscale",
+      dropdown: [
+        {
+          label: "Defense Industry",
+          href: "/policy/lobbying/defense",
+          icon: "active"
+        }
+      ]
+    },
+    {
+      label: "Appropriations",
+      href: "/policy/spending",
+      icon: "moneyreport"
+    },
+    {
+      label: "Guns",
+      href: "/policy/guns",
+      icon: "pistol"
+    },
+    {
+      label: "People",
+      href: "/policy/people",
+      icon: "activity"
+    },
+    {
+      label: "Bills",
+      href: "/policy/bills",
+      icon: "activity"
     },
     {
       label: "Back",

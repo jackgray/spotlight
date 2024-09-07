@@ -15,18 +15,16 @@ export const CVData = {
     sections: [
       {
         type: 'text',
-        title: 'Career Profile',
+        title: 'TL;DR',
         content: `
-I use technology as an expressive device to confront the issues that I care about. It allows me to channel my frustrations towards societal ailments, which I manifests through both personal projects and my work. 
-While my professional focus for the past 10 years has been in clinical psych research, I've maintained a growing personal interest in policy, the mechanisms that drive it, and the extent to which they are disengenuously shaped by personal interests and abuse of power. 
-This was the essence behind my motivation to become proficient in progressive web app design--I decided I wanted the ability to self-actualize the solutions I imagined for the world's problems. 
-Data drives policy and culture. And technology affects how people interact with it and each other, whether that's proving efficacy of some treatment or street traffic data that leads to a stop sign being put up on your block, the ability to collect, analyze, and distribute data is such a powerful thing to have. 
-Lately, I've taken an interest in financial market mechanics and institutional malfeasance. Over the past month, I’ve leveraged skills in data extraction, 
-infrastructure design, and application development to create a bespoke platform for aggregating and distributing regulatory and oversight-focused datasets.
+I use technology as an expressive device to confront the issues that I care about. It allows me to convert my negative energy from society's ailments into constructive learning experiences and hopes of making meaningful contributions to whatever cause I'm focusing on.
+My experience spans a wide range of container-based data infrastructure and application designs, enabling me to address diverse challenges, and bridge the gap between academic research science and modern data strategies and platform designs in a clinical research context. 
 
-I excel at bridging the gap between academic research science and modern strategies in a clinical research context. 
-My experience spans a wide range of container-based data infrastructure and application designs, enabling me to address diverse challenges. 
-I thrive in environments where understanding the interplay of complex systems is crucial, and where a creative and thoughtful approach to solution design is valued over rapid implementation.
+I thrive in environments where understanding the interplay of complex systems is crucial, and a creative and thoughtful approach to solution design is valued over rapid implementation.
+While my professional focus for nearly a decade has been based in clinical psych research, I've maintained a growing personal interest in policy and financial markets, the mechanisms that drive them, and the extent to which they are shaped or manipulated by personal interests and abuse of power. 
+This was the essence behind my motivation to become proficient in web app design--to be able to single handedly actualize the solutions I imagined for the world's problems. 
+Data drives policy and culture. And technology affects how people interact with it and each other. My mission is to leverage as many of my assets as possible to create tools that with the potential to affect the change I wish to see.
+The culmination of much of my studies in data engineering, infrastructure, and React development from the past 8 years is evident in my project, <a href=github.com/jackgray/spotlight'>Spotlight</a> a bespoke platform for aggregating and distributing regulatory and oversight-focused datasets, encompassing of infrastructure code and architectural designs.
         `,
         icon: 'usertie'
       },

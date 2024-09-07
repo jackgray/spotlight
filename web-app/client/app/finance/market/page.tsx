@@ -13,8 +13,8 @@ const MarketPage: FC = () => {
             <h1 className={title()}>Market Data</h1>
 
             <DescriptionBox
-                label="More about the data"
-                text="More here later"
+                label="Currently offered datasets"
+                text="Here you can explore data released by FINRA for the Consolidated Audit Trail (CAT) system, equity swap contracts, and fails to deliver/regulation SHO threshold lists. Use these datasets with caution as this project is still in infancy and has not fully validated the data. Each row includes a link to the original report it was scraped from, so that should make your verification efforts easier. "
             />
         </div>
     );

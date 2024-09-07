@@ -12,18 +12,18 @@ interface TabContent {
       key: "about",
       title: "About",
       content: `<div>
-The CAT reports on errors in electronic market transactions monthly, released as tables embedded in a PDF. Raw data is not publicly accessible, so Spotlight scans for new releases of monthly PDF reports daily (report releases are not on a fixed schedule) and scrapes the tables from the PDFs and loads them to the database.
-
-\n\nThe reports are downloadable by URLs like this: \n\n <Code size="sm">https://www.catnmsplan.com/sites/default/files/2022-07/07.28.22-Monthly-CAT-Update.pdf</Code>.
-
-\n\nYou may use the column <Code>Source_URL</Code> to verify any given data point by checking the orinating report it was pulled from.
-      </div>`,
+                  <p>A branch of FINRA, the Consolidated Audit Trail reports on errors in electronic market transactions. Most of the data is not publicly disseminated, but it does publish some of it on a monthly basis, in the form of a PDF slideshow.</p>
+                  <p>
+                  <p>Spotlight scans for new releases of these reports, scrapes the tables from the PDFs and loads them to the database which is represented in real-time by these dashboards.</p>
+                </div>
+      `,
     },
     {
       key: "source",
       title: "Source",
       content: `<div>
-          <p>You can view the code used to scrape the CAT monthly reports here: </p>
+          <p>As with all of Spotlight's curated datasets, a source URL column is available which will link you to the report that any given data point was pulled from, making the data easy to verify.
+          <p>You can also view the code used to scrape the CAT monthly reports here: </p>
           <p>
             <Code size="sm">github.com/jackgray/spotlight/main/producers</Code>
           </p>
@@ -37,7 +37,9 @@ The CAT reports on errors in electronic market transactions monthly, released as
           <ul>
             <li>Click on the left hand panel to filter ranges of dates which will apply to all charts.</li>
 
-            <li>Export the data to Excel or CSV by clicking the menue at the top right of any of the charts </li>
+            <li>Export the data to Excel or CSV by clicking the menu at the top right of any of the charts </li>
+
+            <li>You can also filter the data accross all charts by double clicking a column or value in the corresponding table. More filters will may be available in the left panel as well.
           </ul>
         </div>
       `
