@@ -1,4 +1,4 @@
-export default function LocalElectionsLayout({
+export default function BillsLayout({
   children,
 }: {
   children: React.ReactNode;

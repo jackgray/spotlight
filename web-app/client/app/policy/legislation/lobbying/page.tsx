@@ -3,15 +3,15 @@
 import { FC } from 'react';
 import { subtitle, title } from "@/components/primitives";
 
-const PoliticsPage: FC = () => {
+const LobbyingPage: FC = () => {
   return (
     <div className="flex flex-col h-full">
-      <h1 className={title()}>Policy Dashboard</h1>
+      <h1 className={title()}>Lobbying</h1>
       <br />
-      <h1 className={subtitle()}>Explore data related to policy and elections</h1>
+      {/* <h1 className={subtitle()}>Explore lobbying interests</h1> */}
       
     </div>
   );
 };
 
-export default PoliticsPage;
+export default LobbyingPage;

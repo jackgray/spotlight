@@ -1,5 +1,5 @@
 {
-	"name": "politicious-frontend",
+	"name": "govtrackr-frontend",
 	"version": "1.0.0",
 	"description": "Political tracking using React, GraphQL/Prisma, Next and Apollo",
 	"main": "index.js",

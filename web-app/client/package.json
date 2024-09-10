@@ -9,6 +9,7 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
+		"@clickhouse/client": "1.5.0",
 		"react-cv": "1.6.0",
 		"@nextui-org/button": "2.0.37",
 		"@nextui-org/card": "2.0.33",
@@ -26,6 +27,7 @@
 		"@nextui-org/system": "2.2.5",
 		"@nextui-org/tabs": "2.0.35",
 		"@nextui-org/theme": "2.2.9",
+		"@nextui-org/react": "2.4.6",
 		"@nextui-org/tooltip": "2.0.39",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",
@@ -33,13 +35,14 @@
 		"framer-motion": "~11.1.1",
 		"intl-messageformat": "^10.5.0",
 		"next": "14.2.4",
+		"next-pwa": "5.6.0",
 		"@next/env": "14.2.7",
 		"next-themes": "^0.2.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"@superset-ui/embedded-sdk": "0.1.0-alpha.12",
-		"markdown-to-jsx": "7.5.0",
-		"rehype-raw": "7.0.0",
+		"@superset-ui/switchboard": "0.18.26-2",
+		"@tailwindcss/typography":"0.5.15",
 		"axios": "1.7.4"
 	},
 	"devDependencies": {

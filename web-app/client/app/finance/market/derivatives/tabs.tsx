@@ -12,13 +12,7 @@ interface TabContent {
       key: "about",
       title: "About",
       content: `
-        This section will first focus on equity swap agreements, and then eventually provide other kinds of derivatives data.
-        \n\n
-        They are sourced from several swap data repositories, which are used by institutions based on a combination of preference and SEC regulation on the type of security being traded. 
-        \n\n
-        Equities data from the DTCC alone dating back to 2017 encompasses ~35 million records, which is only a small fraction of publicly disseminated derivatives trading data. Spotlight will need to upgrade its servers in order to host these datasets in their entirety. Stay tuned.
-        \n\n
-        Until then, these records are unverified and for demonstration purposes only. 
+       Swap agreements are reported to the exchange(s) that the underlying securities in the contract are traded on. The DTC holds repositories for SEC and CFTC regulated swaps. ICE also has swap data repositories with which institutions may satisfy their legal reporting requirement. For other types of contracts, Cboe, CME Group, and other exchanges host and disseminate swap aggreement records as well. 
       `,
     },
     {

@@ -17,3 +17,18 @@ module.exports = {
   darkMode: "class",
   plugins: [nextui()],
 }
+
+// module.exports = {
+//   theme: {
+//     extend: {
+//       colors: {
+//         // Define your black and white theme
+//         primary: '#000000',
+//         secondary: '#ffffff',
+//       }
+//     }
+//   },
+//   plugins: [
+//     require('@tailwindcss/typography'), // To apply the `prose` class
+//   ]
+// }

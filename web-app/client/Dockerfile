@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install && npm run build --legacy-peer-deps
+RUN npm install && npm run build
 
 # Production image
 FROM node:18-alpine AS runner

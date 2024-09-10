@@ -28,17 +28,22 @@ export const siteConfig: Config = {
     {
       label: "Finance",
       href: "/finance",
-      icon: "bank",
+      icon: "cash",
       dropdown: [
+        {
+          label: "Dashboard",
+          href: "/finance",
+          icon: "cash",
+        },
         {
           label: "Wall St.",
           href: "/finance/market",
-          icon: "stocks"
+          icon: "bank"
         },
         {
-          label: "Major Donors",
+          label: "Ultra Wealthy",
           href: "/finance/donations",
-          icon: "donation"
+          icon: "exclusive"
         },
       ]
     },
@@ -48,24 +53,14 @@ export const siteConfig: Config = {
       icon: "policy",
       dropdown: [
         {
+          label: "Dashboard",
+          href: "/policy",
+          icon: "policy",
+        },
+        {
           label: "Elections",
           href: "/policy/elections",
           icon: "ballot"
-        },
-        {
-          label: "Lobbying",
-          href: "/policy/lobbying",
-          icon: "wscale"
-        },
-        {
-          label: "Appropriations",
-          href: "/policy/spending",
-          icon: "moneyreport"
-        },
-        {
-          label: "Guns",
-          href: "/policy/guns",
-          icon: "pistol"
         },
         {
           label: "People",
@@ -73,34 +68,39 @@ export const siteConfig: Config = {
           icon: "activity"
         },
         {
-          label: "Bills",
-          href: "/policy/bills",
-          icon: "activity"
+          label: "Legislation",
+          href: "/policy/legislation",
+          icon: "legislation"
         }
       ]
     },
-    {
-      label: "Info",
-      href: "/info",
-      icon: "info",
-      dropdown: [
-        {
-          label: "Road Map",
-          href: "/info/roadmap",
-          icon: "todo"
-        },
-        {
-          label: "Who Made This",
-          href: "/info/creator",
-          icon: "lightbulb" 
-        },
-        {
-          label: "Donate",
-          href: "/info/donate",
-          icon: "donation"
-        },
-      ]
-    },
+    // {
+    //   label: "Info",
+    //   href: "/info",
+    //   icon: "info",
+    //   dropdown: [
+    //     {
+    //       label: "Info",
+    //       href: "/info",
+    //       icon: "info",
+    //     },
+    //     {
+    //       label: "Road Map",
+    //       href: "/info/roadmap",
+    //       icon: "todo"
+    //     },
+        // {
+        //   label: "Who Made This",
+        //   href: "/info/creator",
+        //   icon: "lightbulb" 
+        // },
+        // {
+        //   label: "Donate",
+        //   href: "/info/donate",
+        //   icon: "donation"
+        // },
+    //   ]
+    // },
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",
@@ -116,8 +116,13 @@ export const financeConfig = {
     {
       label: "Wall St.",
       href: "/finance/market",
-      icon: "stocks",
+      icon: "bank",
       dropdown: [
+        {
+          label: "Dashboard",
+          href: "/finance/market",
+          icon: "bank"
+        },
         {
           label: "CAT",
           href: "/finance/market/cat",
@@ -132,32 +137,27 @@ export const financeConfig = {
           label: "FTD",
           href: "/finance/market/ftd",
           icon: "late",
+        },
+        {
+          label: "Rule 605",
+          href: "/finance/market/rule605"
         }
       ]
     },
     {
-      label: "Appropriations",
-      href: "/finance/gov",
-      icon: "moneyreport"
-    },
-    {
-      label: "Campaign Finance",
-      href: "/finance/campaign",
-      icon: "ballot"
-    },
-    {
-      label: "Major Donors",
+      label: "Ultra Wealthy",
       href: "/finance/donations",
-      icon: "shadow",
+      icon: "exclusive",
       dropdown: [
         {
           label: "Crow Family",
           href: "/finance/donations/crow",
-          icon: "donation"
+          icon: "realestate"
         },
         {
           label: "Elon Musk",
           href: "/finance/donations/elon",
+          icon: "bolt"
         }
       ]
     },
@@ -176,11 +176,11 @@ export const financeConfig = {
           href: "/policy",
           icon: "policy"
         },
-        {
-          label: "Info",
-          href: "/info",
-          icon: "info"
-        },
+        // {
+        //   label: "Info",
+        //   href: "/info",
+        //   icon: "info"
+        // },
         {
           label: "Home",
           href: "/",
@@ -194,6 +194,193 @@ export const financeConfig = {
   },
 }
 
+
+export type PoliticsConfig = typeof politicsConfig;
+
+export const politicsConfig = {
+  name: "Spotlight",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
+  navItems: [
+    {
+      label: "Gov. Officials",
+      href: "/policy/people",
+      icon: "activity",
+    },
+    {
+      label: "Legislation",
+      href: "/policy/legislation",
+      icon: "activity",
+      dropdown: [
+        {
+          label: "Dashboard",
+          href: "/policy/legislation",
+        },
+        {
+          label: "Bills",
+          href: "/policy/legislation/bills",
+          icon: "legislation"
+        },
+        {
+          label: "Lobbying",
+          href: "/policy/legislation/lobbying",
+          icon: "wscale",
+        },
+      ]
+    },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy",
+          icon: "policy"
+        },
+        // {
+        //   label: "Info",
+        //   href: "/info",
+        //   icon: "info"
+        // },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
+    },
+  ],
+  links: {
+    github: "https://github.com/jackgray/spotlight",
+  },
+};
+
+export type LegislationConfig = typeof legislationConfig;
+
+export const legislationConfig = {
+  name: "Spotlight Politics",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
+  navItems: [
+    {
+      label: "Bills",
+      href: "/policy/legislation/bills",
+      icon: "activity"
+    },
+    {
+      label: "Lobbying",
+      href: "/policy/legislation/lobbying",
+      icon: "wscale",
+      dropdown: [
+        {
+          label: "Defense Industry",
+          href: "/policy/legislation/lobbying/defense",
+          icon: "jet"
+        }
+      ]
+    },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy/legislation",
+          icon: "legislation"
+        },
+        // {
+        //   label: "Info",
+        //   href: "/info",
+        //   icon: "info"
+        // },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
+    },
+  ],
+  links: {
+    github: "https://github.com/jackgray/spotlight",
+  },
+};
+
+
+export type LobbyingConfig = typeof lobbyingConfig;
+
+export const lobbyingConfig = {
+  name: "Spotlight Politics",
+  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
+  navItems: [
+    {
+      label: "Bills",
+      href: "/policy/legislation/bills",
+      icon: "activity"
+    },
+    {
+      label: "Lobbying",
+      href: "/policy/legislation/lobbying",
+      icon: "wscale",
+      dropdown: [
+        {
+          label: "Defense Industry",
+          href: "/policy/legislation/lobbying/defense",
+          icon: "jet"
+        },
+        {
+          label: "Gun & Rifle",
+          href: "/policy/legislation/lobbying/gunrifle",
+          icon: "pistol"
+        }
+      ]
+    },
+    {
+      label: "Back",
+      href: "/",
+      icon: "back",
+      dropdown:[
+        {
+          label: "Finance",
+          href: "/finance",
+          icon: "bank"
+        },
+        {
+          label: "Policy",
+          href: "/policy/legislation",
+          icon: "legislation"
+        },
+        // {
+        //   label: "Info",
+        //   href: "/info",
+        //   icon: "info"
+        // },
+        {
+          label: "Home",
+          href: "/",
+          icon: "activity"
+        }
+      ]
+    },
+  ],
+  links: {
+    github: "https://github.com/jackgray/spotlight",
+  },
+};
+
+
+
+
 export type InfoConfig = typeof infoConfig;
 
 export const infoConfig = {
@@ -205,18 +392,23 @@ export const infoConfig = {
       href: "/info/roadmap",
       icon: "todo"
     },
-    {
-      label: "Created By",
-      href: "/info/creator",
-      icon: "lightbulb",
-      dropdown: [
-        {
-          label: "Resume",
-          href: "/info/creator/resume",
-          icon: "resume"
-        }
-      ]
-    },
+    // {
+    //   label: "Created By",
+    //   href: "/info/creator",
+    //   icon: "lightbulb",
+    //   dropdown: [
+    //     {
+    //       label: "Bio",
+    //       href: "/info/creator",
+    //       icon: "lightbulb",
+    //     },
+    //     {
+    //       label: "Resume",
+    //       href: "/info/creator/resume",
+    //       icon: "resume"
+    //     }
+    //   ]
+    // },
     {
       label: "Donate",
       href: "/info/donate",
@@ -254,85 +446,3 @@ export const infoConfig = {
     github: "https://github.com/jackgray/spotlight",
   },
 }
-
-export type PoliticsConfig = typeof politicsConfig;
-
-export const politicsConfig = {
-  name: "Spotlight",
-  description: "Aggregations for hard to find data -> oversight for hard to catch crime.",
-  navItems: [
-    {
-      label: "Elections",
-      href: "/policy/elections",
-      icon: "ballot",
-      dropdown: [
-        {
-          label: "Local",
-          href: "/policy/elections/local"
-        }
-      ]
-    },
-    {
-      label: "Lobbying",
-      href: "/policy/lobbying",
-      icon: "wscale",
-      dropdown: [
-        {
-          label: "Defense Industry",
-          href: "/policy/lobbying/defense",
-          icon: "active"
-        }
-      ]
-    },
-    {
-      label: "Appropriations",
-      href: "/policy/spending",
-      icon: "moneyreport"
-    },
-    {
-      label: "Guns",
-      href: "/policy/guns",
-      icon: "pistol"
-    },
-    {
-      label: "People",
-      href: "/policy/people",
-      icon: "activity"
-    },
-    {
-      label: "Bills",
-      href: "/policy/bills",
-      icon: "activity"
-    },
-    {
-      label: "Back",
-      href: "/",
-      icon: "back",
-      dropdown:[
-        {
-          label: "Finance",
-          href: "/finance",
-          icon: "bank"
-        },
-        {
-          label: "Policy",
-          href: "/policy",
-          icon: "policy"
-        },
-        {
-          label: "Information",
-          href: "/info",
-          icon: "info"
-        },
-        {
-          label: "Home",
-          href: "/",
-          icon: "activity"
-        }
-      ]
-    },
-  ],
-  links: {
-    github: "https://github.com/jackgray/spotlight",
-  },
-};

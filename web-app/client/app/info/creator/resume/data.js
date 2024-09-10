@@ -2,7 +2,7 @@
 export const CVData = {
     personalData: {
       name: 'Jack Gray',
-      title: 'Full Stack Data Platform Engineer',
+      title: 'Full Stack / Data Platform Engineer',
       contacts: [
         { type: 'email', value: 'contact@jackgray.nyc' },
         { type: 'phone', value: '929-409-5452' },
@@ -15,7 +15,7 @@ export const CVData = {
     sections: [
       {
         type: 'text',
-        title: 'TL;DR',
+        title: 'Bio',
         content: `
 I use technology as an expressive device to confront the issues that I care about. It allows me to convert my negative energy from society's ailments into constructive learning experiences and hopes of making meaningful contributions to whatever cause I'm focusing on.
 My experience spans a wide range of container-based data infrastructure and application designs, enabling me to address diverse challenges, and bridge the gap between academic research science and modern data strategies and platform designs in a clinical research context. 
@@ -23,10 +23,11 @@ My experience spans a wide range of container-based data infrastructure and appl
 I thrive in environments where understanding the interplay of complex systems is crucial, and a creative and thoughtful approach to solution design is valued over rapid implementation.
 While my professional focus for nearly a decade has been based in clinical psych research, I've maintained a growing personal interest in policy and financial markets, the mechanisms that drive them, and the extent to which they are shaped or manipulated by personal interests and abuse of power. 
 This was the essence behind my motivation to become proficient in web app design--to be able to single handedly actualize the solutions I imagined for the world's problems. 
-Data drives policy and culture. And technology affects how people interact with it and each other. My mission is to leverage as many of my assets as possible to create tools that with the potential to affect the change I wish to see.
-The culmination of much of my studies in data engineering, infrastructure, and React development from the past 8 years is evident in my project, <a href=github.com/jackgray/spotlight'>Spotlight</a> a bespoke platform for aggregating and distributing regulatory and oversight-focused datasets, encompassing of infrastructure code and architectural designs.
+Data drives policy and culture. And technology affects how people interact with it and each other. My mission is to leverage as many of my assets as possible to create tools that could affect the change I wish to see.
+The culmination of much of my studies in data engineering, infrastructure, and React development from the past 8 years is presented in my project, <a href=github.com/jackgray/spotlight'>Spotlight</a>, 
+a bespoke platform for aggregating and distributing regulatory and oversight-focused datasets, encompassing of architectural designs, infrastructure code, and hardware to host client applications, big data, and processing pipelines in a distributed, scalable, and highly available environment.
         `,
-        icon: 'usertie'
+        icon: ' usertie'
       },
       {
         type: 'common-list',
@@ -100,7 +101,7 @@ The culmination of much of my studies in data engineering, infrastructure, and R
       {
         type: 'projects-list',
         title: 'Projects',
-        description: 'Some projects I mostly use as a learning canvas, but I hope will someday become into useful tools.',
+        description: 'I mostly use my projects as a learning canvas, but hope one or two will someday become into useful tools.',
         icon: 'tasks',
         groups: [
           {
@@ -146,13 +147,13 @@ The culmination of much of my studies in data engineering, infrastructure, and R
         type: 'tag-list',
         title: 'Skills Proficiency',
         icon: 'rocket',
-        items: ['Python','SQL', 'OLAP/OLTP', 'Linux/Bash', 'ETL/ELT', 'Docker', 'AWS', 'Azure', 'Terraform', 'Apache Superset', 'DAG Scheduling', 'Elastic Stack', 'S3', 'Clickhouse', 'Distributed System Design', 'React', 'Javascript', 'Next.js', 'GraphQL', 'REST', 'Experimental Design', 'Neuroanalysis', 'fMRIPrep', 'DICOM/nifti formats', 'BIDS', 'ePrime/jsPsych']
+        items: ['Python','SQL', 'OLAP/OLTP', 'Linux/Bash', 'ETL/ELT', 'Docker', 'AWS', 'Azure', 'Terraform', 'Clickhouse', 'Apache Superset', 'Kafka',  'DAG Scheduling', 'Elastic Stack', 'S3', 'Clickhouse', 'Distributed System Design', 'React', 'Javascript', 'Next.js', 'GraphQL', 'REST', 'Experimental Design', 'Neuroanalysis', 'fMRIPrep', 'DICOM/nifti formats', 'BIDS', 'ePrime/jsPsych']
       },
       {
         type: 'tag-list',
         title: 'Hobbies & Interests',
         icon: 'cubes',
-        items: ['Music', 'Home Lab/Home Automation', 'Animal Rescue', 'Financial Market Transparency', 'Mental Health Research/Tech']
+        items: ['Web3', 'Music', 'Home Lab/Home Automation', 'Animal Rescue', 'Financial Market Transparency', 'Mental Health Research/Tech']
       }
     ]
   }

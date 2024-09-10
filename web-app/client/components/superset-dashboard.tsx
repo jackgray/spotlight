@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import { Switchboard } from "@superset-ui/switchboard";
 import { embedDashboard } from "@superset-ui/embedded-sdk";
 
 
@@ -92,7 +93,7 @@ const SupersetDashboard = ({
             mountPoint: mountPoint,
             fetchGuestToken: () => guestToken,
             dashboardUiConfig: {
-              hideTitle: false,
+              hideTitle: true,
               hideChartControls: false,
               hideTab: false,
               filters: {

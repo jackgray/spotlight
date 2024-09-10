@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
+
+
+
+const runtimeCaching = require('next-pwa/cache');
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  runtimeCaching
+})
+
 const nextConfig = {}
 
-module.exports = nextConfig
+module.exports = withPWA(nextConfig)
+
+
+
 
 // next.config.js
 // module.exports = {

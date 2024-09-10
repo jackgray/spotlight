@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import { subtitle, title } from "@/components/primitives";
-import SupersetDashboard from "@/components/superset-dashboard"; // Make sure the path is correct
+import SupersetDashboard from "@/components/superset-dashboard";
 import { supersetConfig } from "@/lib/envConfig";
 import InfoPopover from '@/components/InfoPopover';
 import DescriptionBox from '@/components/DescriptionBox';

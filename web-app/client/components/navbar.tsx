@@ -14,6 +14,7 @@ import { Button } from '@nextui-org/button';
 import { Kbd } from '@nextui-org/kbd';
 import { Link } from '@nextui-org/link';
 import { Input } from '@nextui-org/input';
+import { ScrollShadow } from '@nextui-org/scroll-shadow'
 import { link as linkStyles } from '@nextui-org/theme';
 import NextLink from 'next/link';
 import clsx from 'clsx';
@@ -32,8 +33,8 @@ import {
   SearchIcon,
   Logo,
 } from '@/components/icons';
-import { politicsConfig, financeConfig, infoConfig, siteConfig } from '@/config/site';
-import { usePathname } from 'next/navigation';
+import { politicsConfig, financeConfig, infoConfig, siteConfig, legislationConfig } from '@/config/site';
+import { usePathname, useRouter } from 'next/navigation';
 import { SubNavbar } from '@/components/subNavbar';
 import { title } from '@/components/primitives';
 import { RenderIcon } from '@/components/renderIcon';
@@ -55,17 +56,21 @@ const isDropdownNavItem = (item: NavItem): item is DropdownNavItem => {
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [activeNavItem, setActiveNavItem] = useState<NavItem | undefined>(undefined);
 
+  // Change the config of the navbar based on the current page
   const getConfig = () => {
-    if (pathname.startsWith('/finance')) {
-      return financeConfig;
-    } else if (pathname.startsWith('/policy')) {
+    if (pathname.startsWith('/policy/legislation/')) {
       return politicsConfig;
-    } else if (pathname.startsWith('/info')) {
+    } else if (pathname.startsWith('/info/')) {
       return infoConfig;
+    } else if (pathname.startsWith('/finance/')) {
+      return financeConfig;
+    } else if (pathname.startsWith('/policy/')) {
+      return legislationConfig;
     } else {
-      return siteConfig;
+        return siteConfig;
     }
   };
 
@@ -144,7 +149,7 @@ export const Navbar = () => {
                         </DropdownMenu>
                       </Dropdown>
                     ) : (
-                      <span>{subItem.label}</span>
+                      <Link href={subItem.href}>{subItem.label}</Link>
                     )}
                   </DropdownItem>
                 ))}
@@ -179,24 +184,70 @@ export const Navbar = () => {
   
   // Render each navigation item
   const renderNavItem = (item: DropdownNavItem) => {
+    // const router = useRouter();
     return (
       <Dropdown key={item.href}>
-        <DropdownTrigger>
-          <Button variant="light" className="flex items-center flex-shrink-0">
-            {item.icon && <RenderIcon name={item.icon} className="mr-2" />}
-            <span className="hidden sm:inline truncate">{item.label}</span>
-          </Button>
-        </DropdownTrigger>
+        <NavbarItem className="flex-shrink-0">
+          <DropdownTrigger>
+            <Button
+              variant="light"
+              className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent"
+              radius="sm"
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                minWidth: '0', // Allows button to shrink below its default width
+                flexShrink: 1, // Ensures button can shrink if needed
+                gap: '0', // Removes gap between icon and text
+                padding: '0'
+              }}
+              onPress={() => {if (!item.dropdown) { router.push(item.href)}}}
+            >
+              {item.icon && <RenderIcon name={item.icon} />}
+              <span className="hidden sm:inline truncate ml-1">{item.label}</span>
+            </Button>
+          </DropdownTrigger>
+        </NavbarItem>
         {item.dropdown && renderDropdownMenu(item.dropdown, `${item.label} Menu`)}
       </Dropdown>
     );
   };
 
+    const renderMenuItem = (item: DropdownNavItem) => {
+      // const router = useRouter();
+      return (
+        <Dropdown key={item.href}>
+          <NavbarItem className="flex-shrink-0">
+            <DropdownTrigger>
+              <Button
+                variant="light"
+                className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent"
+                radius="sm"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  minWidth: '0', 
+                  flexShrink: 1, 
+                  gap: '0', 
+                  padding: '0'
+                }}
+                onPress={() => {if (!item.dropdown) { router.push(item.href)}}}
+              >
+                {item.icon && <RenderIcon name={item.icon} />}
+                <span>{item.label}</span>
+              </Button>
+            </DropdownTrigger>
+          </NavbarItem>
+          {item.dropdown && renderDropdownMenu(item.dropdown, `${item.label} Menu`)}
+        </Dropdown>
+      );
+    };
+
   return (
     <>
       <NextUINavbar 
         isBordered
-        className="flex-nowrap"
+        className="w-full"
         classNames={{
           item: [
             "flex",
@@ -216,52 +267,72 @@ export const Navbar = () => {
           ],
         }}
       >
-        <NavbarContent className="basis-1/5 sm:basis-full flex justify-start flex-shrink-0">
-          {/* <div onMouseMove={handleMouseMove} style={{ overflow: 'hidden' }}> */}
-            {/* <div style={maskStyle}> */}
-              <NextLink
-                className="flex justify-start items-center gap-1"
-                href="/"
-                passHref
-              >
-                <Link>
-                  <h1 className={title({ color: 'goldToPurple' })} style={{ margin: 0, padding: 0 }}>
-                    Sp&nbsp;
-                  </h1>
-                  <Logo />
-                  <h1 className={title({ color: 'purpleToGold' })} style={{ margin: 0, padding: 0 }}>
-                    &nbsp;t
-                  </h1>
-                  <h1 className={title({ color: 'pastelOrangeYellow' })}>
-                    &nbsp;Light
-                  </h1>
-                </Link>
-              </NextLink>
+        <ScrollShadow orientation="horizontal" className="w-full max-w-full pl-2 max-h-[1300px]">
+
+          <NavbarContent className="basis-1/5 sm:basis-full flex justify-start flex-shrink-0">
+            {/* <div onMouseMove={handleMouseMove} style={{ overflow: 'hidden' }}> */}
+              {/* <div style={maskStyle}> */}
+                <NextLink
+                  className="flex justify-start items-center gap-1 mr-2"
+                  href="/"
+                  passHref
+                >
+                  <Link>
+                    <h1 className={title()} style={{ margin: 0, padding: 0 }}>
+                      Spotlight
+                    </h1>
+                    {/* <h1 className={title({ color: 'pastelYellowOrange' }) }>
+                      light
+                    </h1> */}
+                  </Link>
+                </NextLink>
+              {/* </div> */}
             {/* </div> */}
-          {/* </div> */}
-          <ul className="flex gap-4 justify-start ml-2 whitespace-nowrap overflow-x-auto max-w-[430px] sm:max-w-none">
-            {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
-          </ul>
-        </NavbarContent>
-        <NavbarContent className="basis-1 pl-1" justify="end">
+              <ul className="flex gap-4 justify-start ml-4 whitespace-nowrap overflow-x-auto max-w-[1430px] sm:max-w-none overflow-y-hidden">
+                {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
+              </ul>
+
+          </NavbarContent>
+        </ScrollShadow>
+        {/* <NavbarContent className="basis-1" justify="end">
+          <Button
+            variant="light"
+            className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent justify-end"
+            radius="sm"
+            onPress={() => {router.back()}}
+          >
+            <RenderIcon name='back'/>
+          </Button>
+          <Button
+            variant="light"
+            className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent"
+            radius="sm"
+            onPress={() => {router.forward()}}
+          >
+            <RenderIcon name='forward'/>
+          </Button>
+        </NavbarContent> */}
+        <NavbarContent className="basis-1" justify="end">
           <Link isExternal aria-label="Github" href={config.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>
           <ThemeSwitch />
           <NavbarMenuToggle className="block" />
         </NavbarContent>
-        <NavbarMenu>
+        <NavbarMenu className="w-1/2 ml-auto flex">
           {searchInput}
           <div className="mx-4 mt-2 flex flex-col gap-2">
             {config.navItems.map((item) => (
               <NavbarMenuItem key={item.href}>
-                {renderNavItem(item)}
+                {renderMenuItem(item)}
               </NavbarMenuItem>
             ))}
           </div>
         </NavbarMenu>
       </NextUINavbar>
-      <SubNavbar activeNavItem={activeNavItem} />
+      <ScrollShadow orientation="horizontal" className="w-full max-w-full pl-2 max-h-[1300px]">
+        <SubNavbar activeNavItem={activeNavItem} />
+      </ScrollShadow>
     </>
   );
 };

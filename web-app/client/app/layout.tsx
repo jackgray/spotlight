@@ -34,7 +34,11 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
@@ -42,9 +46,9 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen overflow-x-hidden">
             <Navbar />
-            <main className="flex-grow container mx-auto px-6 pt-6">
+            <main className="flex-grow container mx-auto px-1 pt-1">
               {children}
             </main>
             {/* <footer className="w-full flex items-center justify-center py-3">

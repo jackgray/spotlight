@@ -1,4 +1,3 @@
-// app/financial-data/page.tsx
 
 import { FC } from 'react';
 import { subtitle, title } from "@/components/primitives";
