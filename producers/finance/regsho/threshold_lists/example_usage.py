@@ -1,7 +1,7 @@
 import pandas as pd
 # import seaborn as sns
 # import matplotlib.pyplot as plt
-from main import pull_all
+from main import main
 
 
 # data_sources = ['nasdaq', 'finra', 'nyse', 'cboe']
@@ -11,7 +11,7 @@ data_sources = ['nasdaq', 'nyse', 'cboe']
 # GATHER ZEE DATA
 ###################
 
-pull_all(start_date='20080101', end_date='20100101', data_sources=data_sources)
+main(start_date='20080101', end_date='20100101', data_sources=data_sources)
 
 # merge_tables()
 

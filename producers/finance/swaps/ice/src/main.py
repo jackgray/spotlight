@@ -5,6 +5,12 @@ import asyncio
 from spotlight_utils.main import get_token, create_table_from_dict, generate_datestrings, fetch_with_adaptive_concurrency
 from config import ice_source_schema as schema_dict
 
+''' 
+Usage:
+
+python3.11 main.py. --start_date '20200101' --end_date 'today' --table_name 'Swaps_ICE_source_sept1'
+
+'''
 
 
 
@@ -13,41 +19,20 @@ async def main(start_date='yesterday', end_date='today', schema_dict=schema_dict
     
     if token is None: # Get token if it wasn't provided
         token = await get_token("https://tradevault.ice.com/tvsec/ticker/webpi/getToken")
-        print("Got token ", token)
+    
     datestrings = generate_datestrings(start_date=start_date, end_date=end_date)
     urls = [f'https://tradevault.ice.com/tvsec/ticker/webpi/exportTicks?date={datestring[:4]}-{datestring[4:6]}-{datestring[6:8]}' for datestring in datestrings]
 
 
     create_table_from_dict(schema_dict=schema_dict, table_name=table_name, key_col='_Record_ID')   # Create staging table
 
-    if spark:
-        conf = SparkConf().setAppName("FetchAndLoadZippedCSV").setMaster("local[*]")
-        sc = SparkContext(conf=conf)
-        spark = SparkSession(sc)
-
-        # Convert the list of URLs into an RDD
-        urls_rdd = sc.parallelize(urls)
-
-        results = urls_rdd.map(lambda url: fetch_and_load_csv(
-            url=url,    # Apply the fetch_and_load_zipped_csv function to each URL
-            token=token,
-            table_name=table_name, 
-            chunk_size=100000, 
-            ch_settings=None, 
-            transform_func=transform_df  # Or pass your custom transformation function
-        )).collect()
-
-        # Sum up the total rows processed
-        total_rows = sum(results)
-        print(f"Total rows processed across all URLs: {total_rows}")
-    else:
-        await fetch_with_adaptive_concurrency(
-            urls=urls,
-            token=token,
-            table_name=table_name,
-            chunk_size=100000,
-            transform_func=transform_df
-        )
+    await fetch_with_adaptive_concurrency(
+        urls=urls,
+        token=token,
+        table_name=table_name,
+        chunk_size=100000,
+        transform_func=transform_df
+    )
 
 
 
@@ -125,15 +110,6 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    if args.spark == True:
-        run (help)
 
-    else:
-        asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))
+    asyncio.run(main(start_date=args.start_date, end_date=args.end_date, token=args.token, table_name=args.table_name))
 
-''' 
-Usage:
-
-python3.11 main.py. --start_date '20200101' --end_date 'today' --table_name 'Swaps_ICE_source_sept1'
-
-'''

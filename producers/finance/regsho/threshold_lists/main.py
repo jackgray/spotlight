@@ -1,22 +1,30 @@
 from datetime import datetime, timedelta
 import requests
+import re
 import pandas as pd
 import json
 from io import StringIO
-import duckdb
 from dotenv import load_dotenv
 from os import getenv
 from typing import Optional, Required, List, Union
-from datetime import datetime
 import time
 from clickhouse_connect import get_client as ch
 import re
+import argparse
+import asyncio
+from datetime import datetime
 
+from spotlight_utils.main import get_token, create_table_from_dict, generate_datestrings, fetch_with_adaptive_concurrency
     
     
 
 
-def main(start_date: str, end_date: str, data_sources):
+async def main(
+    start_date: Required[str] = 'yesterday', 
+    end_date: Required[str] = 'today', 
+    data_sources: List[str] = None, 
+    table_name: Required[str] = 'regsho_daily_source'):
+
     '''
     Grabs records by date for all data sources supplied
 
@@ -25,43 +33,63 @@ def main(start_date: str, end_date: str, data_sources):
     start_date/end_date; YYYYmmdd format
     '''
 
+    # if data_sources is None:
+    #     data_sources = ['cboe', 'finra', 'nasdaq', 'nyse']
+    data_sources=['nasdaq']
+
     dfs=[]
     for data_source in data_sources:
-        table_name = 'regsho_daily'          # Easily change the table naming convention
-        print(f"\n\n**** Pulling data from {data_source} for {datestring}")
+        print("Collecting data from ", data_source)
         try:
             if data_source == 'finra':
-                df = finra(start_date=start_date, end_date=end_date)
+                await finra(start_date=start_date, end_date=end_date, table_name=table_name+'_finra')
             elif data_source == 'cboe':
-                df = cboe(start_date=start_date, end_date=end_date)
+                await cboe(start_date=start_date, end_date=end_date, table_name=table_name+'_cboe')
             elif data_source == 'nasdaq':
-                df = nasdaq(start_date=start_date, end_date=end_date)
+                # create_table_from_dict(schema_dict=nasdaq_schema, table_name=table_name+'_nasdaq')
+                await nasdaq(start_date=start_date, end_date=end_date, table_name=table_name+'_nasdaq')
             elif data_source == 'nyse':
-                df = nyse(start_date=start_date, end_date=end_date)
+                await nyse(start_date=start_date, end_date=end_date, table_name=table_name+'_nyse')
             else:
                 print("\nERROR: No valid data source supplied\n\n")
                 return
-        except:
-            continue
+        except Exception as e:
+            print(e)
 
    
 
 
-def cboe(start_date='20240101', end_date='today'):
-    datestrings = generate_datestrings(start_date='20240101', end_date='today')
-    urls = [f'https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/{datestring}/csv' for f'{datestring[:4]}-{datestring[4:6]}-{datestring[6:8]}' in datestrings]
+async def cboe(
+    table_name: Required[str], 
+    start_date: Required[str] = 'yesterday', 
+    end_date: Required[str] = 'today'
+    ):
+
+    datestrings = generate_datestrings(start_date=start_date, end_date=end_date)
+    urls = [f'https://www.cboe.com/us/equities/market_statistics/reg_sho_threshold/{datestring}/csv' 
+        for datestring in [f'{ds[:4]}-{ds[4:6]}-{ds[6:8]}' for ds in datestrings]]
 
     await fetch_with_adaptive_concurrency(
         urls=urls,
         table_name=table_name,
         chunk_size=100000,
-        transform_func=clean_df
+        transform_func=None,
+        market='OTC',
+        data_source='Cboe'
     )
 
 
 
 
-def finra(datareq_type='data', group='otcmarket', dataset='thresholdlist', datestring='20240704', limit=1000) -> Optional[Union[List[dict], List]]:
+async def finra(
+    table_name: Required[str],
+    datareq_type: Required[str] = 'data', 
+    group: Required[str] = 'otcmarket', 
+    dataset: Required[str] = 'thresholdlist', 
+    start_date: Required[str] = 'yesterday',
+    end_date: Required[str] = 'today',
+    limit=1000) -> Optional[Union[List[dict], List]]:
+    
     """
     Query against FINRA Query API data from FINRA API for a specific date.
 
@@ -95,45 +123,53 @@ def finra(datareq_type='data', group='otcmarket', dataset='thresholdlist', dates
     if not token:
         print("\nToken for FINRA API could not be generated.")
         return
-
-    datestring = f'{datestring[:4]}-{datestring[4:6]}-{datestring[6:8]}' # this is faster than datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
-    urls=[]
-    for datestring in datestrings:
-        urls.append(f"https://api.finra.org/{datareq_type}/group/{group}/name/{dataset}")
+    
+    urls = [f"https://api.finra.org/{datareq_type}/group/{group}/name/{dataset}?date={ds[:4]}-{ds[4:6]}-{ds[6:8]}" 
+        for ds in datestrings]
    
     # response = requests.post(url, headers=headers, json=params)     # Note: the request type must be POST for filtering the query
-    datestrings = generate_datestrings(start_date='20240101', end_date='today')
-    urls = gen_urls(datestrings)
+    datestrings = generate_datestrings(start_date=start_date, end_date=end_date)
+
     await fetch_with_adaptive_concurrency(
         urls=urls,
         table_name=table_name,
         chunk_size=100000,
-        transform_func=clean_df,
-        params=params
+        transform_func=None,
+        params=params,
     )
 
 
 
 
-def nasdaq(start_date:str='20240101', end_date:str='today'):
+async def nasdaq(
+    table_name: Required[str],
+    start_date: Required[str] = 'yesterday', 
+    end_date: Required[str] = 'today'
+    ):
+
     ''' datestring must be in format YYYYmmdd '''
 
-    datestrings = generate_datestrings(start_date='20240101', end_date='today')
+    datestrings = generate_datestrings(start_date=start_date, end_date=end_date)
     
     urls = [f'http://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt' for date in datestrings]
 
     await fetch_with_adaptive_concurrency(
         urls=urls,
         table_name=table_name,
-        market='Nasdaq',
         chunk_size=100000,
-        transform_func=clean_df
+        transform_func=transform_df,
     )
 
 
 
 
-def nyse(start_date='20240101', end_date='today'):
+async def nyse(
+    table_name: Required[str],
+    start_date: Required = 'yesterday', 
+    end_date: Required = 'today',
+    markets: Required[list] = ['NYSE', 'NYSE%20Arca', 'NYSE%20American']
+    ):
+
     '''
         Grabs reg sho threshold list data from all NYSE markets (.self, American, and Arca)
 
@@ -141,126 +177,59 @@ def nyse(start_date='20240101', end_date='today'):
         start_date/end_date: the date range you want data for. YYYYmmdd
         markets: List of NYSE markets to search; any combination of ['NYSE', 'NYSE%20Arca', 'NYSE%20American']
     '''
-    if not markets:
-        markets = ['NYSE', 'NYSE%20Arca', 'NYSE%20American']
-        print("Setting markets to pull from:", markets)
+
     # NYSE has 3 Exchanges/TRFs that report FTDs: NYSE, NYSE American, and NYSE Arca
     # This collects records from all of them 
-    datestrings = generate_datestrings(start_date=20240101, end_date='today')
-    urls=[]
-    
-    for datestring in datestrings:
-        for market in markets:
-            date_format = '%d-%b-%Y'    # Format that the url query string expects
-            date = datetime.strptime(datestring, '%Y%m%d').strftime(date_format)
-            urls.append(f'https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate={date}&market={market}')
+    datestrings = generate_datestrings(start_date=start_date, end_date=end_date)
+    print(datestrings)
+    for market in markets:
+        # Generate the list of URLs for the current market
+        urls = [
+            f'https://www.nyse.com/api/regulatory/threshold-securities/download?selectedDate={datetime.strptime(datestring, "%Y%m%d").strftime("%d-%b-%Y")}&market={market}' 
+            for datestring in datestrings
+        ]
 
-
-    await fetch_with_adaptive_concurrency(
-        urls=urls,
-        table_name=table_name,
-        chunk_size=100000,
-        transform_func=clean_df,
-        market = market
-    )
+        # Fetch data with adaptive concurrency
+        await fetch_with_adaptive_concurrency(
+            urls=urls,
+            table_name=table_name,
+            chunk_size=100000,
+            transform_func=transform_df,
+        )
                
         
-
-
-
-def clean_df(df: pd.DataFrame, url: str, data_source='NYSE', market:str) -> pd.DataFrame:
-    '''
-    Field definitions:  
-    Nasdaq: https://www.nasdaqtrader.com/Trader.aspx?id=RegShoDefs
-    NYSE: follows the same schema :) (also I can't find a data dict for it)
-    FINRA: https://api.finra.org/metadata/group/otcMarket/name/thresholdListMock
-    '''
-
+def transform_df(df: pd.DataFrame, url: Required[str]):
+    print('\n\n\n\n\n\n\n\n\n\n')
     df = df.iloc[:-1]   # Remove the last line which is only datestring
-    df['Source URL'] = url
-    df['Market'] = market.replace('%20', ' ')
-    # df['Date'] = pd.to_datetime(datestring, format='%Y%m%d') #.strptime('%Y-%m-%d').   
-
-    acceptable_sources = ['nyse', 'nasdaq', 'finra']
-    if data_source.lower() == 'nyse':
-        df['Data Provider'] = 'NYSE'
-        # Make fields only provided by FINRA satisfy SQL dimension requirements
-        df['FINRA Rule 4320 Flag'] = ''
-        df['Rule 3210'] = ' '
-        df['Threshold List Flag'] = ' '
-    elif data_source.lower() == 'cboe':
-        df['Data Provider'] = 'Cboe'
-        df['Threshold List Flag'] = ' '
-        df['Reg SHO Threshold Flag'] = ' '
-        df['Rule 3210'] = ' '
-        df['FINRA Rule 4320 Flag'] = ' '
-        df['Market'] = 'BZX'
-        df['Market Category'] = ''
-        df.rename(columns={'CompanyName':'Security Name'}, inplace=True)
-        print("Changed cboe df ", df)
-    elif data_source.lower() == 'nasdaq':
-        df['Market'] = 'Nasdaq'
-        df['Data Provider'] = 'Nasdaq'
-        df['Threshold List Flag'] = ' '
-        df['FINRA Rule 4320 Flag'] = ' '
-    elif data_source.lower() == 'finra':    # Convert FINRA field names to NASDAQ/NYSE equivalents
-        df['Data Provider'] = 'FINRA'
-        df['Rule 3210'] = ' '
-        column_map = {
-            'tradeDate': 'Date',
-            'issueSymbolIdentifier': 'Symbol',
-            'issueName': 'Security Name',
-            'marketClassCode': 'Market Category',
-            'marketCategoryDescription': 'Market',
-            'thresholdListFlag': 'Threshold List Flag',
-            'regShoThresholdFlag': 'Reg SHO Threshold Flag',
-            'rule4320Flag': 'FINRA Rule 4320 Flag'
-        }
-
-        print(f"\nRenaming column names of df: {df.columns} \n according to this map: {column_map}")
-        df.rename(columns=column_map, inplace=True)
-        print(f"\nRename successful - new column names: {df.columns}")
-    else: 
-        print(f"\nReceived unknown data source value: {data_source}. Please use one of {acceptable_sources}")
-    
-
-    drop_cols = [col for col in ['Filler', 'Filler.1'] if col in df.columns]    # NYSE/NASDAQ put in 'Filler' columns but don't use them. I haven't learned why yet, but we don't need to carry them over rn.
-    df.drop(drop_cols, axis=1, inplace=True)    
-
-    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)   # Remove spaces to the right and left of all values
-
-    # Generate unique row ID programatically to avoid duplicate insertions
-    print("\nGenerating ID string from data_source + Symbol + Date + Market Category")
-    if len(df['Market Category'][0]) > 0:
-        market_tag = df['Market Category'].str.replace(' ', '').str.lower()
-    elif len(df['Market'][0])  > 0:
-        market_tag = df['Market'].str.replace(' ', '').str.lower()
-    else:
-        print('No market identifier for ID formatting, need more unique points to make ID')
+    if len(df) < 3:
         return
+    
+    df['col1'] = df['col1'].apply(lambda x: re.sub(r'[^a-zA-Z0-9\s]', '', str(x)))
 
-    datestring = df['Date'].dt.strftime('%Y%m%d')
 
-    df['ID'] = (data_source.lower() + df['Symbol'] + datestring + market_tag)
+    df['Source_Url'] = url
+    # df.drop(columns='Security Name')
+    # df2['Security_Symbol'] = df['Symbol']
 
-    df.reset_index(drop=True, inplace=True)    # drop the unecessary pandas index (which doesn't get inserted to duckdb)
+    # gen_id = df[]
+    df = df.applymap(lambda x: x.replace(', ', '').replace('(', '').replace('.','').replace('$','') if isinstance(x, str) else x)   # Remove invalid characters
 
-    schema_mapping = {
-        "ID": "str",
-        "Date": "datetime64[ns]",
-        "Symbol": "str",
-        "Security Name": "str",
-        "Market Category": "str",
-        "Market": "str",
-        "Reg SHO Threshold Flag": "str",
-        "Threshold List Flag": "str",
-        "FINRA Rule 4320 Flag": "str",
-        "Rule 3210": "str",
-        "Data Provider": "str",
-        "Source URL": "str"
-    }
-
-    df = df.astype({col: dtype for col, dtype in schema_mapping.items() if col in df.columns})     # Assert data types for any df columns that exist in schema_mapping
-    print("cleaned df:", df)
 
     return df
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Fetch and process CSV data from ICE US SDR.")
+    parser.add_argument('--start_date', type=str, default='20240101', help='Start date in YYYYMMDD format')
+    parser.add_argument('--end_date', type=str, default='today', help='End date in YYYYMMDD format (or "today")')
+    parser.add_argument('--table_name', type=str, default='regsho_daily_source', help='Table name for ClickHouse')
+    parser.add_argument('--data_sources', nargs='+', type=str, default=None, help='List of providers to request from. You may want to consider separating them into batches or single source per run. Must be input as a list inside []')
+
+    return parser.parse_args()
+
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    asyncio.run(main(start_date=args.start_date, end_date=args.end_date, table_name=args.table_name))
+

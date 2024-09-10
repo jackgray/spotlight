@@ -59,15 +59,18 @@ async def get_token(url: str) -> str:
 async def fetch_with_adaptive_concurrency(
         urls: List[str], 
         transform_func: Optional[TransformFunc],
+        sep: Optional[str] = ',',
         table_name: Optional[str] = None,
-        market: Optional[str]= None,
+        market: Optional[str] = None,
+        data_source: Optional[str] = None,
         token: Optional[str] = None, 
         chunk_size: int = 100000,
         ch_settings: Optional[dict] = ch_settings,  # Optional parameters should come after non-optional
     ) -> None:
 
     ''' Handle infinitely many fetches and maximize parallelism based on available resources '''
-    
+
+    print("Fetching table")
     def get_concurrency():
         cpu_usage = psutil.cpu_percent(interval=1)  # poll CPU usage
         memory_available = psutil.virtual_memory().available    # poll available memory
@@ -99,8 +102,10 @@ async def fetch_with_adaptive_concurrency(
                         ch_settings=ch_settings
                     )    
                 else:
+                    print('\n\nFetching and loading CSV')
                     await fetch_and_load_csv(
                         url=url, token=token, 
+                        sep=sep,
                         ch_settings=ch_settings, 
                         table_name=table_name, 
                         chunk_size=chunk_size, 
@@ -146,44 +151,58 @@ async def fetch_and_load_zipped_csv(
                     chunk_counter += len(df_chunk)
 
                 print(f"\nTotal rows processed: {chunk_counter}")
-
-
-@backoff.on_exception(backoff.expo, httpx.RequestError, max_tries=3)
+@backoff.on_exception(backoff.expo, httpx.RequestError, max_tries=1)
 async def fetch_and_load_csv(
         url: str, 
         table_name: str, 
-        token: str,
-        transform_func: Optional[TransformFunc],
+        token: Optional[str],
+        sep: Optional[str] = ',',  
+        transform_func: Optional[TransformFunc] = None,
         chunk_size: int = 100000,
         ch_settings: Optional[dict] = ch_settings,
     ) -> None:
 
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
-    logger.info("Fetching CSV from URL: %s with headers: %s", url, headers)
-    async with httpx.AsyncClient() as client:
+    headers = {"Authorization": f"Bearer {token}"} if token else {
+        "User-Agent": "curl/7.78.0",
+        "Accept": "text/csv, text/plain, */*"
+    }
 
+    async with httpx.AsyncClient() as client:
         try:
+            logger.info("Fetching file from URL: %s with headers: %s", url, headers)
             response = await client.get(url.strip(), headers=headers)
             response.raise_for_status()
 
-            if response.headers.get('content-type') == 'text/csv':
+            # Debugging: Print content type and content
+            content_type = response.headers.get('content-type')
+            logger.info("Content-Type: %s", content_type)
+            logger.info("Response content: %s", response.text[:500])  # Print first 500 chars for brevity
+
+            if content_type in ['text/csv', 'text/plain', 'text/plain;charset=utf-8']:
                 buffer = StringIO(response.text)
-                chunk_counter=0
-                chunk_iter = pd.read_csv(buffer, chunksize=chunk_size)
+                chunk_counter = 0
+                chunk_iter = pd.read_csv(buffer, sep=sep, chunksize=chunk_size)
                 for chunk in chunk_iter:
+
+                    # KAFKA PRODUCER FUNCTION  WILL GO HERE
+                    print(chunk)
                     if transform_func:
+                        print("Transforming...\n"
                         chunk = transform_func(chunk, url)
+                    print("Loading chunk into db: ", chunk)
+
+                    # this will be moved to Kafka consumer
                     await load_chunk_to_clickhouse(chunk, table_name, ch_settings)
                     chunk_counter += len(chunk)
                     logger.info(f"Processed chunk with {len(chunk)} rows")
 
                 logger.info(f"Total rows processed: {chunk_counter}")
             else:
-                logger.error("Expected CSV content but received: %s", response.headers.get('content-type'))
+                logger.error("Expected CSV or plain text content but received: %s", content_type)
         except httpx.RequestError as e:
-            # logger.error("Error fetching data from %s: %s", url, e)
-            # raise
-            pass
+            logger.error("Error fetching data from %s: %s", url, e)
+            raise
+
 
 async def fetch_and_process_pdf(
         url: str,
@@ -204,7 +223,7 @@ async def fetch_and_process_pdf(
                 if table is not None:
                     data.append(table)
         if transform_func:
-            await transform_func(data, url, market)   # Loads in the transform function
+            await transform_func(data, url, market, data_source)   # Loads in the transform function
             logger.info("Successfully loaded report to Clickhouse")
         else:
             logger.error(f"Missing required transform function. Exiting.")
@@ -235,7 +254,11 @@ async def load_chunk_to_clickhouse(df: pd.DataFrame, table_name: str, ch_setting
             print(f"Successfully inserted chunk {i+1}/{num_chunks}")
         except Exception as e:
             print(f"Error inserting chunk {i+1}/{num_chunks}: {e}")
-            exit()
+            try:
+                create_table_from_df(df=df, table_name=table_name, key_col=key_col, ch_settings=ch_settings)
+                ch_conn.insert_df(table_name, chunk)
+            except Exception as e:
+                exit()
 
     print("\nSuccessfully inserted all chunks for this segment")
 
@@ -244,7 +267,7 @@ async def load_chunk_to_clickhouse(df: pd.DataFrame, table_name: str, ch_setting
 """ ***************************************** """
 """              GET DATESTRINGS              """
 """ ***************************************** """
-def generate_datestrings(start_date='20190101', end_date='today') -> Required[str]:
+def generate_datestrings(start_date: Required[str] = 'yesterday', end_date: Required[str] = 'today') -> Required[str]:
     '''
     Generates list of datestrings to supply to URL build parameters for API call
 
@@ -326,7 +349,7 @@ def diff_schema(table1, table2, ch_settings):
 
 def col_txfm(col):
     ''' Converts dashes slashes and spaces to underscores and all words capitalized '''
-    return '_'.join([part.capitalize() for part in col.replace(' ', '_').replace('_-_','_').replace('-','_').replace('/','_').split('_')])
+    return '_'.join([part for part in col.replace(' ', '_').replace('_-_','_').replace('-','_').replace('/','_').split('_')])
 
 
 
