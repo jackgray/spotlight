@@ -63,44 +63,55 @@ export const siteConfig: Config = {
           icon: "ballot"
         },
         {
-          label: "People",
+          label: "Gov. Officials",
           href: "/policy/people",
-          icon: "activity"
+          icon: "politician"
         },
         {
           label: "Legislation",
           href: "/policy/legislation",
-          icon: "legislation"
+          icon: "gavel"
         }
       ]
     },
-    // {
-    //   label: "Info",
-    //   href: "/info",
-    //   icon: "info",
-    //   dropdown: [
-    //     {
-    //       label: "Info",
-    //       href: "/info",
-    //       icon: "info",
-    //     },
-    //     {
-    //       label: "Road Map",
-    //       href: "/info/roadmap",
-    //       icon: "todo"
-    //     },
-        // {
-        //   label: "Who Made This",
-        //   href: "/info/creator",
-        //   icon: "lightbulb" 
+    {
+      label: "Info",
+      href: "/info",
+      icon: "info",
+      dropdown: [
+        {
+          label: "Dashboard",
+          href: "/info",
+          icon: "info",
+        },
+        {
+          label: "Data",
+          href: "/info/data",
+          icon: "activity"
+        },
+        {
+          label: "Design",
+          href: "/info/design",
+          icon: "activity"
+        }
+      //   },
+      //   {
+      //     label: "Road Map",
+      //     href: "/info/roadmap",
+      //     icon: "todo"
+      //   },
+      //   {
+      //     label: "Who Made This",
+      //     href: "/info/creator",
+      //     icon: "lightbulb" 
+      //   },
+      //   {
+      //     label: "Donate",
+      //     href: "/info/donate",
+      //     icon: "donation"
         // },
-        // {
-        //   label: "Donate",
-        //   href: "/info/donate",
-        //   icon: "donation"
-        // },
-    //   ]
-    // },
+      ]
+    },
   ],
   links: {
     github: "https://github.com/jackgray/spotlight",
@@ -129,7 +140,7 @@ export const financeConfig = {
           icon: "cat"
         },
         {
-          label: "Swaps",
+          label: "Derivatives",
           href: "/finance/market/derivatives",
           icon: "swap",
         },
@@ -140,7 +151,8 @@ export const financeConfig = {
         },
         {
           label: "Rule 605",
-          href: "/finance/market/rule605"
+          href: "/finance/market/rule605",
+          icon: "receipt"
         }
       ]
     },
@@ -149,6 +161,11 @@ export const financeConfig = {
       href: "/finance/donations",
       icon: "exclusive",
       dropdown: [
+        {
+          label: "Dashboard",
+          href: "/finance/donations",
+          icon: "exclusive",
+        },
         {
           label: "Crow Family",
           href: "/finance/donations/crow",
@@ -162,29 +179,29 @@ export const financeConfig = {
       ]
     },
     {
-      label: "Back",
+      label: "",
       href: "/",
       icon: "back",
       dropdown:[
         {
           label: "Finance",
           href: "/finance",
-          icon: "bank"
+          icon: "cash"
         },
         {
           label: "Policy",
           href: "/policy",
           icon: "policy"
         },
-        // {
-        //   label: "Info",
-        //   href: "/info",
-        //   icon: "info"
-        // },
+        {
+          label: "Info",
+          href: "/info",
+          icon: "info"
+        },
         {
           label: "Home",
           href: "/",
-          icon: "activity"
+          icon: "home"
         }
       ]
     },
@@ -204,16 +221,17 @@ export const politicsConfig = {
     {
       label: "Gov. Officials",
       href: "/policy/people",
-      icon: "activity",
+      icon: "politician",
     },
     {
       label: "Legislation",
       href: "/policy/legislation",
-      icon: "activity",
+      icon: "gavel",
       dropdown: [
         {
           label: "Dashboard",
           href: "/policy/legislation",
+          icon: "gavel"
         },
         {
           label: "Bills",
@@ -228,14 +246,14 @@ export const politicsConfig = {
       ]
     },
     {
-      label: "Back",
+      label: "",
       href: "/",
       icon: "back",
       dropdown:[
         {
           label: "Finance",
           href: "/finance",
-          icon: "bank"
+          icon: "cash"
         },
         {
           label: "Policy",
@@ -250,7 +268,7 @@ export const politicsConfig = {
         {
           label: "Home",
           href: "/",
-          icon: "activity"
+          icon: "home"
         }
       ]
     },
@@ -269,13 +287,18 @@ export const legislationConfig = {
     {
       label: "Bills",
       href: "/policy/legislation/bills",
-      icon: "activity"
+      icon: "legislation"
     },
     {
       label: "Lobbying",
       href: "/policy/legislation/lobbying",
       icon: "wscale",
       dropdown: [
+        {
+          label: "Lobbying Dashboard",
+          href: "/policy/legislation/lobbying",
+          icon: "wscale"
+        },
         {
           label: "Defense Industry",
           href: "/policy/legislation/lobbying/defense",
@@ -284,19 +307,34 @@ export const legislationConfig = {
       ]
     },
     {
-      label: "Back",
+      label: "Gov. Officials",
+      href: "/policy/people",
+      icon: "politician"
+    },
+    {
+      label: "",
       href: "/",
       icon: "back",
       dropdown:[
         {
           label: "Finance",
           href: "/finance",
-          icon: "bank"
+          icon: "cash"
         },
         {
-          label: "Policy",
+          label: "Legislation",
           href: "/policy/legislation",
-          icon: "legislation"
+          icon: "gavel"
+        },
+        {
+          label: "Elections",
+          href: "/policy/elections",
+          icon: "ballot"
+        },
+        {
+          label: "Gov. Officials",
+          href: "/policy/people",
+          icon: "politician"
         },
         // {
         //   label: "Info",
@@ -306,7 +344,7 @@ export const legislationConfig = {
         {
           label: "Home",
           href: "/",
-          icon: "activity"
+          icon: "home"
         }
       ]
     },
@@ -326,7 +364,7 @@ export const lobbyingConfig = {
     {
       label: "Bills",
       href: "/policy/legislation/bills",
-      icon: "activity"
+      icon: "legislation"
     },
     {
       label: "Lobbying",
@@ -334,41 +372,56 @@ export const lobbyingConfig = {
       icon: "wscale",
       dropdown: [
         {
+          label: "Dashboard",
+          href: "/policy/legislation/lobbying",
+          icon: "wscale"
+        },
+        {
           label: "Defense Industry",
           href: "/policy/legislation/lobbying/defense",
           icon: "jet"
         },
         {
-          label: "Gun & Rifle",
-          href: "/policy/legislation/lobbying/gunrifle",
+          label: "NRA",
+          href: "/policy/legislation/lobbying/nra",
           icon: "pistol"
+        },
+        {
+          label: "Finance",
+          href: "/policy/legislation/lobbying/finance",
+          icon: "cash"
         }
       ]
     },
     {
-      label: "Back",
+      label: "",
       href: "/",
       icon: "back",
       dropdown:[
         {
-          label: "Finance",
-          href: "/finance",
-          icon: "bank"
+          label: "Gov. Officials",
+          href: "/policy/people",
+          icon: "cash"
         },
         {
-          label: "Policy",
+          label: "Legislation",
           href: "/policy/legislation",
-          icon: "legislation"
+          icon: "policy"
         },
-        // {
-        //   label: "Info",
-        //   href: "/info",
-        //   icon: "info"
-        // },
+        {
+          label: "Elections",
+          href: "/policy/elections",
+          icon: "ballot"
+        },
+        {
+          label: "Info",
+          href: "/info",
+          icon: "info"
+        },
         {
           label: "Home",
           href: "/",
-          icon: "activity"
+          icon: "home"
         }
       ]
     },
@@ -390,7 +443,7 @@ export const infoConfig = {
     {
       label: "Roadmap",
       href: "/info/roadmap",
-      icon: "todo"
+      icon: "map"
     },
     // {
     //   label: "Created By",
@@ -415,14 +468,14 @@ export const infoConfig = {
       icon: "donation"
     },
     {
-      label: "Back",
+      label: "",
       href: "/",
       icon: "back",
       dropdown:[
         {
           label: "Finance",
           href: "/finance",
-          icon: "bank"
+          icon: "cash"
         },
         {
           label: "Policy",
@@ -437,7 +490,7 @@ export const infoConfig = {
         {
           label: "Home",
           href: "/",
-          icon: "activity"
+          icon: "home"
         }
       ]
     },

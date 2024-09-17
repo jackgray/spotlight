@@ -37,7 +37,12 @@ import {
   Exclusive,
   RealEstate,
   Jet,
-  Legislation
+  Legislation,
+  Gavel,
+  Home,
+  Politician,
+  Spotlight,
+  Receipt
 } from '@/components/icons';
 
 interface IconProps {
@@ -79,7 +84,12 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   exclusive: Exclusive,
   realestate: RealEstate,
   jet: Jet,
-  legislation: Legislation
+  legislation: Legislation,
+  gavel: Gavel,
+  home: Home,
+  politician: Politician,
+  spotlight: Spotlight,
+  receipt: Receipt
 };
 
 export const RenderIcon: React.FC<IconProps> = ({ name, className = '' }) => {

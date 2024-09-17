@@ -28,7 +28,7 @@ You can view the code used to scrape the swap data repositories of the DTC, ICE,
       content: `
 Click on the left hand panel to filter ranges of dates which will apply to all charts.
 
-Export the data to Excel or CSV by clicking the menue at the top right of any of the charts
+Export the data to Excel or CSV by clicking the menu at the top right of any of the charts
       `
     }
   ];

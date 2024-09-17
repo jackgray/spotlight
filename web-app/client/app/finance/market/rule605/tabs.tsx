@@ -14,7 +14,7 @@ interface TabContent {
       content: `<div>
                   <p>Rule 605 requires broker-dealers to release monthly statistical reports on trade transations, like the amount of time between an order was place and when it was executed, and how much the price of the stock changed within that time.</p>
                   <p>
-                  <p>Spotlight scans for new releases of these reports and loads them into its database which is represented in real-time by these dashboards.</p>
+                  <p>Be aware these metrics aren't normalized to the trading volume for a given security, and that there is a gap for 2022-2023 due to source formatting problems.</p>
                 </div>
       `,
     },

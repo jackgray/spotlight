@@ -16,6 +16,7 @@ import { Link } from '@nextui-org/link';
 import { Input } from '@nextui-org/input';
 import { ScrollShadow } from '@nextui-org/scroll-shadow'
 import { link as linkStyles } from '@nextui-org/theme';
+import { Tooltip } from '@nextui-org/tooltip';
 import NextLink from 'next/link';
 import clsx from 'clsx';
 import {
@@ -32,8 +33,17 @@ import {
   HeartFilledIcon,
   SearchIcon,
   Logo,
+  Spotlight
 } from '@/components/icons';
-import { politicsConfig, financeConfig, infoConfig, siteConfig, legislationConfig } from '@/config/site';
+import { 
+  politicsConfig, 
+  financeConfig, 
+  infoConfig, 
+  siteConfig, 
+  legislationConfig,
+  lobbyingConfig
+ } from '@/config/site';
+
 import { usePathname, useRouter } from 'next/navigation';
 import { SubNavbar } from '@/components/subNavbar';
 import { title } from '@/components/primitives';
@@ -61,14 +71,14 @@ export const Navbar = () => {
 
   // Change the config of the navbar based on the current page
   const getConfig = () => {
-    if (pathname.startsWith('/policy/legislation/')) {
-      return politicsConfig;
+    if (pathname.startsWith('/policy/legislation/lobbying')) {
+      return lobbyingConfig;
     } else if (pathname.startsWith('/info/')) {
       return infoConfig;
     } else if (pathname.startsWith('/finance/')) {
       return financeConfig;
     } else if (pathname.startsWith('/policy/')) {
-      return legislationConfig;
+      return politicsConfig;
     } else {
         return siteConfig;
     }
@@ -102,7 +112,6 @@ export const Navbar = () => {
     />
   );
 
-  // Render the dropdown menu for items
   const renderDropdownMenu = (items: DropdownNavItem[], ariaLabel: string) => (
     <DropdownMenu
       aria-label={ariaLabel}
@@ -111,7 +120,8 @@ export const Navbar = () => {
     >
       {items.map((item) => (
         <DropdownItem
-          key={item.href}
+          key={item.label}
+          href={item.href}
           startContent={item.icon ? <RenderIcon name={item.icon} /> : null}
         >
           {item.dropdown ? (
@@ -134,7 +144,8 @@ export const Navbar = () => {
               >
                 {item.dropdown?.map(subItem => (
                   <DropdownItem
-                    key={subItem.href}
+                    key={subItem.label}
+                    href={subItem.href}
                     startContent={subItem.icon ? <RenderIcon name={subItem.icon} /> : null}
                   >
                     {subItem.dropdown ? (
@@ -174,47 +185,49 @@ export const Navbar = () => {
   };
   
 
-  // Custom styles for the circular mask that moves with the cursor
+  // A circular mask that moves over the logo to resemble a spotlight (needs work)
   const maskStyle: React.CSSProperties = {
     clipPath: `circle(100px at ${mousePosition.x}px ${mousePosition.y}px)`,
     transition: 'clip-path 0.3s ease-in-out',
-    position: 'absolute', // Use 'absolute', 'relative', etc. instead of a generic string
+    position: 'absolute',
     zIndex: 1,
   };
   
-  // Render each navigation item
   const renderNavItem = (item: DropdownNavItem) => {
     // const router = useRouter();
     return (
+      // <Tooltip content={item.label}>
       <Dropdown key={item.href}>
         <NavbarItem className="flex-shrink-0">
           <DropdownTrigger>
-            <Button
-              variant="light"
-              className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent"
-              radius="sm"
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                minWidth: '0', // Allows button to shrink below its default width
-                flexShrink: 1, // Ensures button can shrink if needed
-                gap: '0', // Removes gap between icon and text
-                padding: '0'
-              }}
-              onPress={() => {if (!item.dropdown) { router.push(item.href)}}}
-            >
-              {item.icon && <RenderIcon name={item.icon} />}
-              <span className="hidden sm:inline truncate ml-1">{item.label}</span>
-            </Button>
+              <Button
+                variant="light"
+                className="flex items-center flex-shrink-0 p-0 bg-transparent data-[hover=true]:bg-transparent"
+                radius="sm"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  minWidth: '0',
+                  flexShrink: 1, 
+                  gap: '1',
+                  padding: '0'
+                }}
+                onPress={() => {if (!item.dropdown) { router.push(item.href)}}}
+              >
+                
+                {item.icon && <RenderIcon name={item.icon} />}
+              
+                <span className="hidden sm:inline truncate ml-1">{item.label}</span>
+              </Button>
           </DropdownTrigger>
         </NavbarItem>
         {item.dropdown && renderDropdownMenu(item.dropdown, `${item.label} Menu`)}
       </Dropdown>
+      // </Tooltip>
     );
   };
 
     const renderMenuItem = (item: DropdownNavItem) => {
-      // const router = useRouter();
       return (
         <Dropdown key={item.href}>
           <NavbarItem className="flex-shrink-0">
@@ -268,32 +281,26 @@ export const Navbar = () => {
         }}
       >
         <ScrollShadow orientation="horizontal" className="w-full max-w-full pl-2 max-h-[1300px]">
-
           <NavbarContent className="basis-1/5 sm:basis-full flex justify-start flex-shrink-0">
-            {/* <div onMouseMove={handleMouseMove} style={{ overflow: 'hidden' }}> */}
-              {/* <div style={maskStyle}> */}
-                <NextLink
-                  className="flex justify-start items-center gap-1 mr-2"
-                  href="/"
-                  passHref
-                >
-                  <Link>
-                    <h1 className={title()} style={{ margin: 0, padding: 0 }}>
-                      Spotlight
-                    </h1>
-                    {/* <h1 className={title({ color: 'pastelYellowOrange' }) }>
-                      light
-                    </h1> */}
-                  </Link>
-                </NextLink>
-              {/* </div> */}
-            {/* </div> */}
-              <ul className="flex gap-4 justify-start ml-4 whitespace-nowrap overflow-x-auto max-w-[1430px] sm:max-w-none overflow-y-hidden">
-                {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
-              </ul>
+            <NextLink
+              className="flex justify-start items-center gap-1"
+              href="/"
+              passHref
+            >
+              <Link>
+                <Spotlight />
+                <h1 className={`${title({ color: 'pastelYellowOrange' })} pl-2 hidden sm:inline-block`}>
+                  Spotlight
+                </h1>
+              </Link>
+            </NextLink>
 
+            <ul className="flex gap-3 justify-start ml-2 whitespace-nowrap overflow-x-auto max-w-[1430px] sm:max-w-none overflow-y-hidden">
+              {config.navItems.map((item) => renderNavItem(item as DropdownNavItem))}
+            </ul>
           </NavbarContent>
         </ScrollShadow>
+        {/* Uses next router path stacking to navigate forward and backward -- currently replaced by custom 'path-aware' dropdown back menu as a navitem}
         {/* <NavbarContent className="basis-1" justify="end">
           <Button
             variant="light"
@@ -331,7 +338,9 @@ export const Navbar = () => {
         </NavbarMenu>
       </NextUINavbar>
       <ScrollShadow orientation="horizontal" className="w-full max-w-full pl-2 max-h-[1300px]">
-        <SubNavbar activeNavItem={activeNavItem} />
+        <span className="pl-2">
+          <SubNavbar  activeNavItem={activeNavItem} />
+        </span>
       </ScrollShadow>
     </>
   );

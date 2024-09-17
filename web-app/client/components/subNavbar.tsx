@@ -30,7 +30,7 @@ export const SubNavbar = ({ activeNavItem }: SubNavbarProps) => {
   }
 
   return (
-    <div className="flex justify-center w-full">
+    <div className="overflow-x-auto justify-center w-full">
       <Tabs 
         aria-label="Options" 
         color="primary" 
