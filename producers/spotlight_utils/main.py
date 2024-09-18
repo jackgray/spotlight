@@ -38,7 +38,7 @@ async def get_token(url: str) -> str:
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9",
         "Connection": "keep-alive",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15"
+        "User-Agent": "curl/7.78.0"
     }
 
     async with httpx.AsyncClient() as client:
@@ -187,7 +187,7 @@ async def fetch_and_load_csv(
                     # KAFKA PRODUCER FUNCTION  WILL GO HERE
                     print(chunk)
                     if transform_func:
-                        print("Transforming...\n"
+                        print("Transforming...\n")
                         chunk = transform_func(chunk, url)
                     print("Loading chunk into db: ", chunk)
 
@@ -269,7 +269,7 @@ async def load_chunk_to_clickhouse(df: pd.DataFrame, table_name: str, ch_setting
 """ ***************************************** """
 def generate_datestrings(start_date: Required[str] = 'yesterday', end_date: Required[str] = 'today') -> Required[str]:
     '''
-    Generates list of datestrings to supply to URL build parameters for API call
+    Generates list of (weekday-only) datestrings to supply to URL build parameters for API call
 
     Dates must be formatted as %Y%m%d aka YYYYmmdd; 'yesterday' and 'today' will generate the datestring based on datetime.now
     '''
